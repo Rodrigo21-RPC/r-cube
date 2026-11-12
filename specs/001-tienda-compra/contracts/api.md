@@ -2,7 +2,7 @@
 
 Base `/api`. JSON en UTF-8. Montos en céntimos. Errores con la forma
 `{ "error": { "code": "STRING", "message": "texto para la persona", "fields"?: { "campo": "mensaje" } } }`.
-El cliente web usa `hc<AppType>` de Hono (tipos compartidos). Sesión por cookie de Better Auth.
+El cliente web usa `apiFetch<T>` con los tipos de `src/shared/types.ts` (research R2b). Sesión por cookie de Better Auth.
 
 | Código | Cuándo |
 |---|---|
@@ -45,10 +45,12 @@ availability, stock }`.
 
 ## Carrito
 
-- `POST /api/cart/quote` (público) `{ items: [{ productId, quantity }] }` →
+- `POST /api/cart/quote` (público) `{ items: [{ productId, quantity, seenPriceCents? }] }` →
   `{ lines: [{ productId, name, imageUrl, unitPriceCents, quantity, maxQuantity, lineTotalCents,
   available }], warnings: [{ productId, type: 'price_changed'|'stock_reduced'|'unavailable', … }],
   totals: { subtotalCents, taxableBaseCents, igvCents, totalCents } }` (HU-11, HU-13).
+  `seenPriceCents` es el último precio que vio el visitante: solo genera el aviso `price_changed`
+  y nunca se usa para calcular montos (RNF-07). El carrito de la cuenta lo guarda en `cart_item`.
 - `GET /api/cart` (cliente) → misma forma que `quote` con el carrito de la cuenta.
 - `PUT /api/cart/items/:productId` (cliente) `{ quantity }`; `DELETE /api/cart/items/:productId`.
 - `POST /api/cart/merge` (cliente) `{ items }` → carrito fusionado (HU-12).
@@ -77,7 +79,8 @@ availability, stock }`.
 
 ## Mis pedidos (solo el dueño)
 
-- `GET /api/orders?page` → `{ items: [{ number, createdAt, totalCents, status }], total }` (HU-22).
+- `GET /api/orders?page` → `{ items: [{ number, createdAt, totalCents, status }], total, page,
+  pageSize: 10 }` (HU-22).
 - `GET /api/orders/:number` → `OrderDetail` con líneas, montos, pago (`cardLast4`), entrega y
   `events` (HU-23); 404 si no es suyo.
 - `POST /api/orders/:number/cancel` `{ reason: 'no_lo_necesito'|'me_equivoque'|'otra_opcion'|'otro',

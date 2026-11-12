@@ -34,8 +34,8 @@ Un solo paquete en la raíz: `src/shared`, `src/db`, `src/worker`, `src/web`, `t
   las versiones fijadas en research.md R1: hono, better-auth, drizzle-orm, pg, zod, @hono/zod-validator,
   react, react-dom, react-router, @tanstack/react-query, react-hook-form, @hookform/resolvers, zustand;
   dev: typescript@~6.0, vite@8, @vitejs/plugin-react, @cloudflare/vite-plugin, wrangler,
-  @cloudflare/workers-types, drizzle-kit, tsx, vitest@~4.1, @cloudflare/vitest-pool-workers,
-  @playwright/test, tailwindcss@4, @tailwindcss/vite, eslint, typescript-eslint, prettier, @types/pg,
+  @cloudflare/workers-types, drizzle-kit, tsx, vitest@~4.1, @cloudflare/vitest-plugin, postgres (postgres.js),
+  @playwright/test, tailwindcss@4, @tailwindcss/vite, eslint, typescript-eslint, prettier,
   @types/react, @types/react-dom (RNF-08)
 - [X] T002 Crear `tsconfig.json` estricto (`strict`, `noUncheckedIndexedAccess`, `verbatimModuleSyntax`)
   con alias `@shared/*`, `@db/*`, `@worker/*`, `@web/*`, y `.nvmrc` con `24` (RNF-08)
@@ -54,7 +54,7 @@ Un solo paquete en la raíz: `src/shared`, `src/db`, `src/worker`, `src/web`, `t
 - [X] T007 Crear `vite.config.ts` con `@vitejs/plugin-react`, `@tailwindcss/vite` y
   `cloudflare()` de `@cloudflare/vite-plugin`, más los alias de T002 (RNF-08, RNF-10)
 - [X] T008 Crear `vitest.config.ts` con dos proyectos: `unit` (entorno Node, `tests/unit/**`) y `api`
-  (`defineWorkersProject` de `@cloudflare/vitest-pool-workers`, `tests/api/**`, wrangler.jsonc,
+  (`cloudflareTest` de `@cloudflare/vitest-plugin`, `tests/api/**`, wrangler.jsonc,
   ejecución en serie, `BETTER_AUTH_SECRET` de prueba como binding) (R10, RNF-08)
 - [X] T009 Crear `playwright.config.ts`: `webServer` con `npm run build && npm run preview` en el
   puerto 4173, `baseURL`, proyectos `claro` (`colorScheme: 'light'`) y `oscuro` (`colorScheme:
@@ -103,7 +103,7 @@ Un solo paquete en la raíz: `src/shared`, `src/db`, `src/worker`, `src/web`, `t
 - [X] T019 Crear `drizzle.config.ts` (lee `DATABASE_URL`) y generar la primera migración en
   `drizzle/` con `npm run db:generate`; comprobar que `npm run db:migrate` la aplica sobre la base vacía
   de Docker (RNF-07, RNF-10)
-- [X] T020 Implementar `src/db/client.ts`: `createDb(env)` que abre un `pg.Client` con
+- [X] T020 Implementar `src/db/client.ts`: `createDb(connectionString)` que abre postgres.js con
   `env.HYPERDRIVE.connectionString`, devuelve la instancia Drizzle y una función `close` para
   `ctx.waitUntil` (RNF-10, research R2)
 - [X] T021 Crear `tests/api/helpers.ts`: reinicio de tablas (TRUNCATE … RESTART IDENTITY CASCADE),
@@ -124,8 +124,7 @@ Un solo paquete en la raíz: `src/shared`, `src/db`, `src/worker`, `src/web`, `t
   `{ ok: true }` dentro de workerd tras `select 1` en la base de Docker (valida R2 y R10 antes de
   seguir); debe fallar
 - [X] T025 Crear `src/worker/index.ts`: app Hono con `GET /api/health`, `/api/auth/*` montado sobre
-  Better Auth, rutas vacías de catálogo, cuenta, carrito, checkout y pedidos, `export type AppType`,
-  `export default { fetch, scheduled }`, hasta pasar T024 (RNF-10)
+  Better Auth, rutas vacías de catálogo, cuenta, carrito, checkout y pedidos, `export default { fetch, scheduled }`, hasta pasar T024 (RNF-10)
 
 ### Web base
 
@@ -142,7 +141,7 @@ Un solo paquete en la raíz: `src/shared`, `src/db`, `src/worker`, `src/web`, `t
 - [X] T029 Crear `src/web/main.tsx`, `src/web/router.tsx` (rutas `/`, `/catalogo`, `/producto/:slug`,
   `/carrito`, `/checkout`, `/pedido/:number/confirmacion`, `/ingresar`, `/registro`, `/cuenta`,
   `/pedidos`, `/pedidos/:number`, `*`) con carga diferida por ruta, y `src/web/api.ts` con
-  `hc<AppType>` y `QueryClient` (RNF-02, RNF-04)
+  `apiFetch<T>` tipado con `@shared/types` y `QueryClient` (RNF-02, RNF-04)
 - [X] T030 [P] Crear `src/web/components/States.tsx` (carga con esqueletos, vacío con acción, error
   con «Reintentar») y `src/web/components/Price.tsx` (usa `formatPEN`, precio anterior tachado)
   (RNF-02, principio IX)
@@ -408,8 +407,8 @@ descontado
 
 ### Implementation for User Story 6
 
-- [ ] T075 [US6] Implementar `GET /home` en `src/worker/routes/catalog.ts` hasta pasar T074 (HU-06)
-- [ ] T076 [US6] Crear `src/web/pages/Home.tsx` con las 4 secciones (carriles desplazables en móvil,
+- [X] T075 [US6] Implementar `GET /home` en `src/worker/routes/catalog.ts` hasta pasar T074 (HU-06)
+- [X] T076 [US6] Crear `src/web/pages/Home.tsx` con las 4 secciones (carriles desplazables en móvil,
   rejilla en escritorio), tarjetas al detalle y categorías al catálogo filtrado (HU-06)
 
 **Checkpoint**: todas las historias de la 001 funcionan
@@ -418,7 +417,7 @@ descontado
 
 ## Phase 10: Polish & Cross-Cutting Concerns
 
-- [ ] T077 [P] Crear `public/_headers` con CSP (`default-src 'self'`, `img-src 'self' data:`, hash del
+- [X] T077 [P] Crear `public/_headers` con CSP (`default-src 'self'`, `img-src 'self' data:`, hash del
   script de tema en `script-src`, `frame-ancestors 'none'`), `X-Content-Type-Options`,
   `Referrer-Policy` y `Permissions-Policy` (RNF-05)
 - [ ] T078 [P] Crear `src/web/pages/NotFound.tsx` y revisar que todas las páginas tengan estados de

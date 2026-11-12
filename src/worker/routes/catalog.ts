@@ -5,7 +5,7 @@ import { and, asc, count, desc, eq, gte, ilike, inArray, lte, max, min, gt, sql,
 import { schema } from "@db/client";
 import type { Db } from "@db/client";
 import { normalizeSearch } from "@shared/search";
-import type { Availability, CatalogPage, Facets, ProductCard, ProductDetail } from "@shared/types";
+import type { Availability, CatalogPage, Facets, HomeData, ProductCard, ProductDetail } from "@shared/types";
 import { AppError, validationHook, type AppEnv } from "../middleware";
 
 const { product, brand, category, productImage } = schema;
@@ -80,7 +80,46 @@ const listQuery = z.object({
 const plainName = sql`translate(lower(${product.name}), 'áéíóúüñ', 'aeiouun')`;
 const plainBrand = sql`translate(lower(${brand.name}), 'áéíóúüñ', 'aeiouun')`;
 
+const HOME_SIZE = 8;
+
+const soldUnits = sql<number>`coalesce((select sum(oi.quantity) from order_item oi
+  join orders o on o.id = oi.order_id where oi.product_id = ${product.id} and o.status <> 'cancelled'), 0)`;
+
 export const catalogRoutes = new Hono<AppEnv>()
+  /** Portada: categorías, ofertas, más vendidos y novedades (HU-06). */
+  .get("/home", async (c) => {
+    const db = c.get("db");
+    const active = and(eq(product.active, true), eq(brand.active, true), eq(category.active, true));
+    const [categories, offers, bestSellers, newest] = await Promise.all([
+      db
+        .select({
+          slug: category.slug,
+          name: category.name,
+          imageUrl: sql<string | null>`(select pi.url from product_image pi join product p on p.id = pi.product_id
+            where p.category_id = "category"."id" and p.active and pi.url <> ${GENERIC_IMAGE}
+            order by p.created_at desc, pi.position limit 1)`,
+        })
+        .from(category)
+        .where(eq(category.active, true))
+        .orderBy(asc(category.sortOrder)),
+      cardsQuery(db)
+        .where(and(active, gt(product.compareAtCents, product.priceCents)))
+        .orderBy(desc(sql`(${product.compareAtCents} - ${product.priceCents})::float / ${product.compareAtCents}`), asc(product.id))
+        .limit(HOME_SIZE),
+      cardsQuery(db)
+        .where(and(active, gt(soldUnits, 0)))
+        .orderBy(desc(soldUnits), desc(product.createdAt), asc(product.id))
+        .limit(HOME_SIZE),
+      cardsQuery(db).where(active).orderBy(desc(product.createdAt), asc(product.id)).limit(HOME_SIZE),
+    ]);
+    const body: HomeData = {
+      categories: categories.map((cat) => ({ ...cat, imageUrl: cat.imageUrl ?? GENERIC_IMAGE })),
+      offers: offers.map(toCard),
+      bestSellers: bestSellers.map(toCard),
+      newest: newest.map(toCard),
+    };
+    return c.json(body);
+  })
   .get("/products", zValidator("query", listQuery, validationHook), async (c) => {
     const db = c.get("db");
     const f = c.req.valid("query");

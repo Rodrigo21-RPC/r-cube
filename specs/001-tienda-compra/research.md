@@ -4,11 +4,11 @@ Fecha: 2026-11-12. Versiones consultadas en npm ese día.
 
 ## R1. Versiones y compatibilidad
 
-- **Decision**: TypeScript 6.0.x; Vitest 4.1.x; `@cloudflare/vitest-pool-workers` 0.23; Vite 8;
+- **Decision**: TypeScript 6.0.x; Vitest 4.1.x; `@cloudflare/vitest-plugin` 1.8 (antes `vitest-pool-workers`); Vite 8;
   `@cloudflare/vite-plugin` 1.69; Wrangler 4.161; Hono 4.13; Better Auth 1.7; Drizzle ORM 0.45 y
-  drizzle-kit 0.31; `pg` 8.23; React 19; React Router 8 (modo librería, SPA); TanStack Query 5;
+  drizzle-kit 0.31; `postgres` 4.1 (ver R2); React 19; React Router 8 (modo librería, SPA); TanStack Query 5;
   Tailwind CSS 4; Zustand 5; Zod 4; React Hook Form 7; Playwright 1.65; ESLint 10.
-- **Rationale**: `vitest-pool-workers` pide `vitest ^4.1` (no la 5) y `typescript-eslint` pide
+- **Rationale**: el plugin de pruebas de Workers pide `vitest ^4.1` (no la 5) y `typescript-eslint` pide
   `typescript <6.1` (no la 7). El plugin de Vite acepta Vite 8 con Wrangler ≥4.160.
 - **Alternatives considered**: TypeScript 7 y Vitest 5 (más nuevos, pero rompen esas dos piezas).
 
@@ -115,7 +115,7 @@ Fecha: 2026-11-12. Versiones consultadas en npm ese día.
 - **Decision**:
   - `tests/unit`: Vitest en Node para reglas puras (dinero, IGV, Luhn, transiciones, mensaje de
     WhatsApp, normalización de búsqueda).
-  - `tests/api`: Vitest con `@cloudflare/vitest-pool-workers` y la app Hono real dentro de workerd;
+  - `tests/api`: Vitest con `@cloudflare/vitest-plugin` y la app Hono real dentro de workerd;
     Hyperdrive con `localConnectionString` hacia Postgres 16 en Docker (puerto 54329). Cada archivo
     reinicia los datos con un seed mínimo y se ejecuta en serie.
   - `e2e`: Playwright contra `vite build` y `vite preview` (que ejecuta el Worker en workerd), con la

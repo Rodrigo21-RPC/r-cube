@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import type { Facets } from "@shared/types";
 import { Button } from "./ui/button";
 import { Input } from "./ui/form";
@@ -21,18 +21,6 @@ export function Filters({
   values: FilterValues;
   onChange: (next: Partial<FilterValues>) => void;
 }) {
-  const [min, setMin] = useState(values.min ?? "");
-  const [max, setMax] = useState(values.max ?? "");
-  useEffect(() => {
-    setMin(values.min ?? "");
-    setMax(values.max ?? "");
-  }, [values.min, values.max]);
-
-  function applyPrice(e: FormEvent) {
-    e.preventDefault();
-    onChange({ min: min || undefined, max: max || undefined });
-  }
-
   return (
     <div className="flex flex-col gap-6">
       <fieldset>
@@ -76,19 +64,7 @@ export function Filters({
         </div>
       </fieldset>
 
-      <form onSubmit={applyPrice} className="flex flex-col gap-2">
-        <p className="text-sm font-semibold" id="precio-label">
-          Precio (S/)
-        </p>
-        <div className="flex items-center gap-2" role="group" aria-labelledby="precio-label">
-          <Input inputMode="numeric" pattern="[0-9]*" aria-label="Precio mínimo en soles" placeholder="Mín." value={min} onChange={(e) => setMin(e.target.value.replace(/\D/g, ""))} />
-          <span aria-hidden>–</span>
-          <Input inputMode="numeric" pattern="[0-9]*" aria-label="Precio máximo en soles" placeholder="Máx." value={max} onChange={(e) => setMax(e.target.value.replace(/\D/g, ""))} />
-        </div>
-        <Button type="submit" variant="secondary" size="sm">
-          Aplicar precio
-        </Button>
-      </form>
+      <PriceForm key={`${values.min ?? ""}-${values.max ?? ""}`} min={values.min} max={values.max} onApply={onChange} />
 
       <label className="flex min-h-9 cursor-pointer items-center gap-2 text-[15px]">
         <input
@@ -100,5 +76,30 @@ export function Filters({
         Solo disponibles
       </label>
     </div>
+  );
+}
+
+/** Rango de precio; se remonta con una key cuando cambian los filtros de la URL. */
+function PriceForm({ min: initialMin, max: initialMax, onApply }: { min?: string; max?: string; onApply: (v: Partial<FilterValues>) => void }) {
+  const [min, setMin] = useState(initialMin ?? "");
+  const [max, setMax] = useState(initialMax ?? "");
+  function applyPrice(e: FormEvent) {
+    e.preventDefault();
+    onApply({ min: min || undefined, max: max || undefined });
+  }
+  return (
+    <form onSubmit={applyPrice} className="flex flex-col gap-2">
+      <p className="text-sm font-semibold" id="precio-label">
+        Precio (S/)
+      </p>
+      <div className="flex items-center gap-2" role="group" aria-labelledby="precio-label">
+        <Input inputMode="numeric" pattern="[0-9]*" aria-label="Precio mínimo en soles" placeholder="Mín." value={min} onChange={(e) => setMin(e.target.value.replace(/\D/g, ""))} />
+        <span aria-hidden>–</span>
+        <Input inputMode="numeric" pattern="[0-9]*" aria-label="Precio máximo en soles" placeholder="Máx." value={max} onChange={(e) => setMax(e.target.value.replace(/\D/g, ""))} />
+      </div>
+      <Button type="submit" variant="secondary" size="sm">
+        Aplicar precio
+      </Button>
+    </form>
   );
 }

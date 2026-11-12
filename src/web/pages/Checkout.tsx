@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -36,22 +36,6 @@ export default function Checkout() {
     enabled: Boolean(session.data && session.data.role === "cliente"),
   });
 
-  const [method, setMethod] = useState<"pickup" | "delivery">("delivery");
-  const [addr, setAddr] = useState({ zoneId: "", name: "", phone: "", address: "", district: "", reference: "" });
-  const [pay, setPay] = useState<PaymentMethodCode | null>(null);
-  const [card, setCard] = useState({ number: "", expiry: "", cvv: "" });
-  const [operationCode, setOperationCode] = useState("");
-  const [errors, setErrors] = useState<Errors>({});
-  const [formError, setFormError] = useState<string | null>(null);
-  const [sending, setSending] = useState(false);
-
-  useEffect(() => {
-    const o = options.data;
-    if (!o) return;
-    setAddr((a) => ({ ...o.address, zoneId: a.zoneId || o.zones[0]?.id || "" }));
-    setPay((p) => p ?? o.methods[0] ?? null);
-  }, [options.data]);
-
   if (session.isPending) return <LoadingBlock />;
   if (!session.data) return <Navigate to="/ingresar?volver=/checkout" replace />;
   if (session.data.role !== "cliente")
@@ -59,12 +43,32 @@ export default function Checkout() {
   if (options.isPending || cart.quote.isPending) return <LoadingBlock label="Preparando el pago…" />;
   if (options.isError) return <ErrorState message={options.error.message} onRetry={() => options.refetch()} />;
   if (cart.quote.isError) return <ErrorState message={cart.quote.error.message} onRetry={() => cart.quote.refetch()} />;
-
-  const o = options.data;
-  const quote = cart.quote.data;
-  const available = quote.lines.filter((l) => l.available);
-  if (available.length === 0)
+  if (!cart.quote.data.lines.some((l) => l.available))
     return <EmptyState title="Tu carrito está vacío" action={<Button asChild><Link to="/catalogo">Ver catálogo</Link></Button>} />;
+
+  return <CheckoutForm o={options.data} cart={cart} navigate={navigate} />;
+}
+
+/** Formulario del checkout; su estado inicial sale de las opciones ya cargadas. */
+function CheckoutForm({
+  o,
+  cart,
+  navigate,
+}: {
+  o: CheckoutOptions;
+  cart: ReturnType<typeof useCart>;
+  navigate: ReturnType<typeof useNavigate>;
+}) {
+  const [method, setMethod] = useState<"pickup" | "delivery">("delivery");
+  const [addr, setAddr] = useState({ ...o.address, zoneId: o.zones[0]?.id ?? "" });
+  const [pay, setPay] = useState<PaymentMethodCode | null>(o.methods[0] ?? null);
+  const [card, setCard] = useState({ number: "", expiry: "", cvv: "" });
+  const [operationCode, setOperationCode] = useState("");
+  const [errors, setErrors] = useState<Errors>({});
+  const [formError, setFormError] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+
+  const available = cart.quote.data!.lines.filter((l) => l.available);
 
   const zone = o.zones.find((z) => z.id === addr.zoneId);
   const shipping = method === "delivery" ? (zone?.costCents ?? 0) : 0;

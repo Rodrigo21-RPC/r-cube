@@ -7,11 +7,11 @@ WhatsApp). Español de Perú, soles con IGV incluido.
 ## Stack
 - TypeScript estricto. Web: React + Vite, Tailwind CSS, shadcn/ui, React Router, TanStack Query,
   React Hook Form + Zod, Zustand (carrito del visitante). Tema claro y oscuro con variables CSS.
-- API: Hono sobre Cloudflare Workers con cliente tipado (Hono RPC). Un solo Worker sirve la web
+- API: Hono sobre Cloudflare Workers; cliente web tipado con los tipos de `src/shared/types.ts`. Un solo Worker sirve la web
   (static assets) y la API; `@cloudflare/vite-plugin` en desarrollo.
-- Datos: PostgreSQL en Supabase, Drizzle ORM + drizzle-kit (migraciones), Hyperdrive.
+- Datos: PostgreSQL en Supabase, driver postgres.js, Drizzle ORM + drizzle-kit (migraciones), Hyperdrive.
 - Auth: Better Auth con roles `cliente` y `administrador`. Fotos subidas: Cloudflare R2.
-- Pruebas: Vitest (`@cloudflare/vitest-pool-workers` para la API) y Playwright, contra Postgres
+- Pruebas: Vitest (`@cloudflare/vitest-plugin` para la API) y Playwright, contra Postgres
   en Docker. Calidad: ESLint, Prettier, CI en GitHub Actions (Node 24 LTS).
 
 ## Comandos
