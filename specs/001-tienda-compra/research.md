@@ -14,16 +14,30 @@ Fecha: 2026-11-12. Versiones consultadas en npm ese día.
 
 ## R2. Conexión a PostgreSQL desde el Worker
 
-- **Decision**: driver `pg` con `drizzle-orm/node-postgres`, flag `nodejs_compat`, un `Client` nuevo por
-  petición usando `env.HYPERDRIVE.connectionString`, cerrado con `ctx.waitUntil(client.end())`.
-- **Rationale**: es el patrón documentado por Cloudflare para Hyperdrive; Better Auth lista `pg` como
-  dependencia compatible; Drizzle soporta transacciones interactivas con él.
+- **Decision** (revisada en implement, 2026-11-12): driver `postgres` (postgres.js) con
+  `drizzle-orm/postgres-js`, flag `nodejs_compat`, una conexión nueva por petición usando
+  `env.HYPERDRIVE.connectionString`, cerrada con `ctx.waitUntil(sql.end())`.
+- **Rationale**: es uno de los dos drivers que Cloudflare documenta para Hyperdrive; es ESM puro y
+  tiene una entrada `workerd`, así que funciona igual en producción y en las pruebas con
+  `@cloudflare/vitest-plugin`. La primera elección, `pg`, falló en las pruebas: su `require` interno
+  de `pg-cloudflare` resolvía a un módulo vacío dentro del runner («CloudflareSocket is not a
+  constructor»). Drizzle soporta transacciones interactivas con postgres.js.
+- **Nota**: `@cloudflare/vitest-pool-workers` (R1) se renombró a `@cloudflare/vitest-plugin`; se usa
+  el nuevo nombre.
 - **Riesgo y mitigación**: Hyperdrive guarda en caché las consultas de lectura por defecto. Eso puede
   mostrar stock o precios viejos, así que la configuración de Hyperdrive **debe crearse con la caché
   desactivada** (queda en DESPLIEGUE.md). Respaldo si Hyperdrive falla: conectar con el pooler de
   Supabase en modo transacción (puerto 6543) usando la misma variable.
 - **Alternatives considered**: `postgres` (postgres.js), igual de válido pero con menos ejemplos en
   Better Auth; Supabase JS/PostgREST (sin transacciones interactivas, incumple RN-02).
+
+## R2b. Cliente tipado de la web (revisado en implement)
+
+- **Decision**: los tipos de cada respuesta viven en `src/shared/types.ts` y los usan tanto las rutas
+  Hono como el cliente `apiFetch<T>` de la web.
+- **Rationale**: `hc<AppType>` obliga a compilar el código del Worker (tipos del runtime de Workers)
+  junto con la web (tipos del DOM), que chocan en una misma compilación. Los tipos compartidos dan el
+  mismo control en compilación con menos piezas (principio I).
 
 ## R3. Autenticación con Better Auth en Workers
 

@@ -30,39 +30,39 @@ Un solo paquete en la raíz: `src/shared`, `src/db`, `src/worker`, `src/web`, `t
 
 **Purpose**: inicializar el proyecto y la cadena de calidad
 
-- [ ] T001 Crear `package.json` (nombre `r-cube`, `"type": "module"`, `engines.node >=24`) e instalar
+- [X] T001 Crear `package.json` (nombre `r-cube`, `"type": "module"`, `engines.node >=24`) e instalar
   las versiones fijadas en research.md R1: hono, better-auth, drizzle-orm, pg, zod, @hono/zod-validator,
   react, react-dom, react-router, @tanstack/react-query, react-hook-form, @hookform/resolvers, zustand;
   dev: typescript@~6.0, vite@8, @vitejs/plugin-react, @cloudflare/vite-plugin, wrangler,
   @cloudflare/workers-types, drizzle-kit, tsx, vitest@~4.1, @cloudflare/vitest-pool-workers,
   @playwright/test, tailwindcss@4, @tailwindcss/vite, eslint, typescript-eslint, prettier, @types/pg,
   @types/react, @types/react-dom (RNF-08)
-- [ ] T002 Crear `tsconfig.json` estricto (`strict`, `noUncheckedIndexedAccess`, `verbatimModuleSyntax`)
+- [X] T002 Crear `tsconfig.json` estricto (`strict`, `noUncheckedIndexedAccess`, `verbatimModuleSyntax`)
   con alias `@shared/*`, `@db/*`, `@worker/*`, `@web/*`, y `.nvmrc` con `24` (RNF-08)
-- [ ] T003 [P] Configurar `eslint.config.js` (typescript-eslint, reglas de React hooks) y
+- [X] T003 [P] Configurar `eslint.config.js` (typescript-eslint, reglas de React hooks) y
   `.prettierrc.json`, y el script `lint` (RNF-08)
-- [ ] T004 [P] Crear `docker-compose.yml` con `postgres:16` en el puerto `54329`, base `rcube`, usuario
+- [X] T004 [P] Crear `docker-compose.yml` con `postgres:16` en el puerto `54329`, base `rcube`, usuario
   y contraseña locales de desarrollo, y volumen nombrado (RNF-08)
-- [ ] T005 [P] Crear `.env.example` con `DATABASE_URL`, `BETTER_AUTH_SECRET`, `PUBLIC_URL`,
+- [X] T005 [P] Crear `.env.example` con `DATABASE_URL`, `BETTER_AUTH_SECRET`, `PUBLIC_URL`,
   `SEED_ADMIN_PASSWORD`, `SEED_CUSTOMER_PASSWORD` sin valores, y documentar que `.dev.vars` usa los
   mismos nombres (RNF-05, RNF-10)
-- [ ] T006 Crear `wrangler.jsonc`: `name: "r-cube"`, `main: "src/worker/index.ts"`,
+- [X] T006 Crear `wrangler.jsonc`: `name: "r-cube"`, `main: "src/worker/index.ts"`,
   `compatibility_flags: ["nodejs_compat"]`, `assets` con `not_found_handling:
   "single-page-application"` y `run_worker_first: ["/api/*"]`, binding `HYPERDRIVE` con
   `localConnectionString` hacia `postgres://…@localhost:54329/rcube`, binding R2 `FOTOS`
   (`bucket_name: "r-cube-fotos"`), `triggers.crons: ["0 * * * *"]`, `vars.PUBLIC_URL` (RNF-10)
-- [ ] T007 Crear `vite.config.ts` con `@vitejs/plugin-react`, `@tailwindcss/vite` y
+- [X] T007 Crear `vite.config.ts` con `@vitejs/plugin-react`, `@tailwindcss/vite` y
   `cloudflare()` de `@cloudflare/vite-plugin`, más los alias de T002 (RNF-08, RNF-10)
-- [ ] T008 Crear `vitest.config.ts` con dos proyectos: `unit` (entorno Node, `tests/unit/**`) y `api`
+- [X] T008 Crear `vitest.config.ts` con dos proyectos: `unit` (entorno Node, `tests/unit/**`) y `api`
   (`defineWorkersProject` de `@cloudflare/vitest-pool-workers`, `tests/api/**`, wrangler.jsonc,
   ejecución en serie, `BETTER_AUTH_SECRET` de prueba como binding) (R10, RNF-08)
-- [ ] T009 Crear `playwright.config.ts`: `webServer` con `npm run build && npm run preview` en el
+- [X] T009 Crear `playwright.config.ts`: `webServer` con `npm run build && npm run preview` en el
   puerto 4173, `baseURL`, proyectos `claro` (`colorScheme: 'light'`) y `oscuro` (`colorScheme:
   'dark'`) con viewport móvil y de escritorio, reintentos 1 en CI (RNF-08, HU-25)
-- [ ] T010 Definir scripts en `package.json`: `dev`, `build`, `preview`, `typecheck` (`tsc --noEmit`),
+- [X] T010 Definir scripts en `package.json`: `dev`, `build`, `preview`, `typecheck` (`tsc --noEmit`),
   `lint`, `test` (vitest run), `test:api`, `test:e2e`, `check` (typecheck + lint + test),
   `db:generate`, `db:migrate`, `db:seed`, `deploy` (`npm run build && wrangler deploy`) (RNF-08, RNF-10)
-- [ ] T011 [P] Crear `.github/workflows/ci.yml`: Node 24, servicio `postgres:16` en 54329, `npm ci`,
+- [X] T011 [P] Crear `.github/workflows/ci.yml`: Node 24, servicio `postgres:16` en 54329, `npm ci`,
   `npm run db:migrate`, `npm run check`, instalación de navegadores de Playwright, `npm run db:seed` y
   `npm run test:e2e` (RNF-08)
 
@@ -76,93 +76,93 @@ Un solo paquete en la raíz: `src/shared`, `src/db`, `src/worker`, `src/web`, `t
 
 ### Reglas puras (prueba primero)
 
-- [ ] T012 [P] Escribir `tests/unit/money.test.ts` (RN-14, RNF-01): `taxableBase(528800) === 448136`,
+- [X] T012 [P] Escribir `tests/unit/money.test.ts` (RN-14, RNF-01): `taxableBase(528800) === 448136`,
   `igv = total - base`, suma de líneas + envío − descuento (RN-04) y formato `formatPEN(528800) ===
   "S/ 5,288.00"`; debe fallar
-- [ ] T013 [P] Escribir `tests/unit/order-status.test.ts` (REQUISITOS §5, RN-11): todas las
+- [X] T013 [P] Escribir `tests/unit/order-status.test.ts` (REQUISITOS §5, RN-11): todas las
   transiciones válidas e inválidas de data-model.md, incluido `preparing → delivered` solo con `pickup`,
   y `delivered`/`cancelled` finales; debe fallar
-- [ ] T014 Implementar `src/shared/money.ts` (céntimos, `taxableBase`, `igvOf`, `orderTotals`,
+- [X] T014 Implementar `src/shared/money.ts` (céntimos, `taxableBase`, `igvOf`, `orderTotals`,
   `formatPEN` con `Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' })`) hasta pasar T012 (RN-04, RN-14)
-- [ ] T015 Implementar `src/shared/order-status.ts` (`OrderStatus`, etiquetas en español,
+- [X] T015 Implementar `src/shared/order-status.ts` (`OrderStatus`, etiquetas en español,
   `canTransition(from, to, deliveryMethod)`, `CANCELLABLE_BY_CUSTOMER`) hasta pasar T013 (RN-11, HU-24)
-- [ ] T016 [P] Escribir `tests/unit/search.test.ts` (HU-02): `normalizeSearch("Teléfono ÁPPLE") ===
+- [X] T016 [P] Escribir `tests/unit/search.test.ts` (HU-02): `normalizeSearch("Teléfono ÁPPLE") ===
   "telefono apple"` y `buildSearchText` une nombre, marca y descripción normalizados; debe fallar
-- [ ] T017 Implementar `src/shared/search.ts` (`normalizeSearch`, `buildSearchText`) hasta pasar T016
+- [X] T017 Implementar `src/shared/search.ts` (`normalizeSearch`, `buildSearchText`) hasta pasar T016
   (HU-02); lo usan el seed y el catálogo
 
 ### Datos
 
-- [ ] T018 Definir el esquema Drizzle en `src/db/schema.ts` según data-model.md: tablas de Better Auth
+- [X] T018 Definir el esquema Drizzle en `src/db/schema.ts` según data-model.md: tablas de Better Auth
   con los campos extra de `user` (`role` `cliente|administrador` default `cliente`, `phone`,
   `address_line`, `district`, `address_reference`, `failed_login_count` default 0, `locked_until`,
   `blocked` default false), `category`, `brand`, `product` (`price_cents > 0`, `stock >= 0` con CHECK,
   `compare_at_cents` null, `specs` jsonb, `search_text`), `product_image`, `cart_item` (único
   `(user_id, product_id)`), `orders`, `order_item`, `payment`, `order_event`, `delivery_zone`,
   `store_settings`, la secuencia `order_number_seq` y los índices listados (RNF-07)
-- [ ] T019 Crear `drizzle.config.ts` (lee `DATABASE_URL`) y generar la primera migración en
+- [X] T019 Crear `drizzle.config.ts` (lee `DATABASE_URL`) y generar la primera migración en
   `drizzle/` con `npm run db:generate`; comprobar que `npm run db:migrate` la aplica sobre la base vacía
   de Docker (RNF-07, RNF-10)
-- [ ] T020 Implementar `src/db/client.ts`: `createDb(env)` que abre un `pg.Client` con
+- [X] T020 Implementar `src/db/client.ts`: `createDb(env)` que abre un `pg.Client` con
   `env.HYPERDRIVE.connectionString`, devuelve la instancia Drizzle y una función `close` para
   `ctx.waitUntil` (RNF-10, research R2)
-- [ ] T021 Crear `tests/api/helpers.ts`: reinicio de tablas (TRUNCATE … RESTART IDENTITY CASCADE),
+- [X] T021 Crear `tests/api/helpers.ts`: reinicio de tablas (TRUNCATE … RESTART IDENTITY CASCADE),
   seed mínimo de prueba (2 categorías, 2 marcas, productos con stock 0, 3 y 10, 1 inactivo, 1 zona,
   configuración con los 4 métodos) y creación de clientes con sesión para las pruebas (RNF-08, research R10)
 
 ### API base
 
-- [ ] T022 Implementar `src/worker/middleware.ts`: manejador de errores con la forma
+- [X] T022 Implementar `src/worker/middleware.ts`: manejador de errores con la forma
   `{ error: { code, message, fields? } }` de contracts/api.md, `secureHeaders()`, middleware de
   conexión por petición (T020) y `requireCustomer` (401 sin sesión, 403 si el rol no es `cliente`)
   (RNF-05)
-- [ ] T023 Implementar `src/worker/auth.ts`: Better Auth con adaptador Drizzle, `emailAndPassword`
+- [X] T023 Implementar `src/worker/auth.ts`: Better Auth con adaptador Drizzle, `emailAndPassword`
   (mínimo 8 caracteres), sesión de 7 días, cookies HttpOnly/Secure/SameSite=Lax, campos extra `role`
   y `phone`, `rateLimit` con `storage: "database"`, y hash de contraseña PBKDF2-SHA256 con WebCrypto y
   sal aleatoria (R3, RNF-05)
-- [ ] T024 [P] Escribir `tests/api/smoke.test.ts` (RNF-10): `GET /api/health` responde 200
+- [X] T024 [P] Escribir `tests/api/smoke.test.ts` (RNF-10): `GET /api/health` responde 200
   `{ ok: true }` dentro de workerd tras `select 1` en la base de Docker (valida R2 y R10 antes de
   seguir); debe fallar
-- [ ] T025 Crear `src/worker/index.ts`: app Hono con `GET /api/health`, `/api/auth/*` montado sobre
+- [X] T025 Crear `src/worker/index.ts`: app Hono con `GET /api/health`, `/api/auth/*` montado sobre
   Better Auth, rutas vacías de catálogo, cuenta, carrito, checkout y pedidos, `export type AppType`,
   `export default { fetch, scheduled }`, hasta pasar T024 (RNF-10)
 
 ### Web base
 
-- [ ] T026 Crear `index.html` con el script en línea de tema (lee `localStorage.tema` o
+- [X] T026 Crear `index.html` con el script en línea de tema (lee `localStorage.tema` o
   `prefers-color-scheme` y pone la clase `dark` en `<html>` antes de pintar) y la raíz de React (HU-25)
-- [ ] T027 Crear `src/web/styles.css` con Tailwind 4, `@custom-variant dark`, tokens de color como
+- [X] T027 Crear `src/web/styles.css` con Tailwind 4, `@custom-variant dark`, tokens de color como
   variables CSS en `:root` (colores de `docs/diseno/kallpa-DESIGN-comprador.md`: canvas #FFFFFF,
   surface #F5F5F7, texto #1D1D1F y #6E6E73, acento #0071E3) y en `.dark` (fondo #0B0B0F, tarjetas
   #17171C, bordes #2A2A31, texto #F5F5F7 y #A1A1AA, mismo acento), fuente Inter y radios del diseño
   (principio X, RNF-02)
-- [ ] T028 Inicializar shadcn/ui (button, input, label, select, checkbox, radio-group, dialog, sheet,
+- [X] T028 Inicializar shadcn/ui (button, input, label, select, checkbox, radio-group, dialog, sheet,
   badge, skeleton, toast/sonner, pagination) en `src/web/components/ui/` usando los tokens de T027
   (RNF-02, RNF-03)
-- [ ] T029 Crear `src/web/main.tsx`, `src/web/router.tsx` (rutas `/`, `/catalogo`, `/producto/:slug`,
+- [X] T029 Crear `src/web/main.tsx`, `src/web/router.tsx` (rutas `/`, `/catalogo`, `/producto/:slug`,
   `/carrito`, `/checkout`, `/pedido/:number/confirmacion`, `/ingresar`, `/registro`, `/cuenta`,
   `/pedidos`, `/pedidos/:number`, `*`) con carga diferida por ruta, y `src/web/api.ts` con
   `hc<AppType>` y `QueryClient` (RNF-02, RNF-04)
-- [ ] T030 [P] Crear `src/web/components/States.tsx` (carga con esqueletos, vacío con acción, error
+- [X] T030 [P] Crear `src/web/components/States.tsx` (carga con esqueletos, vacío con acción, error
   con «Reintentar») y `src/web/components/Price.tsx` (usa `formatPEN`, precio anterior tachado)
   (RNF-02, principio IX)
-- [ ] T031 Crear `src/web/components/Layout.tsx` y `Header.tsx` con el logo R Cube
+- [X] T031 Crear `src/web/components/Layout.tsx` y `Header.tsx` con el logo R Cube
   (`public/img/logo.png` copiado de `docs/fotos/r-cube-logo-oficial.png`), buscador, enlace a cuenta,
   icono de carrito con lugar para el contador y lugar para el interruptor de tema; navegación usable
   con teclado y foco visible (RNF-03)
 
 ### Datos de demostración
 
-- [ ] T032 Copiar las fotos de `docs/fotos/` a `public/img/productos/` y crear `public/img/generico.svg`
+- [X] T032 Copiar las fotos de `docs/fotos/` a `public/img/productos/` y crear `public/img/generico.svg`
   (imagen genérica para tablets y productos sin foto) (REQUISITOS §6)
-- [ ] T033 Implementar `src/db/seed.ts` (repetible: borra y vuelve a crear): 4 categorías (Celulares,
+- [X] T033 Implementar `src/db/seed.ts` (repetible: borra y vuelve a crear): 4 categorías (Celulares,
   Laptops, Tablets, Accesorios y repuestos), 6 marcas o más, al menos 24 productos activos con sus
   fotos, specs y `search_text`, al menos 1 inactivo, algunos con `compare_at_cents` mayor que el
   precio, stock 0 y de 1 a 5 en algunos, 1 administrador y 5 clientes (contraseñas desde
   `SEED_ADMIN_PASSWORD` y `SEED_CUSTOMER_PASSWORD`), 8 pedidos en distintos estados con líneas, pagos
   y eventos coherentes, 3 zonas de delivery, configuración de la tienda con los 4 métodos activos;
   ajusta `order_number_seq` al último número (FR-035, FR-036)
-- [ ] T034 Escribir `tests/api/seed.test.ts` (FR-035, FR-036): tras correr el seed hay ≥ 24 productos
+- [X] T034 Escribir `tests/api/seed.test.ts` (FR-035, FR-036): tras correr el seed hay ≥ 24 productos
   activos, ≥ 1 inactivo, 4 categorías con esos nombres, ≥ 6 marcas, 1 administrador, 5 clientes, 8
   pedidos en al menos 4 estados distintos, 3 zonas, configuración con los 4 métodos, productos con
   stock 0, de 1 a 5 y con precio anterior; y correrlo dos veces da el mismo resultado

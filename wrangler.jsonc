@@ -1,0 +1,37 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "r-cube",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist/client",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      // Reemplazar por el ID real al crear Hyperdrive (ver DESPLIEGUE.md). Caché desactivada.
+      "id": "00000000000000000000000000000000",
+      "localConnectionString": "postgres://rcube:rcube_local@127.0.0.1:54329/rcube"
+    }
+  ],
+  "r2_buckets": [
+    {
+      // Fotos que sube el administrador (feature 002)
+      "binding": "FOTOS",
+      "bucket_name": "r-cube-fotos"
+    }
+  ],
+  "triggers": {
+    // Vencimiento de pedidos pendientes a las 24 h (RN-12)
+    "crons": ["0 * * * *"]
+  },
+  "vars": {
+    "PUBLIC_URL": "http://localhost:5173"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

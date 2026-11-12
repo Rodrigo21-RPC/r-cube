@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: rcube
+          POSTGRES_USER: rcube
+          POSTGRES_PASSWORD: rcube_local
+        ports:
+          - 54329:5432
+        options: >-
+          --health-cmd "pg_isready -U rcube -d rcube"
+          --health-interval 2s --health-timeout 3s --health-retries 20
+    env:
+      DATABASE_URL: postgres://rcube:rcube_local@localhost:54329/rcube
+      BETTER_AUTH_SECRET: secreto-de-ci-de-al-menos-32-caracteres-xx
+      PUBLIC_URL: http://localhost:4173
+      SEED_ADMIN_PASSWORD: admin-ci-12345
+      SEED_CUSTOMER_PASSWORD: cliente-ci-12345
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run db:migrate
+      - run: npm run check
+      - run: npx playwright install --with-deps chromium
+      - name: Variables del Worker local
+        run: |
+          printf 'BETTER_AUTH_SECRET=%s\nPUBLIC_URL=%s\n' "$BETTER_AUTH_SECRET" "$PUBLIC_URL" > .dev.vars
+      - run: npm run db:seed
+      - run: npm run test:e2e
