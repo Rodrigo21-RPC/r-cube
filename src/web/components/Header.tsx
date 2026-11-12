@@ -9,7 +9,7 @@ export function Header({ themeToggle }: { themeToggle?: React.ReactNode }) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const [q, setQ] = useState(params.get("q") ?? "");
-  const { data: session } = useSession();
+  const { data: me } = useSession();
   const count = useCartCount();
 
   function onSearch(e: FormEvent) {
@@ -29,12 +29,12 @@ export function Header({ themeToggle }: { themeToggle?: React.ReactNode }) {
         <div className="ml-auto flex items-center gap-1 md:order-3">
           {themeToggle}
           <Link
-            to={session ? "/cuenta" : "/ingresar"}
+            to={me ? "/cuenta" : "/ingresar"}
             className="inline-flex h-11 items-center gap-2 rounded-full px-3 hover:bg-surface"
           >
             <User aria-hidden className="size-5" />
-            <span className="hidden text-sm sm:inline">{session ? session.user.name.split(" ")[0] : "Ingresar"}</span>
-            <span className="sr-only sm:hidden">{session ? "Mi cuenta" : "Ingresar"}</span>
+            <span className="hidden text-sm sm:inline">{me ? me.name.split(" ")[0] : "Ingresar"}</span>
+            <span className="sr-only sm:hidden">{me ? "Mi cuenta" : "Ingresar"}</span>
           </Link>
           <Link
             to="/carrito"

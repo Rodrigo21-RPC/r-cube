@@ -247,20 +247,20 @@ HU-10)
   contador; usuario `blocked` no inicia sesión (RN-08); cambio de contraseña con la actual cierra las
   demás sesiones; la contraseña nunca se guarda en texto plano; la sesión vence a los 7 días y la
   cookie es HttpOnly, Secure y SameSite=Lax (FR-011); deben fallar
-- [ ] T045 [P] [US3] Escribir `tests/api/account.test.ts` (HU-09): `GET/PATCH /api/account/me` edita
+- [X] T045 [P] [US3] Escribir `tests/api/account.test.ts` (HU-09): `GET/PATCH /api/account/me` edita
   nombre, teléfono y dirección; ignora o rechaza `email`; 401 sin sesión; deben fallar
 
 ### Implementation for User Story 3
 
-- [ ] T046 [US3] Agregar a `src/worker/auth.ts` los hooks de bloqueo (`failed_login_count`,
+- [X] T046 [US3] Agregar a `src/worker/auth.ts` los hooks de bloqueo (`failed_login_count`,
   `locked_until` = ahora + 15 min al quinto fallo, reinicio al acertar, rechazo de `blocked`) y la
   respuesta 423 con mensaje en español hasta pasar T044 (HU-08, RN-08)
-- [ ] T047 [US3] Implementar `src/worker/routes/account.ts` (`GET`/`PATCH /me` con Zod: nombre 2 a 80,
+- [X] T047 [US3] Implementar `src/worker/routes/account.ts` (`GET`/`PATCH /me` con Zod: nombre 2 a 80,
   teléfono de 9 dígitos que empieza con 9, dirección, distrito y referencia) hasta pasar T045 (HU-09)
-- [ ] T048 [P] [US3] Crear `src/web/pages/Register.tsx` y `Login.tsx` con React Hook Form + Zod,
+- [X] T048 [P] [US3] Crear `src/web/pages/Register.tsx` y `Login.tsx` con React Hook Form + Zod,
   errores por campo, mensaje genérico y mensaje de bloqueo, y redirección a la página de origen
   (`?volver=`) (HU-07, HU-08)
-- [ ] T049 [US3] Crear `src/web/pages/Account.tsx` con perfil (correo solo lectura, confirmación al
+- [X] T049 [US3] Crear `src/web/pages/Account.tsx` con perfil (correo solo lectura, confirmación al
   guardar), cambio de contraseña y «Cerrar sesión»; hook `useSession` en `src/web/auth.ts` (HU-08 a
   HU-10)
 
@@ -276,7 +276,7 @@ HU-10)
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T050 [P] [US2] Escribir `tests/api/cart.test.ts` (HU-11 a HU-13, RN-01): `quote` limita la
+- [X] T050 [P] [US2] Escribir `tests/api/cart.test.ts` (HU-11 a HU-13, RN-01): `quote` limita la
   cantidad al stock, recalcula precios del servidor e ignora precios enviados, devuelve avisos
   `price_changed`, `stock_reduced`, `unavailable` y totales con base e IGV; `merge` suma cantidades
   (A×1 + A×2 = A×3) limitando al stock; `PUT`/`DELETE` del carrito de cuenta; deben fallar

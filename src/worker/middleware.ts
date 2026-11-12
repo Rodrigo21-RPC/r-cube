@@ -49,7 +49,8 @@ export const withContext = createMiddleware<AppEnv>(async (c, next) => {
   try {
     const session = await auth.api.getSession({ headers: c.req.raw.headers });
     const u = session?.user as (SessionUser & { blocked?: boolean }) | undefined;
-    c.set("user", u ? { id: u.id, name: u.name, email: u.email, role: u.role } : null);
+    // Un cliente bloqueado pierde también las sesiones abiertas (RN-08).
+    c.set("user", u && !u.blocked ? { id: u.id, name: u.name, email: u.email, role: u.role } : null);
     await next();
   } finally {
     c.executionCtx.waitUntil(close());
@@ -65,16 +66,31 @@ export const requireCustomer = createMiddleware<AppEnv>(async (c, next) => {
   await next();
 });
 
-/** Hook de @hono/zod-validator: errores por campo con código VALIDATION. */
-export function validationHook(
-  result: { success: boolean; error?: { issues: { path: PropertyKey[]; message: string }[] } },
-) {
-  if (!result.success) {
-    const fields: Record<string, string> = {};
-    for (const issue of result.error?.issues ?? []) {
-      const key = issue.path.map(String).join(".") || "form";
-      fields[key] ??= issue.message;
-    }
-    throw new AppError(400, "VALIDATION", "Revisa los datos ingresados.", fields);
+type Issues = { issues: { path: PropertyKey[]; message: string }[] };
+
+function validationError(error: Issues | undefined): AppError {
+  const fields: Record<string, string> = {};
+  for (const issue of error?.issues ?? []) {
+    const key = issue.path.map(String).join(".") || "form";
+    fields[key] ??= issue.message;
   }
+  return new AppError(400, "VALIDATION", "Revisa los datos ingresados.", fields);
 }
+
+/** Hook de @hono/zod-validator: errores por campo con código VALIDATION. */
+export function validationHook(result: { success: boolean; error?: Issues }) {
+  if (!result.success) throw validationError(result.error);
+}
+
+/** Valida un cuerpo con Zod o lanza 400 VALIDATION con errores por campo. */
+export function parseBody<T>(schema: { safeParse: (d: unknown) => { success: true; data: T } | { success: false; error: Issues } }, data: unknown): T {
+  const r = schema.safeParse(data);
+  if (!r.success) throw validationError(r.error);
+  return r.data;
+}
+
+/** Cualquier usuario con sesión (401 si no hay). */
+export const requireUser = createMiddleware<AppEnv>(async (c, next) => {
+  if (!c.get("user")) throw new AppError(401, "UNAUTHENTICATED", "Inicia sesión para continuar.");
+  await next();
+});

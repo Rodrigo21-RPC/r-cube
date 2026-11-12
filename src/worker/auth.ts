@@ -36,6 +36,7 @@ export function createAuth(db: Db, env: { BETTER_AUTH_SECRET: string; PUBLIC_URL
       additionalFields: {
         role: { type: "string", required: false, defaultValue: "cliente", input: false },
         phone: { type: "string", required: true, input: true },
+        blocked: { type: "boolean", required: false, defaultValue: false, input: false },
       },
     },
     rateLimit: {
