@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { secureHeaders } from "hono/secure-headers";
 import { sql } from "drizzle-orm";
 import { errorResponse, withContext, type AppEnv } from "./middleware";
+import { catalogRoutes } from "./routes/catalog";
 
 const app = new Hono<AppEnv>().basePath("/api");
 
@@ -15,7 +16,8 @@ const routes = app
     await c.get("db").execute(sql`select 1`);
     return c.json({ ok: true as const });
   })
-  .on(["GET", "POST"], "/auth/*", (c) => c.get("auth").handler(c.req.raw));
+  .on(["GET", "POST"], "/auth/*", (c) => c.get("auth").handler(c.req.raw))
+  .route("/catalog", catalogRoutes);
 
 export type AppType = typeof routes;
 

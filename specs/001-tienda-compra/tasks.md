@@ -180,27 +180,27 @@ recargar y abrir un detalle con «Quedan N» o «Agotado»
 
 ### Tests for User Story 1 ⚠️
 
-- [ ] T035 [P] [US1] Escribir `tests/api/catalog.test.ts` (HU-01 a HU-05): 12 por página; inactivos
+- [X] T035 [P] [US1] Escribir `tests/api/catalog.test.ts` (HU-01 a HU-05): 12 por página; inactivos
   ocultos; búsqueda sin mayúsculas ni tildes en nombre, marca y descripción; filtros combinados;
   los 4 órdenes estables al paginar; página fuera de rango → última válida; detalle con
   `availability` `low` (stock 3), `out` (stock 0) y 404 para inactivo; deben fallar
 
 ### Implementation for User Story 1
 
-- [ ] T036 [US1] Implementar `src/worker/routes/catalog.ts`: `GET /products` (ILIKE sobre
+- [X] T036 [US1] Implementar `src/worker/routes/catalog.ts`: `GET /products` (ILIKE sobre
   `search_text`, filtros, orden `relevance|price_asc|price_desc|newest` con `CASE` de relevancia y
   desempate por `created_at desc, id`), `GET /products/:slug`, `GET /facets`, validados con Zod, hasta
   pasar T035 (HU-01 a HU-05)
-- [ ] T037 [P] [US1] Crear `src/web/components/ProductCard.tsx` (foto con `loading="lazy"`, ancho y
+- [X] T037 [P] [US1] Crear `src/web/components/ProductCard.tsx` (foto con `loading="lazy"`, ancho y
   alto, alt; nombre; `Price`; disponibilidad) (HU-01, RNF-04)
-- [ ] T038 [US1] Crear `src/web/pages/Catalog.tsx` con búsqueda, `Filters.tsx` (categoría, marca,
+- [X] T038 [US1] Crear `src/web/pages/Catalog.tsx` con búsqueda, `Filters.tsx` (categoría, marca,
   rango, solo disponibles), etiquetas removibles, «Limpiar filtros», orden y paginación sincronizados
   con `useSearchParams`, texto «N resultados para "…"» y estados de carga, vacío y error (HU-01 a
   HU-04)
-- [ ] T039 [US1] Crear `src/web/pages/Product.tsx` con galería accesible, marca, precio con IGV,
+- [X] T039 [US1] Crear `src/web/pages/Product.tsx` con galería accesible, marca, precio con IGV,
   descripción, tabla de specs, «Quedan N»/«Agotado» y botón «Agregar al carrito» deshabilitado si
   está agotado (el botón se conecta en US2) (HU-05)
-- [ ] T040 [P] [US1] Escribir `e2e/catalogo.spec.ts` (HU-01 a HU-05): buscar, filtrar, ordenar,
+- [X] T040 [P] [US1] Escribir `e2e/catalogo.spec.ts` (HU-01 a HU-05): buscar, filtrar, ordenar,
   recargar y ver detalle con «Agotado»
 
 **Checkpoint**: US1 funciona sola
@@ -215,7 +215,7 @@ recargar y abrir un detalle con «Quedan N» o «Agotado»
 
 ### Tests for User Story 7 ⚠️
 
-- [ ] T041 [P] [US7] Escribir `e2e/tema.spec.ts` (HU-25): `colorScheme: 'dark'` abre en oscuro; el
+- [X] T041 [P] [US7] Escribir `e2e/tema.spec.ts` (HU-25): `colorScheme: 'dark'` abre en oscuro; el
   interruptor cambia a claro; tras recargar sigue en claro y la clase `dark` no aparece en ningún
   momento de la carga; debe fallar
 
