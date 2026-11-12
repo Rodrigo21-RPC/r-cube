@@ -311,13 +311,13 @@ descontado
 
 - [X] T056 [P] [US4] Escribir `tests/unit/luhn.test.ts` (HU-16): 4111 1111 1111 1111 y 4000 0000 0000
   0002 válidos por Luhn, 4111 1111 1111 1112 inválido, espacios ignorados; debe fallar
-- [ ] T057 [P] [US4] Escribir `tests/unit/payments.test.ts` (HU-16): simulador `approved` para 4111…,
+- [X] T057 [P] [US4] Escribir `tests/unit/payments.test.ts` (HU-16): simulador `approved` para 4111…,
   `rejected` para 4000…0002, `unrecognized` para otro número válido, vencimiento pasado y CVV distinto
   de 3 dígitos inválidos; el resultado solo expone `last4`; debe fallar
-- [ ] T058 [P] [US4] Escribir `tests/unit/whatsapp.test.ts` (HU-20): el mensaje incluye N.º, productos,
+- [X] T058 [P] [US4] Escribir `tests/unit/whatsapp.test.ts` (HU-20): el mensaje incluye N.º, productos,
   cantidades, total en S/, método y entrega, y el enlace es `https://wa.me/<número>?text=<codificado>`;
   debe fallar
-- [ ] T059 [P] [US4] Escribir `tests/api/checkout.test.ts` (HU-14 a HU-21, RN-01 a RN-07): sin sesión
+- [X] T059 [P] [US4] Escribir `tests/api/checkout.test.ts` (HU-14 a HU-21, RN-01 a RN-07): sin sesión
   401 y administrador 403; recojo con envío 0; delivery suma la zona y exige nombre, teléfono, dirección
   y distrito; tarjeta 4111 → 201 `paid` con `card_last4 = "1111"` y sin número completo ni CVV en la
   base; tarjeta 4000…0002 → 402 sin pedido ni cambio de stock; Yape sin código o con código fuera de 6 a
@@ -327,35 +327,35 @@ descontado
   `expectedTotalCents` distinto → 409 `PRICE_CHANGED`; precio del navegador ignorado; carrito vacío
   tras crear; dos compras simultáneas de la última unidad → una 201 y otra 409 `STOCK` (RN-02); deben
   fallar
-- [ ] T060 [P] [US4] Escribir `tests/api/expire.test.ts` (RN-12): un pedido `pending_payment` de hace
+- [X] T060 [P] [US4] Escribir `tests/api/expire.test.ts` (RN-12): un pedido `pending_payment` de hace
   25 h pasa a `cancelled` con motivo «Pago no recibido en 24 h» y actor `sistema`, el stock vuelve; uno
   de hace 23 h no cambia; ejecutar dos veces no devuelve el stock dos veces; debe fallar
 
 ### Implementation for User Story 4
 
-- [ ] T061 [US4] Implementar `src/shared/luhn.ts` hasta pasar T056 (HU-16)
-- [ ] T062 [US4] Implementar `src/worker/services/payments.ts` (simulador de tarjeta sin guardar ni
+- [X] T061 [US4] Implementar `src/shared/luhn.ts` hasta pasar T056 (HU-16)
+- [X] T062 [US4] Implementar `src/worker/services/payments.ts` (simulador de tarjeta sin guardar ni
   registrar número ni CVV) hasta pasar T057 (HU-16, RNF-06)
-- [ ] T063 [US4] Implementar `src/shared/whatsapp.ts` hasta pasar T058 (HU-20)
-- [ ] T064 [US4] Implementar `src/worker/services/orders.ts`: `createOrder` (pago con tarjeta decidido
+- [X] T063 [US4] Implementar `src/shared/whatsapp.ts` hasta pasar T058 (HU-20)
+- [X] T064 [US4] Implementar `src/worker/services/orders.ts`: `createOrder` (pago con tarjeta decidido
   antes de la transacción; en la transacción, UPDATE condicional de stock por línea, `nextval` para el
   número, pedido, líneas con nombre y precio congelados, pago, primer evento, vaciado de `cart_item`)
   y `cancelOrder(db, order, actor, reason)` que devuelve el stock con
   `UPDATE … WHERE status IN (...)` (RN-02, RN-03, RN-07, RN-10)
-- [ ] T065 [US4] Implementar `src/worker/routes/checkout.ts` (`GET /options`, `POST /orders` con el
+- [X] T065 [US4] Implementar `src/worker/routes/checkout.ts` (`GET /options`, `POST /orders` con el
   esquema Zod de contracts/api.md) hasta pasar T059 (HU-14 a HU-21)
-- [ ] T066 [US4] Implementar `src/worker/cron.ts` (`expirePendingOrders`, usa `cancelOrder` con actor
+- [X] T066 [US4] Implementar `src/worker/cron.ts` (`expirePendingOrders`, usa `cancelOrder` con actor
   `sistema`) y conectarlo al `scheduled` de `src/worker/index.ts` hasta pasar T060 (RN-12)
-- [ ] T067 [US4] Crear `src/web/pages/Checkout.tsx`: paso de entrega (recojo con dirección de tienda o
+- [X] T067 [US4] Crear `src/web/pages/Checkout.tsx`: paso de entrega (recojo con dirección de tienda o
   delivery con zonas y dirección precargada del perfil), paso de pago con los métodos activos (tarjeta
   con validación Luhn, vencimiento y CVV en el cliente; Yape o Plin con QR, número y código;
   transferencia con datos de cuenta y monto; WhatsApp), aviso «Pago simulado, no se cobra dinero real»,
   resumen con desglose, manejo de 402, 409 `STOCK` y 409 `PRICE_CHANGED`, y redirección a inicio de
   sesión si no hay sesión; mensaje para administradores (HU-14 a HU-18, HU-20)
-- [ ] T068 [US4] Crear `src/web/pages/Confirmation.tsx`: N.º, productos, subtotal, IGV, envío, total,
+- [X] T068 [US4] Crear `src/web/pages/Confirmation.tsx`: N.º, productos, subtotal, IGV, envío, total,
   método, entrega, siguientes pasos, aviso de 24 h si está pendiente y botón «Abrir WhatsApp» que
   abre `whatsappUrl` (HU-20, HU-21)
-- [ ] T069 [P] [US4] Escribir `e2e/compra.spec.ts` (HU-11 a HU-21): visitante agrega productos,
+- [X] T069 [P] [US4] Escribir `e2e/compra.spec.ts` (HU-11 a HU-21): visitante agrega productos,
   se registra, paga con 4111 con delivery y llega a la confirmación con `RC-…` en Pagado; luego un
   rechazo con 4000…0002 sin pedido; luego una compra con Yape en Pendiente de pago; al cerrar sesión
   el carrito del navegador queda vacío y al volver a entrar reaparece el de la cuenta (HU-12)
@@ -372,7 +372,7 @@ descontado
 
 ### Tests for User Story 5 ⚠️
 
-- [ ] T070 [P] [US5] Escribir `tests/api/orders.test.ts` (HU-22 a HU-24, RN-08, RN-10): lista solo
+- [X] T070 [P] [US5] Escribir `tests/api/orders.test.ts` (HU-22 a HU-24, RN-08, RN-10): lista solo
   propia y del más nuevo al más antiguo; pedido ajeno → 404; detalle con precio congelado aunque el
   producto cambie de precio o se desactive (RN-06, RN-07), `cardLast4` y eventos; cancelar en
   `pending_payment`, `paid` o `preparing` con motivo devuelve stock y agrega evento; cancelar

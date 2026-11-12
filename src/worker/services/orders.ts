@@ -1,0 +1,185 @@
+import { and, asc, eq, sql } from "drizzle-orm";
+import { schema, type Db } from "@db/client";
+import { orderTotals } from "@shared/money";
+import { CANCELLABLE_BY_CUSTOMER, type OrderStatus } from "@shared/order-status";
+import type { OrderDetail, PaymentMethodCode } from "@shared/types";
+import { AppError } from "../middleware";
+
+const { orders, orderItem, payment, orderEvent, product, cartItem, deliveryZone, storeSettings } = schema;
+
+export type Actor = { type: "cliente" | "administrador" | "sistema"; userId: string | null };
+
+export interface NewOrder {
+  userId: string;
+  lines: { productId: string; name: string; unitPriceCents: number; quantity: number; imageUrl: string }[];
+  delivery:
+    | { method: "pickup" }
+    | { method: "delivery"; zoneId: string; shippingCents: number; name: string; phone: string; address: string; district: string; reference?: string };
+  payment: { method: PaymentMethodCode; status: "approved" | "pending"; cardLast4?: string; operationCode?: string };
+}
+
+/**
+ * Crea el pedido en una sola transacción: descuenta stock con UPDATE condicional, numera con la
+ * secuencia, congela nombre y precio, registra pago y primer evento, y vacía el carrito (RN-02, RN-03, RN-07).
+ */
+export async function createOrder(db: Db, input: NewOrder): Promise<string> {
+  return db.transaction(async (tx) => {
+    for (const l of input.lines) {
+      const [row] = await tx
+        .update(product)
+        .set({ stock: sql`${product.stock} - ${l.quantity}::int` })
+        .where(and(eq(product.id, l.productId), eq(product.active, true), sql`${product.stock} >= ${l.quantity}::int`))
+        .returning({ priceCents: product.priceCents });
+      if (!row) throw new AppError(409, "STOCK", `Ya no hay stock suficiente de ${l.name}. Revisa tu carrito.`, undefined, { productId: l.productId });
+      if (row.priceCents !== l.unitPriceCents)
+        throw new AppError(409, "PRICE_CHANGED", `El precio de ${l.name} cambió. Revisa el nuevo total antes de pagar.`);
+    }
+    const shipping = input.delivery.method === "delivery" ? input.delivery.shippingCents : 0;
+    const totals = orderTotals(input.lines, shipping, 0);
+    const status: OrderStatus = input.payment.status === "approved" ? "paid" : "pending_payment";
+    const [{ seq } = { seq: 0 }] = (await tx.execute(sql`select nextval('order_number_seq')::int as seq`)) as unknown as { seq: number }[];
+    const id = crypto.randomUUID();
+    const number = `RC-${String(seq).padStart(6, "0")}`;
+    const d = input.delivery;
+    await tx.insert(orders).values({
+      id,
+      number,
+      userId: input.userId,
+      status,
+      deliveryMethod: d.method,
+      deliveryZoneId: d.method === "delivery" ? d.zoneId : null,
+      shipName: d.method === "delivery" ? d.name : null,
+      shipPhone: d.method === "delivery" ? d.phone : null,
+      shipAddress: d.method === "delivery" ? d.address : null,
+      shipDistrict: d.method === "delivery" ? d.district : null,
+      shipReference: d.method === "delivery" ? d.reference || null : null,
+      ...totals,
+      paymentMethod: input.payment.method,
+    });
+    await tx.insert(orderItem).values(
+      input.lines.map((l) => ({
+        id: crypto.randomUUID(),
+        orderId: id,
+        productId: l.productId,
+        productName: l.name,
+        unitPriceCents: l.unitPriceCents,
+        quantity: l.quantity,
+        lineTotalCents: l.unitPriceCents * l.quantity,
+        imageUrl: l.imageUrl,
+      })),
+    );
+    await tx.insert(payment).values({
+      id: crypto.randomUUID(),
+      orderId: id,
+      method: input.payment.method,
+      status: input.payment.status,
+      amountCents: totals.totalCents,
+      cardLast4: input.payment.cardLast4 ?? null,
+      operationCode: input.payment.operationCode ?? null,
+    });
+    await tx.insert(orderEvent).values({
+      id: crypto.randomUUID(),
+      orderId: id,
+      fromStatus: null,
+      toStatus: status,
+      actorType: "cliente",
+      actorUserId: input.userId,
+    });
+    await tx.delete(cartItem).where(eq(cartItem.userId, input.userId));
+    return number;
+  });
+}
+
+/**
+ * Cancela un pedido si su estado está entre los permitidos, devuelve el stock y deja el motivo (RN-10).
+ * Bloquea la fila para que una cancelación concurrente (cliente y vencimiento) solo ocurra una vez.
+ */
+export async function cancelOrder(
+  db: Db,
+  orderId: string,
+  actor: Actor,
+  reason: string,
+  allowedFrom: ReadonlySet<OrderStatus> = CANCELLABLE_BY_CUSTOMER,
+): Promise<boolean> {
+  return db.transaction(async (tx) => {
+    const [current] = (await tx.execute(sql`select status from orders where id = ${orderId} for update`)) as unknown as {
+      status: OrderStatus;
+    }[];
+    if (!current || !allowedFrom.has(current.status)) return false;
+    await tx.update(orders).set({ status: "cancelled" }).where(eq(orders.id, orderId));
+    await tx.execute(sql`update product p set stock = p.stock + oi.quantity
+      from order_item oi where oi.order_id = ${orderId} and p.id = oi.product_id`);
+    await tx.insert(orderEvent).values({
+      id: crypto.randomUUID(),
+      orderId,
+      fromStatus: current.status,
+      toStatus: "cancelled",
+      actorType: actor.type,
+      actorUserId: actor.userId,
+      reason,
+    });
+    return true;
+  });
+}
+
+/** Detalle de un pedido; con userId solo devuelve los del dueño (RN-08). */
+export async function loadOrderDetail(db: Db, number: string, userId?: string): Promise<OrderDetail | null> {
+  const where = userId ? and(eq(orders.number, number), eq(orders.userId, userId)) : eq(orders.number, number);
+  const [o] = await db
+    .select({ order: orders, zoneName: deliveryZone.name })
+    .from(orders)
+    .leftJoin(deliveryZone, eq(deliveryZone.id, orders.deliveryZoneId))
+    .where(where);
+  if (!o) return null;
+  const id = o.order.id;
+  const [items, [pay], events, [settings]] = await Promise.all([
+    db.select().from(orderItem).where(eq(orderItem.orderId, id)).orderBy(asc(orderItem.productName)),
+    db.select().from(payment).where(eq(payment.orderId, id)),
+    db.select().from(orderEvent).where(eq(orderEvent.orderId, id)).orderBy(asc(orderEvent.createdAt)),
+    db.select({ pickupAddress: storeSettings.pickupAddress }).from(storeSettings).where(eq(storeSettings.id, 1)),
+  ]);
+  const ord = o.order;
+  return {
+    number: ord.number,
+    createdAt: ord.createdAt.toISOString(),
+    status: ord.status,
+    totalCents: ord.totalCents,
+    deliveryMethod: ord.deliveryMethod,
+    zoneName: o.zoneName,
+    shipping:
+      ord.deliveryMethod === "delivery"
+        ? { name: ord.shipName ?? "", phone: ord.shipPhone ?? "", address: ord.shipAddress ?? "", district: ord.shipDistrict ?? "", reference: ord.shipReference ?? "" }
+        : null,
+    pickupAddress: ord.deliveryMethod === "pickup" ? (settings?.pickupAddress ?? null) : null,
+    items: items.map((i) => ({
+      productId: i.productId,
+      name: i.productName,
+      unitPriceCents: i.unitPriceCents,
+      quantity: i.quantity,
+      lineTotalCents: i.lineTotalCents,
+      imageUrl: i.imageUrl,
+    })),
+    totals: {
+      subtotalCents: ord.subtotalCents,
+      shippingCents: ord.shippingCents,
+      discountCents: ord.discountCents,
+      taxableBaseCents: ord.taxableBaseCents,
+      igvCents: ord.igvCents,
+      totalCents: ord.totalCents,
+    },
+    payment: {
+      method: ord.paymentMethod,
+      status: pay?.status ?? "pending",
+      cardLast4: pay?.cardLast4 ?? null,
+      operationCode: pay?.operationCode ?? null,
+    },
+    events: events.map((e) => ({
+      fromStatus: (e.fromStatus as OrderStatus | null) ?? null,
+      toStatus: e.toStatus as OrderStatus,
+      actor: e.actorType,
+      reason: e.reason,
+      createdAt: e.createdAt.toISOString(),
+    })),
+    canCancel: CANCELLABLE_BY_CUSTOMER.has(ord.status),
+  };
+}
