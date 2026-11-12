@@ -381,11 +381,11 @@ descontado
 
 ### Implementation for User Story 5
 
-- [ ] T071 [US5] Implementar `src/worker/routes/orders.ts` (`GET /`, `GET /:number`,
+- [X] T071 [US5] Implementar `src/worker/routes/orders.ts` (`GET /`, `GET /:number`,
   `POST /:number/cancel` con `cancelOrder` y actor `cliente`) hasta pasar T070 (HU-22 a HU-24)
-- [ ] T072 [P] [US5] Crear `src/web/pages/Orders.tsx` (lista con N.º, fecha, total y estado con
+- [X] T072 [P] [US5] Crear `src/web/pages/Orders.tsx` (lista con N.º, fecha, total y estado con
   insignia; estado vacío; paginación) (HU-22)
-- [ ] T073 [US5] Crear `src/web/pages/OrderDetail.tsx` (productos, desglose, pago con últimos 4
+- [X] T073 [US5] Crear `src/web/pages/OrderDetail.tsx` (productos, desglose, pago con últimos 4
   dígitos, entrega, línea de tiempo con fecha, hora, autor y motivo, y diálogo «Cancelar pedido» con la
   lista de motivos y confirmación, visible solo en estados cancelables) (HU-23, HU-24)
 
@@ -401,7 +401,7 @@ descontado
 
 ### Tests for User Story 6 ⚠️
 
-- [ ] T074 [P] [US6] Escribir `tests/api/home.test.ts` (HU-06): `GET /api/catalog/home` devuelve
+- [X] T074 [P] [US6] Escribir `tests/api/home.test.ts` (HU-06): `GET /api/catalog/home` devuelve
   categorías activas, ofertas solo con `compare_at_cents > price_cents`, más vendidos por unidades en
   pedidos no cancelados (desempate por novedad) y novedades por `created_at`, sin inactivos; debe
   fallar
