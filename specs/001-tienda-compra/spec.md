@@ -18,6 +18,21 @@ pedido, datos de demostración). Si esta spec y esas fuentes difieren, mandan la
 imágenes muestran marcas antiguas (Kallpa, Chaski): se toma su estructura y estilo, con la marca
 R Cube (`docs/fotos/r-cube-logo-oficial.png`) y el alcance de las historias.
 
+## Clarifications
+
+### Session 2026-11-12
+
+- Q: ¿Qué pasa con el carrito guardado en el navegador cuando el cliente cierra sesión? → A: Se
+  vacía en ese navegador y queda guardado en la cuenta.
+- Q: ¿Puede una cuenta de administrador comprar en la tienda? → A: No; puede navegar la tienda, pero
+  el checkout es solo para cuentas de cliente.
+- Q: ¿El interruptor de tema tiene dos estados (claro y oscuro) o tres (claro, oscuro y sistema)? →
+  A: Dos estados; sin elección guardada se sigue la preferencia del sistema.
+- Q: ¿Qué pasa si el navegador no abre WhatsApp al confirmar un pedido por WhatsApp? → A: La pantalla
+  de confirmación siempre muestra el botón «Abrir WhatsApp» para reintentar.
+- Q: ¿Para qué volumen de datos y de personas se diseña la tienda? → A: Hasta 1 000 productos activos
+  y 200 personas navegando a la vez sin perder el objetivo de 2,5 s.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Descubrir productos en el catálogo (Priority: P1)
@@ -312,15 +327,17 @@ recargar (sigue clara y sin destello oscuro al cargar).
   según RN-14 (HU-11, RNF-01).
 - **FR-014**: El carrito del visitante MUST conservarse en el navegador; al iniciar sesión MUST
   fusionarse con el carrito de la cuenta dejando una línea por producto, con la suma de cantidades
-  limitada al stock (HU-12).
+  limitada al stock; al cerrar sesión, el carrito se vacía en ese navegador y sigue guardado en la
+  cuenta (HU-12).
 - **FR-015**: Al abrir el carrito y al iniciar el pago, el sistema MUST recalcular precios y stock en
   el servidor, avisar cada cambio de precio o stock, ajustar cantidades y marcar como no disponibles
   las líneas agotadas o desactivadas (HU-13, RNF-07).
 
 **Checkout y pagos**
 
-- **FR-016**: El checkout MUST exigir sesión iniciada y conservar el carrito al pasar por el inicio de
-  sesión o el registro (HU-07, HU-12).
+- **FR-016**: El checkout MUST exigir sesión iniciada con una cuenta de cliente y conservar el
+  carrito al pasar por el inicio de sesión o el registro; una cuenta de administrador puede navegar
+  la tienda pero no comprar, y ve un mensaje que lo indica (HU-07, HU-12).
 - **FR-017**: El cliente MUST elegir recojo en tienda (sin costo, con la dirección de la tienda) o
   delivery con el costo fijo de una de las zonas configuradas; el costo se suma al total antes de
   pagar (HU-14, RN-05).
@@ -340,7 +357,8 @@ recargar (sigue clara y sin destello oscuro al cargar).
   Pendiente de pago (HU-18).
 - **FR-023**: La coordinación por WhatsApp MUST crear el pedido en Pendiente de pago y abrir WhatsApp
   hacia el número configurado con un mensaje que incluye N.º de pedido, productos, cantidades, total,
-  método y forma de entrega (HU-20).
+  método y forma de entrega; la pantalla de confirmación siempre muestra el botón «Abrir WhatsApp»
+  por si el navegador no lo abrió (HU-20).
 - **FR-024**: La creación del pedido MUST, en una sola operación indivisible, validar stock, calcular
   montos en el servidor, congelar nombre y precio de cada línea, registrar el pago y descontar stock;
   si algo falla, no queda nada a medias (RN-02, RN-07, RNF-07).
@@ -371,8 +389,8 @@ recargar (sigue clara y sin destello oscuro al cargar).
 
 **Tema, experiencia y datos**
 
-- **FR-032**: Toda pantalla de esta feature MUST ofrecer un interruptor de tema visible, seguir la
-  preferencia del sistema mientras la persona no elija, recordar la elección en el navegador y
+- **FR-032**: Toda pantalla de esta feature MUST ofrecer un interruptor de tema visible de dos
+  estados (claro y oscuro), seguir la preferencia del sistema mientras la persona no elija, recordar la elección en el navegador y
   cargar sin parpadeo del otro tema (HU-25).
 - **FR-033**: Toda pantalla que cargue datos MUST tener estados de carga, vacío y error con opción de
   reintentar; los formularios MUST mostrar errores junto a cada campo (RNF-02, principio IX).
@@ -426,14 +444,16 @@ recargar (sigue clara y sin destello oscuro al cargar).
 - **SC-006**: Todas las pantallas de la feature cumplen contraste WCAG 2.2 AA y se pueden usar solo
   con teclado en ambos temas.
 - **SC-007**: Ningún pedido queda en Pendiente de pago más de 25 horas.
+- **SC-008**: Con 1 000 productos activos y 200 personas navegando a la vez, el catálogo y la
+  búsqueda mantienen el objetivo de SC-003.
 
 ## Assumptions
 
 - Esta feature no incluye el panel de administración: la confirmación de pagos de Yape, Plin y
   transferencia, el bloqueo de clientes y la edición de la configuración llegan en la 002; aquí la
   configuración y los productos vienen de los datos de demostración.
-- La cuenta de administrador de los datos de demostración existe, pero en esta feature solo sirve
-  para que la 002 la use.
+- La cuenta de administrador de los datos de demostración existe; en esta feature puede navegar la
+  tienda pero no comprar, y su panel llega en la 002.
 - «Relevancia» ordena, cuando hay búsqueda, primero coincidencias en el nombre, luego en la marca y
   luego en la descripción; sin búsqueda equivale a novedad.
 - «Más vendidos» cuenta unidades en pedidos no cancelados; con empate, por novedad.
