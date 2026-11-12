@@ -174,6 +174,8 @@ export const cartItem = pgTable(
       .notNull()
       .references(() => product.id, { onDelete: "cascade" }),
     quantity: integer("quantity").notNull(),
+    /** Último precio que vio el cliente; solo sirve para avisar cambios (HU-13), nunca para cobrar. */
+    seenPriceCents: integer("seen_price_cents"),
     createdAt: createdAt(),
   },
   (t) => [

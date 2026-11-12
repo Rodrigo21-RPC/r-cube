@@ -5,6 +5,7 @@ import { errorResponse, withContext, type AppEnv } from "./middleware";
 import { catalogRoutes } from "./routes/catalog";
 import { authRoutes } from "./routes/auth";
 import { accountRoutes } from "./routes/account";
+import { cartRoutes } from "./routes/cart";
 
 const app = new Hono<AppEnv>().basePath("/api");
 
@@ -20,7 +21,8 @@ const routes = app
   })
   .route("/auth", authRoutes)
   .route("/account", accountRoutes)
-  .route("/catalog", catalogRoutes);
+  .route("/catalog", catalogRoutes)
+  .route("/cart", cartRoutes);
 
 export type AppType = typeof routes;
 

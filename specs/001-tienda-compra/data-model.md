@@ -73,6 +73,7 @@ Las de Better Auth sin cambios. `account.password` guarda el hash PBKDF2 (nunca 
 | user_id | text FK user | |
 | product_id | text FK product | |
 | quantity | integer | ≥ 1 |
+| seen_price_cents | integer null | último precio mostrado al cliente; solo para el aviso de HU-13, nunca para cobrar (agregado en implement) |
 
 Único `(user_id, product_id)`; la 003 lo cambia a `(user_id, product_id, variant_id)`.
 

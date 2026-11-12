@@ -1,10 +1,14 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-/** Carrito del visitante en el navegador: solo ids y cantidades, nunca precios (HU-12, RNF-07). */
+/**
+ * Carrito del visitante en el navegador (HU-12). Guarda ids, cantidades y el último precio mostrado
+ * solo para avisar cambios (HU-13); el total siempre lo calcula el servidor (RNF-07).
+ */
 export interface LocalItem {
   productId: string;
   quantity: number;
+  seenPriceCents?: number | null;
 }
 
 interface CartState {
@@ -21,19 +25,16 @@ export const useLocalCart = create<CartState>()(
     (set) => ({
       items: [],
       set: (productId, quantity) =>
-        set((s) => ({
-          items: s.items.map((i) => (i.productId === productId ? { ...i, quantity } : i)),
-        })),
+        set((s) => ({ items: s.items.map((i) => (i.productId === productId ? { ...i, quantity } : i)) })),
       add: (productId, quantity, max) =>
         set((s) => {
           const found = s.items.find((i) => i.productId === productId);
-          if (found) {
+          if (found)
             return {
               items: s.items.map((i) =>
                 i.productId === productId ? { ...i, quantity: Math.min(max, i.quantity + quantity) } : i,
               ),
             };
-          }
           return { items: [...s.items, { productId, quantity: Math.min(max, quantity) }] };
         }),
       remove: (productId) => set((s) => ({ items: s.items.filter((i) => i.productId !== productId) })),

@@ -283,15 +283,15 @@ HU-10)
 
 ### Implementation for User Story 2
 
-- [ ] T051 [US2] Implementar `src/worker/services/pricing.ts` (`quoteCart(db, items)` con precios y
+- [X] T051 [US2] Implementar `src/worker/services/pricing.ts` (`quoteCart(db, items)` con precios y
   stock vigentes, avisos y `orderTotals`) hasta pasar la parte de `quote` de T050 (HU-11, HU-13)
-- [ ] T052 [US2] Implementar `src/worker/routes/cart.ts` (`POST /quote`, `GET /`, `PUT`/`DELETE
+- [X] T052 [US2] Implementar `src/worker/routes/cart.ts` (`POST /quote`, `GET /`, `PUT`/`DELETE
   /items/:productId`, `POST /merge`) sobre `cart_item` hasta pasar T050 (HU-11, HU-12)
-- [ ] T053 [US2] Crear `src/web/stores/cart.ts` (Zustand `persist` con solo `productId` y `quantity`)
+- [X] T053 [US2] Crear `src/web/stores/cart.ts` (Zustand `persist` con solo `productId` y `quantity`)
   y `src/web/cart/useCart.ts` que usa la tienda local para visitantes y la API para clientes, fusiona al
   iniciar sesión y al terminar el registro, y vacía el carrito local al cerrar sesión (HU-12)
-- [ ] T054 [US2] Conectar «Agregar al carrito» en `Product.tsx` y el contador del `Header.tsx` (HU-11)
-- [ ] T055 [US2] Crear `src/web/pages/Cart.tsx`: líneas con cantidad limitada al stock, quitar, subtotal
+- [X] T054 [US2] Conectar «Agregar al carrito» en `Product.tsx` y el contador del `Header.tsx` (HU-11)
+- [X] T055 [US2] Crear `src/web/pages/Cart.tsx`: líneas con cantidad limitada al stock, quitar, subtotal
   por línea, desglose (subtotal, base imponible, IGV, total), avisos de cambios, líneas no disponibles
   marcadas y estado vacío con enlace al catálogo (HU-11, HU-13, RNF-02)
 
@@ -309,7 +309,7 @@ descontado
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T056 [P] [US4] Escribir `tests/unit/luhn.test.ts` (HU-16): 4111 1111 1111 1111 y 4000 0000 0000
+- [X] T056 [P] [US4] Escribir `tests/unit/luhn.test.ts` (HU-16): 4111 1111 1111 1111 y 4000 0000 0000
   0002 válidos por Luhn, 4111 1111 1111 1112 inválido, espacios ignorados; debe fallar
 - [ ] T057 [P] [US4] Escribir `tests/unit/payments.test.ts` (HU-16): simulador `approved` para 4111…,
   `rejected` para 4000…0002, `unrecognized` para otro número válido, vencimiento pasado y CVV distinto
