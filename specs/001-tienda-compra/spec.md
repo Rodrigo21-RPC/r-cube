@@ -277,8 +277,8 @@ recargar (sigue clara y sin destello oscuro al cargar).
   otra zona.
 - Un método de pago está desactivado en la configuración de la tienda: no aparece en el checkout
   (los datos de demostración traen los 4 activos).
-- Página de catálogo fuera de rango (por ejemplo, página 99): se muestra la última página válida o el
-  estado vacío con enlace al inicio del catálogo.
+- Página de catálogo fuera de rango (por ejemplo, página 99): se muestra la última página válida; si
+  no hay resultados, el estado vacío con enlace al inicio del catálogo.
 - Falla la conexión al cargar cualquier pantalla: se muestra un estado de error con «Reintentar»
   (RNF-02).
 - Foto de producto que no carga: se muestra la imagen genérica con el texto alternativo del producto.

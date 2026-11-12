@@ -14,6 +14,11 @@ El cliente web usa `hc<AppType>` de Hono (tipos compartidos). Sesión por cookie
 | 402 `CARD_REJECTED` | tarjeta rechazada (no crea pedido) |
 | 423 `LOCKED` | cuenta bloqueada temporalmente (HU-08) |
 
+## Operación
+
+- `GET /api/health` → `{ ok: true }` tras ejecutar `select 1` en la base; sirve para la prueba de humo
+  y para comprobar el despliegue (RNF-10). No expone datos.
+
 ## Catálogo (público)
 
 - `GET /api/catalog/products?q&category&brand&min&max&available&sort&page` → `{ items: ProductCard[],
