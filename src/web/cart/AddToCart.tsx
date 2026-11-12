@@ -25,7 +25,7 @@ export function AddToCart({ productId, stock, name }: { productId: string; stock
   return (
     <div className="flex flex-wrap items-center gap-3">
       <label htmlFor="cantidad" className="sr-only">Cantidad</label>
-      <select id="cantidad" value={qty} onChange={(e) => setQty(Number(e.target.value))} className="h-12 rounded-full border border-border bg-surface px-4 text-[15px]">
+      <select id="cantidad" value={qty} onChange={(e) => setQty(Number(e.target.value))} className="h-12 rounded-full border border-input bg-surface px-4 text-[15px]">
         {Array.from({ length: Math.min(Math.max(stock, 1), 10) }, (_, i) => i + 1).map((n) => (
           <option key={n} value={n}>{n}</option>
         ))}

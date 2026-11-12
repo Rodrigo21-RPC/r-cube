@@ -19,5 +19,5 @@
       "@web/*": ["./src/web/*"]
     }
   },
-  "include": ["src/web", "src/shared", "e2e", "playwright.config.ts", "vite.config.ts", "vitest.config.ts", "drizzle.config.ts"]
+  "include": ["src/web", "src/shared", "e2e", "playwright.config.ts", "vite.config.ts", "vitest.config.ts", "drizzle.config.ts", "scripts"]
 }

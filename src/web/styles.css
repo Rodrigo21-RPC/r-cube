@@ -8,6 +8,7 @@
   --surface: #f5f5f7;
   --surface-2: #e8e8ed;
   --border: #d2d2d7;
+  --input-border: #86868b;
   --text: #1d1d1f;
   --text-muted: #5f5f64;
   --accent: #0066cc;
@@ -25,6 +26,7 @@
   --surface: #17171c;
   --surface-2: #222229;
   --border: #2a2a31;
+  --input-border: #6e6e78;
   --text: #f5f5f7;
   --text-muted: #a1a1aa;
   --accent: #3b93ff;
@@ -42,6 +44,7 @@
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-border: var(--border);
+  --color-input: var(--input-border);
   --color-text: var(--text);
   --color-muted: var(--text-muted);
   --color-accent: var(--accent);

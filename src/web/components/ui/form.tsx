@@ -5,7 +5,7 @@ export function Input({ className, ...props }: ComponentProps<"input">) {
   return (
     <input
       className={cn(
-        "h-12 w-full rounded-2xl border border-border bg-surface px-4 text-[15px] text-text placeholder:text-muted aria-[invalid=true]:border-danger",
+        "h-12 w-full rounded-2xl border border-input bg-surface px-4 text-[15px] text-text placeholder:text-muted aria-[invalid=true]:border-danger",
         className,
       )}
       {...props}
@@ -17,7 +17,7 @@ export function Select({ className, ...props }: ComponentProps<"select">) {
   return (
     <select
       className={cn(
-        "h-12 w-full rounded-2xl border border-border bg-surface px-4 text-[15px] text-text",
+        "h-12 w-full rounded-2xl border border-input bg-surface px-4 text-[15px] text-text",
         className,
       )}
       {...props}

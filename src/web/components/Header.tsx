@@ -65,7 +65,7 @@ export function Header({ themeToggle }: { themeToggle?: React.ReactNode }) {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Buscar celulares, laptops, tablets…"
-              className="h-11 w-full rounded-full border border-border bg-surface pl-11 pr-4 text-[15px] placeholder:text-muted"
+              className="h-11 w-full rounded-full border border-input bg-surface pl-11 pr-4 text-[15px] placeholder:text-muted"
             />
           </div>
         </form>

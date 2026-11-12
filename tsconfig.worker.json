@@ -24,7 +24,6 @@
     "src/worker",
     "src/db",
     "src/shared",
-    "tests",
-    "scripts"
+    "tests"
   ]
 }

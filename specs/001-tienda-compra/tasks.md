@@ -221,10 +221,10 @@ recargar y abrir un detalle con «Quedan N» o «Agotado»
 
 ### Implementation for User Story 7
 
-- [ ] T042 [US7] Crear `src/web/theme/ThemeToggle.tsx` (botón con `aria-pressed` y etiqueta «Tema
+- [X] T042 [US7] Crear `src/web/theme/ThemeToggle.tsx` (botón con `aria-pressed` y etiqueta «Tema
   oscuro»/«Tema claro», guarda `localStorage.tema`, cambia la clase de `<html>`) y colocarlo en
   `Header.tsx` hasta pasar T041 (HU-25)
-- [ ] T043 [US7] Revisar contraste AA de los tokens de T027 en ambos temas (texto, bordes de campos,
+- [X] T043 [US7] Revisar contraste AA de los tokens de T027 en ambos temas (texto, bordes de campos,
   foco, acento sobre fondo oscuro) y ajustar las variables si algún par no llega a 4.5:1 (HU-25,
   RNF-03)
 
@@ -241,7 +241,7 @@ HU-10)
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T044 [P] [US3] Escribir `tests/api/auth.test.ts` (HU-07, HU-08, HU-10): registro con correo
+- [X] T044 [P] [US3] Escribir `tests/api/auth.test.ts` (HU-07, HU-08, HU-10): registro con correo
   único y contraseña ≥ 8; correo repetido → error de campo; credenciales inválidas → mensaje genérico;
   5 fallos → 423 `LOCKED` 15 minutos aunque la contraseña sea correcta; acceso correcto reinicia el
   contador; usuario `blocked` no inicia sesión (RN-08); cambio de contraseña con la actual cierra las
