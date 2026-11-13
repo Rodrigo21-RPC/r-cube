@@ -13,7 +13,7 @@ if (!url || !admin || !customer) {
 const { db, close } = createDb(url);
 try {
   await runSeed(db, { admin, customer });
-  console.log("Datos de demostración cargados: 37 productos, 6 usuarios y 8 pedidos.");
+  console.log("Datos de demostración cargados: 38 productos (37 activos), 6 usuarios y 8 pedidos.");
 } finally {
   await close();
 }

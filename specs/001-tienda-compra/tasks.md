@@ -33,7 +33,7 @@ Un solo paquete en la raíz: `src/shared`, `src/db`, `src/worker`, `src/web`, `t
 - [X] T001 Crear `package.json` (nombre `r-cube`, `"type": "module"`, `engines.node >=24`) e instalar
   las versiones fijadas en research.md R1: hono, better-auth, drizzle-orm, pg, zod, @hono/zod-validator,
   react, react-dom, react-router, @tanstack/react-query, react-hook-form, @hookform/resolvers, zustand;
-  dev: typescript@~6.0, vite@8, @vitejs/plugin-react, @cloudflare/vite-plugin, wrangler,
+  dev: typescript@~6.0, vite@7 (ver research R1), @vitejs/plugin-react@5, @cloudflare/vite-plugin, wrangler,
   @cloudflare/workers-types, drizzle-kit, tsx, vitest@~4.1, @cloudflare/vitest-plugin, postgres (postgres.js),
   @playwright/test, tailwindcss@4, @tailwindcss/vite, eslint, typescript-eslint, prettier,
   @types/react, @types/react-dom (RNF-08)
@@ -417,7 +417,7 @@ descontado
 
 ## Phase 10: Polish & Cross-Cutting Concerns
 
-- [X] T077 [P] Crear `public/_headers` con CSP (`default-src 'self'`, `img-src 'self' data:`, hash del
+- [ ] T077 [P] Crear `public/_headers` con CSP (`default-src 'self'`, `img-src 'self' data:`, hash del
   script de tema en `script-src`, `frame-ancestors 'none'`), `X-Content-Type-Options`,
   `Referrer-Policy` y `Permissions-Policy` (RNF-05)
 - [ ] T078 [P] Crear `src/web/pages/NotFound.tsx` y revisar que todas las páginas tengan estados de
@@ -427,8 +427,8 @@ descontado
   `e2e/accesibilidad.spec.ts` sobre portada, catálogo, detalle, carrito y checkout en ambos temas
   (RNF-03, SC-006)
 - [ ] T080 Revisar rendimiento del catálogo: imágenes con tamaño y `loading="lazy"`, división de código
-  por ruta y tiempo de carga con la red móvil simulada de Playwright; con un script
-  `scripts/seed-volumen.ts` que genera 1 000 productos en la base de Docker, medir que la consulta del
+  por ruta y tiempo de carga con la red móvil simulada de Playwright; con la prueba
+  `tests/api/volume.test.ts`, que carga 1 000 productos en la base de Docker, comprobar que el
   catálogo con búsqueda y filtros responde en menos de 300 ms (RNF-04, SC-003, SC-008)
 - [ ] T081 Escribir `DESPLIEGUE.md`: variables y secretos (`BETTER_AUTH_SECRET`, `PUBLIC_URL`,
   `DATABASE_URL` solo para migrar y sembrar), crear Hyperdrive **con caché desactivada**, crear el bucket

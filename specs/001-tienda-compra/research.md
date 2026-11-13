@@ -12,6 +12,13 @@ Fecha: 2026-11-12. Versiones consultadas en npm ese día.
   `typescript <6.1` (no la 7). El plugin de Vite acepta Vite 8 con Wrangler ≥4.160.
 - **Alternatives considered**: TypeScript 7 y Vitest 5 (más nuevos, pero rompen esas dos piezas).
 
+- **Revisión en implement (2026-11-13)**: se usa **Vite 7.3** con `@vitejs/plugin-react` 5.2 en
+  lugar de Vite 8. El empaquetador de Vite 8 (Rolldown) generaba dos instancias de React en el bundle
+  de producción (dos envoltorios del mismo módulo CommonJS), y la app caía al cargar con «Cannot read
+  properties of null (reading 'useContext')». Se comprobó con un build sin minificar: el mismo
+  archivo `react.production.js` aparecía dos veces aun sin división de código. Vite 7 usa Rollup y no
+  presenta el problema; el plugin de Cloudflare, Tailwind y Vitest 4.1 lo admiten.
+
 ## R2. Conexión a PostgreSQL desde el Worker
 
 - **Decision** (revisada en implement, 2026-11-12): driver `postgres` (postgres.js) con

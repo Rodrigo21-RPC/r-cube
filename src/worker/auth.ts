@@ -6,14 +6,17 @@ import { hashPassword, verifyPassword } from "./password";
 
 export const SESSION_DAYS = 7;
 
-/** Better Auth por petición: necesita la conexión de esa petición (research R3). */
-export function createAuth(db: Db, env: { BETTER_AUTH_SECRET: string; PUBLIC_URL: string }) {
+/**
+ * Better Auth por petición: necesita la conexión de esa petición (research R3). La web y la API
+ * comparten origen (un solo Worker), así que el origen de confianza es el que atiende la petición.
+ */
+export function createAuth(db: Db, opts: { secret: string; origin: string }) {
   return betterAuth({
     appName: "R Cube",
-    baseURL: env.PUBLIC_URL,
+    baseURL: opts.origin,
     basePath: "/api/auth",
-    secret: env.BETTER_AUTH_SECRET,
-    trustedOrigins: [env.PUBLIC_URL],
+    secret: opts.secret,
+    trustedOrigins: [opts.origin],
     database: drizzleAdapter(db, {
       provider: "pg",
       schema: {

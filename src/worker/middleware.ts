@@ -43,7 +43,7 @@ export function errorResponse(c: Context, err: unknown) {
 /** Conexión, Better Auth y sesión por petición. */
 export const withContext = createMiddleware<AppEnv>(async (c, next) => {
   const { db, close } = createDb(c.env.HYPERDRIVE.connectionString);
-  const auth = createAuth(db, c.env);
+  const auth = createAuth(db, { secret: c.env.BETTER_AUTH_SECRET, origin: new URL(c.req.url).origin });
   c.set("db", db);
   c.set("auth", auth);
   try {

@@ -19,7 +19,7 @@ Ver [research.md](research.md) para cada decisión.
 
 **Primary Dependencies**: Hono 4.13, Better Auth 1.7, Drizzle ORM 0.45 + drizzle-kit 0.31, `postgres` (postgres.js) 4,
 React 19, React Router 8 (SPA), TanStack Query 5, React Hook Form 7, Zod 4, Zustand 5, Tailwind CSS 4,
-shadcn/ui, Vite 8 con `@cloudflare/vite-plugin` 1.69, Wrangler 4.161
+shadcn/ui, Vite 7.3 (ver research R1) con `@cloudflare/vite-plugin` 1.69, Wrangler 4.161
 
 **Storage**: PostgreSQL 16 (Supabase en producción, Docker en local y CI) mediante Hyperdrive (caché
 desactivada); Cloudflare R2 configurado para la 002; fotos de demostración estáticas
