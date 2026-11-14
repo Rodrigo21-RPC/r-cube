@@ -7,11 +7,11 @@ WhatsApp). Español de Perú, soles con IGV incluido.
 ## Stack
 - TypeScript estricto. Web: React + Vite, Tailwind CSS, shadcn/ui, React Router, TanStack Query,
   React Hook Form + Zod, Zustand (carrito del visitante). Tema claro y oscuro con variables CSS.
-- API: Hono sobre Cloudflare Workers con cliente tipado (Hono RPC). Un solo Worker sirve la web
+- API: Hono sobre Cloudflare Workers; cliente web tipado con los tipos de `src/shared/types.ts`. Un solo Worker sirve la web
   (static assets) y la API; `@cloudflare/vite-plugin` en desarrollo.
-- Datos: PostgreSQL en Supabase, Drizzle ORM + drizzle-kit (migraciones), Hyperdrive.
+- Datos: PostgreSQL en Supabase, driver postgres.js, Drizzle ORM + drizzle-kit (migraciones), Hyperdrive.
 - Auth: Better Auth con roles `cliente` y `administrador`. Fotos subidas: Cloudflare R2.
-- Pruebas: Vitest (`@cloudflare/vitest-pool-workers` para la API) y Playwright, contra Postgres
+- Pruebas: Vitest (`@cloudflare/vitest-plugin` para la API) y Playwright, contra Postgres
   en Docker. Calidad: ESLint, Prettier, CI en GitHub Actions (Node 24 LTS).
 
 ## Comandos
@@ -28,5 +28,8 @@ WhatsApp). Español de Perú, soles con IGV incluido.
 - Ramas por feature `NNN-nombre`; merge a `main` con `--no-ff`.
 - Nunca agregar firmas ni menciones de IA (Co-Authored-By, "Generated with Claude Code") en
   commits, README ni descripciones del repositorio.
+
+## Convención de cierre de feature
+Cuando te pida "cerrar la feature", ejecuta: verificar el working tree y commitear los cambios pendientes; correr tests (parar si fallan); hacer checkout de main; fusionar la rama de la feature con --no-ff y el mensaje "Merge feature NNN: <nombre>"; borrar la rama local y la rama remota correspondiente; subir main al remoto; y mostrar git log --oneline --graph -10. Si el push falla, informar el error y dejar claro qué pasos sí se completaron.
 
 Las reglas de producto viven en .specify/memory/constitution.md, los requisitos y las historias de usuario en docs/requisitos/ y el estado del producto en specs/README.md
