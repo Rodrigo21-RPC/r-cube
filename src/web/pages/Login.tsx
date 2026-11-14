@@ -61,7 +61,7 @@ export default function Login() {
       </Card>
       <p className="text-center text-muted">
         ¿No tienes cuenta?{" "}
-        <Link to={`/registro?volver=${encodeURIComponent(back)}`} className="text-accent hover:underline">
+        <Link to={`/registro?volver=${encodeURIComponent(back)}`} className="text-accent underline underline-offset-2">
           Regístrate
         </Link>
       </p>

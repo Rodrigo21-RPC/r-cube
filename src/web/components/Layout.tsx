@@ -25,7 +25,7 @@ export function Layout() {
           <p>© {new Date().getFullYear()} R Cube. Precios en soles con IGV incluido.</p>
           <p>
             Pagos simulados en modo de prueba: no se cobra dinero real.{" "}
-            <Link to="/catalogo" className="text-accent hover:underline">
+            <Link to="/catalogo" className="text-accent underline underline-offset-2">
               Ver catálogo
             </Link>
           </p>

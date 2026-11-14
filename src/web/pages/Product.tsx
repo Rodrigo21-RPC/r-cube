@@ -57,7 +57,7 @@ export default function Product() {
         <section className="flex flex-col gap-4">
           <div>
             <p className="text-sm font-medium text-accent">
-              <Link to={`/catalogo?category=${p.category.slug}`} className="hover:underline">{p.category.name}</Link> · {p.brand}
+              <Link to={`/catalogo?category=${p.category.slug}`} className="underline underline-offset-2">{p.category.name}</Link> · {p.brand}
             </p>
             <h1 className="mt-1 text-[28px] font-semibold leading-tight tracking-tight">{p.name}</h1>
           </div>

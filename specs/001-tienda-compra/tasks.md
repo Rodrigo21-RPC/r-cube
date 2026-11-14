@@ -417,28 +417,28 @@ descontado
 
 ## Phase 10: Polish & Cross-Cutting Concerns
 
-- [ ] T077 [P] Crear `public/_headers` con CSP (`default-src 'self'`, `img-src 'self' data:`, hash del
+- [X] T077 [P] Crear `public/_headers` con CSP (`default-src 'self'`, `img-src 'self' data:`, hash del
   script de tema en `script-src`, `frame-ancestors 'none'`), `X-Content-Type-Options`,
   `Referrer-Policy` y `Permissions-Policy` (RNF-05)
-- [ ] T078 [P] Crear `src/web/pages/NotFound.tsx` y revisar que todas las páginas tengan estados de
+- [X] T078 [P] Crear `src/web/pages/NotFound.tsx` y revisar que todas las páginas tengan estados de
   carga, vacío y error y `<title>` propio (RNF-02)
-- [ ] T079 Revisar accesibilidad: etiquetas de formularios, foco visible, orden de tabulación, textos
+- [X] T079 Revisar accesibilidad: etiquetas de formularios, foco visible, orden de tabulación, textos
   alternativos, `aria-live` para avisos del carrito y del checkout; agregar `@axe-core/playwright` en
   `e2e/accesibilidad.spec.ts` sobre portada, catálogo, detalle, carrito y checkout en ambos temas
   (RNF-03, SC-006)
-- [ ] T080 Revisar rendimiento del catálogo: imágenes con tamaño y `loading="lazy"`, división de código
+- [X] T080 Revisar rendimiento del catálogo: imágenes con tamaño y `loading="lazy"`, división de código
   por ruta y tiempo de carga con la red móvil simulada de Playwright; con la prueba
   `tests/api/volume.test.ts`, que carga 1 000 productos en la base de Docker, comprobar que el
   catálogo con búsqueda y filtros responde en menos de 300 ms (RNF-04, SC-003, SC-008)
-- [ ] T081 Escribir `DESPLIEGUE.md`: variables y secretos (`BETTER_AUTH_SECRET`, `PUBLIC_URL`,
+- [X] T081 Escribir `DESPLIEGUE.md`: variables y secretos (`BETTER_AUTH_SECRET`, `PUBLIC_URL`,
   `DATABASE_URL` solo para migrar y sembrar), crear Hyperdrive **con caché desactivada**, crear el bucket
   R2 `r-cube-fotos`, actualizar los IDs en `wrangler.jsonc`, `npm run db:migrate` y `npm run db:seed`
   contra Supabase, `npm run deploy`, comprobaciones (tienda, compra con 4111, cron) y la nota del límite
   de CPU del plan gratuito (RNF-10)
-- [ ] T082 Crear `README.md` del proyecto (qué es, cómo arrancar, cómo probar, enlace a DESPLIEGUE.md),
+- [X] T082 Crear `README.md` del proyecto (qué es, cómo arrancar, cómo probar, enlace a DESPLIEGUE.md),
   sin menciones de herramientas de IA (RNF-10)
-- [ ] T083 Actualizar `specs/README.md` con el estado de la 001 (RNF-09)
-- [ ] T084 Ejecutar `npm run check` y `npm run test:e2e` y recorrer quickstart.md en tema claro y
+- [X] T083 Actualizar `specs/README.md` con el estado de la 001 (RNF-09)
+- [X] T084 Ejecutar `npm run check` y `npm run test:e2e` y recorrer quickstart.md en tema claro y
   oscuro; corregir contra la spec lo que falle (SC-005)
 
 ---

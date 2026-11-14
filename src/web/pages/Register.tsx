@@ -67,7 +67,7 @@ export default function Register() {
       </Card>
       <p className="text-center text-muted">
         ¿Ya tienes cuenta?{" "}
-        <Link to={`/ingresar?volver=${encodeURIComponent(back)}`} className="text-accent hover:underline">
+        <Link to={`/ingresar?volver=${encodeURIComponent(back)}`} className="text-accent underline underline-offset-2">
           Ingresa
         </Link>
       </p>

@@ -8,9 +8,13 @@ test.describe("HU-01 a HU-05: descubrir productos", () => {
     await expect(page.getByText(/resultados para «SAMSUNG»/)).toBeVisible();
 
     await page.goto("/catalogo?category=celulares");
+    await expect(page.getByRole("heading", { name: "Catálogo", level: 1 })).toBeVisible();
+    await expect(page.getByText(/^\d+ productos$/)).toBeVisible();
     const filtros = page.getByRole("complementary", { name: "Filtros" });
-    if (!(await filtros.isVisible())) await page.getByRole("button", { name: "Filtros" }).click();
-    await filtros.getByLabel("Apple").check();
+    if (!(await filtros.isVisible())) await page.getByRole("button", { name: "Filtros", exact: true }).click();
+    const apple = filtros.getByRole("checkbox", { name: /^Apple/ });
+    await apple.click();
+    await expect(apple).toBeChecked();
     await expect(page.getByRole("button", { name: "Quitar filtro Apple" })).toBeVisible();
     await page.getByLabel("Ordenar por").selectOption("price_desc");
     await expect(page).toHaveURL(/brand=apple/);

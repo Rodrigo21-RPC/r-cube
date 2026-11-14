@@ -72,6 +72,7 @@ test.describe("HU-11 a HU-21: compra completa", () => {
     const email = unique();
     await page.goto("/registro");
     await register(page, email);
+    await expect(page).toHaveURL("/");
     await addProduct(page, "ssd-nvme-1-tb");
     await expect(page.getByRole("link", { name: /Carrito, 1 unidad/ })).toBeVisible();
     await page.goto("/cuenta");
