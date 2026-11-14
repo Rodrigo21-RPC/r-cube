@@ -52,6 +52,8 @@ export function createAuth(db: Db, opts: { secret: string; origin: string }) {
     },
     advanced: {
       useSecureCookies: true,
+      // En Cloudflare la IP real del cliente llega en cf-connecting-ip; sin esto el límite por IP no actúa (RNF-05).
+      ipAddress: { ipAddressHeaders: ["cf-connecting-ip", "x-forwarded-for"] },
       defaultCookieAttributes: { httpOnly: true, secure: true, sameSite: "lax" },
       database: { generateId: () => crypto.randomUUID() },
     },
