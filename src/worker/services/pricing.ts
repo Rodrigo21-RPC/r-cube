@@ -27,7 +27,8 @@ export async function quoteCart(db: Db, requested: RequestedItem[]): Promise<Car
           name: product.name,
           priceCents: product.priceCents,
           stock: product.stock,
-          active: product.active,
+          // Una categoría o marca desactivada también deja el producto no disponible (HU-32, HU-13).
+          active: sql<boolean>`${product.active} and exists(select 1 from category c where c.id = ${product.categoryId} and c.active) and exists(select 1 from brand b where b.id = ${product.brandId} and b.active)`,
           imageUrl: sql<string | null>`(select ${productImage.url} from ${productImage}
             where ${productImage.productId} = ${product.id} order by ${productImage.position} limit 1)`,
         })

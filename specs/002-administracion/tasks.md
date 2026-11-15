@@ -109,28 +109,28 @@ categoría, top 5 y últimos pedidos
 
 **Independent Test**: crear un producto, editar su precio, desactivarlo y ver el efecto en la tienda
 
-- [ ] T019 [P] [US2] Escribir `tests/api/admin/products.test.ts` (HU-28 a HU-30): crear con validaciones
+- [X] T019 [P] [US2] Escribir `tests/api/admin/products.test.ts` (HU-28 a HU-30): crear con validaciones
   (precio > 0, precio anterior > precio, nombre obligatorio, marca y categoría existentes, stock ≥ 0) y
   movimiento `inicial`; editar sin cambiar stock; cambio de precio con auditoría `precio_cambiado`
   (antes y después); desactivar oculta en `/api/catalog/*` y conserva pedidos; lista con búsqueda,
   categoría, estado, stock bajo y páginas de 20; debe fallar
-- [ ] T020 [P] [US2] Escribir `tests/api/admin/taxonomy.test.ts` (HU-32): crear, renombrar, nombre
+- [X] T020 [P] [US2] Escribir `tests/api/admin/taxonomy.test.ts` (HU-32): crear, renombrar, nombre
   duplicado → 409; desactivar con productos activos sin `confirm` → 409 `HAS_ACTIVE_PRODUCTS` con
   `count`; con `confirm` se desactiva y la tienda deja de mostrarla; un producto de una categoría o marca
   desactivada aparece como no disponible en `/api/cart/quote` y el checkout lo rechaza (Edge Cases);
   auditoría; debe fallar
-- [ ] T021 [US2] Implementar `src/worker/routes/admin/products.ts` (`GET /products`, `GET /products/:id`,
+- [X] T021 [US2] Implementar `src/worker/routes/admin/products.ts` (`GET /products`, `GET /products/:id`,
   `POST /products`, `PATCH /products/:id`, `PATCH /products/:id/status`) con Zod y auditoría hasta pasar
   T019 (HU-28 a HU-30)
-- [ ] T022 [US2] Implementar `src/worker/routes/admin/taxonomy.ts` (`/categories` y `/brands`) y hacer que
+- [X] T022 [US2] Implementar `src/worker/routes/admin/taxonomy.ts` (`/categories` y `/brands`) y hacer que
   `quoteCart` en `src/worker/services/pricing.ts` trate como no disponibles los productos de una categoría
   o marca desactivada, hasta pasar T020 (HU-32, HU-13)
-- [ ] T023 [US2] Crear `src/web/admin/pages/Products.tsx` (búsqueda, filtros, tabla con foto, precio,
+- [X] T023 [US2] Crear `src/web/admin/pages/Products.tsx` (búsqueda, filtros, tabla con foto, precio,
   stock y estado, paginación, activar o desactivar) (HU-29, HU-30)
-- [ ] T024 [US2] Crear `src/web/admin/pages/ProductForm.tsx` (crear y editar con React Hook Form y Zod,
+- [X] T024 [US2] Crear `src/web/admin/pages/ProductForm.tsx` (crear y editar con React Hook Form y Zod,
   specs como filas que se agregan y quitan, errores por campo; el stock solo se pide al crear) (HU-28,
   FR-006)
-- [ ] T025 [US2] Crear `src/web/admin/pages/Taxonomy.tsx` (categorías y marcas: crear, renombrar,
+- [X] T025 [US2] Crear `src/web/admin/pages/Taxonomy.tsx` (categorías y marcas: crear, renombrar,
   activar o desactivar con el aviso de productos afectados) (HU-32)
 
 ---
