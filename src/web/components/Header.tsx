@@ -28,6 +28,11 @@ export function Header({ themeToggle }: { themeToggle?: React.ReactNode }) {
 
         <div className="ml-auto flex items-center gap-1 md:order-3">
           {themeToggle}
+          {me?.role === "administrador" && (
+            <Link to="/admin" className="inline-flex h-11 items-center rounded-full px-3 text-sm font-medium text-accent hover:bg-surface">
+              Panel
+            </Link>
+          )}
           <Link
             to={me ? "/cuenta" : "/ingresar"}
             className="inline-flex h-11 items-center gap-2 rounded-full px-3 hover:bg-surface"

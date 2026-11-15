@@ -9,6 +9,8 @@ import { accountRoutes } from "./routes/account";
 import { cartRoutes } from "./routes/cart";
 import { checkoutRoutes } from "./routes/checkout";
 import { orderRoutes } from "./routes/orders";
+import { adminRoutes } from "./routes/admin";
+import { mediaRoutes } from "./routes/media";
 import { expirePendingOrders } from "./cron";
 
 const app = new Hono<AppEnv>().basePath("/api");
@@ -28,7 +30,9 @@ app
   .route("/catalog", catalogRoutes)
   .route("/cart", cartRoutes)
   .route("/checkout", checkoutRoutes)
-  .route("/orders", orderRoutes);
+  .route("/orders", orderRoutes)
+  .route("/admin", adminRoutes)
+  .route("/media", mediaRoutes);
 
 export default {
   fetch: app.fetch,

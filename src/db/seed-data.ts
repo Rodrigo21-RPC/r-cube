@@ -83,7 +83,7 @@ const ZONES = [
 ];
 
 export async function runSeed(db: Db, passwords: { admin: string; customer: string }) {
-  await db.execute(sql`TRUNCATE TABLE order_event, payment, order_item, orders, cart_item, product_image,
+  await db.execute(sql`TRUNCATE TABLE audit_log, stock_movement, order_event, payment, order_item, orders, cart_item, product_image,
     product, brand, category, delivery_zone, store_settings, session, account, verification,
     rate_limit, "user" RESTART IDENTITY CASCADE`);
 
@@ -212,4 +212,40 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
     }
   }
   await db.execute(sql`SELECT setval('order_number_seq', ${ORDERS.length})`);
+  await seedStockHistory(db);
+}
+
+/**
+ * Historial de stock coherente con los pedidos de demostración (FR-028): stock inicial = stock actual +
+ * unidades de pedidos no cancelados; luego una venta por línea y una devolución por pedido cancelado.
+ */
+async function seedStockHistory(db: Db) {
+  const lines = (await db.execute(sql`select oi.product_id, oi.quantity, o.id as order_id, o.status, o.created_at,
+      (select e.created_at from order_event e where e.order_id = o.id and e.to_status = 'cancelled' limit 1) as cancelled_at
+    from order_item oi join orders o on o.id = oi.order_id order by o.created_at`)) as unknown as {
+    product_id: string; quantity: number; order_id: string; status: string; created_at: Date; cancelled_at: Date | null;
+  }[];
+  const products = (await db.execute(sql`select id, stock, created_at from product`)) as unknown as {
+    id: string; stock: number; created_at: Date;
+  }[];
+  const rows: (typeof s.stockMovement.$inferInsert)[] = [];
+  for (const p of products) {
+    const own = lines.filter((l) => l.product_id === p.id);
+    let running = p.stock + own.filter((l) => l.status !== "cancelled").reduce((sum, l) => sum + l.quantity, 0);
+    const events: { at: Date; delta: number; source: "venta" | "cancelacion"; orderId: string }[] = [];
+    for (const l of own) {
+      events.push({ at: new Date(l.created_at), delta: -l.quantity, source: "venta", orderId: l.order_id });
+      if (l.status === "cancelled" && l.cancelled_at)
+        events.push({ at: new Date(l.cancelled_at), delta: l.quantity, source: "cancelacion", orderId: l.order_id });
+    }
+    if (running > 0)
+      rows.push({ id: `mov-${p.id}-0`, productId: p.id, delta: running, stockBefore: 0, stockAfter: running, source: "inicial",
+        reason: "Stock inicial de demostración", actorType: "sistema", createdAt: new Date(p.created_at) });
+    events.sort((a, b) => a.at.getTime() - b.at.getTime()).forEach((e, i) => {
+      rows.push({ id: `mov-${p.id}-${i + 1}`, productId: p.id, delta: e.delta, stockBefore: running, stockAfter: running + e.delta,
+        source: e.source, orderId: e.orderId, actorType: e.source === "venta" ? "cliente" : "sistema", createdAt: e.at });
+      running += e.delta;
+    });
+  }
+  if (rows.length) await db.insert(s.stockMovement).values(rows);
 }

@@ -13,10 +13,10 @@ export function Badge({
 }: ComponentProps<"span"> & { tone?: "neutral" | "success" | "warning" | "danger" | "accent" }) {
   const tones = {
     neutral: "bg-surface-2 text-text",
-    success: "bg-success/15 text-success",
-    warning: "bg-warning/15 text-warning",
-    danger: "bg-danger/15 text-danger",
-    accent: "bg-accent/15 text-accent",
+    success: "bg-canvas text-success ring-1 ring-inset ring-success/40",
+    warning: "bg-canvas text-warning ring-1 ring-inset ring-warning/40",
+    danger: "bg-canvas text-danger ring-1 ring-inset ring-danger/40",
+    accent: "bg-canvas text-accent ring-1 ring-inset ring-accent/40",
   };
   return (
     <span

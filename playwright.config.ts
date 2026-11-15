@@ -1,4 +1,8 @@
+import { existsSync } from "node:fs";
 import { defineConfig, devices } from "@playwright/test";
+
+// En local, las contraseñas del seed están en .env; en CI vienen del entorno.
+if (existsSync(".env")) process.loadEnvFile(".env");
 
 const ci = Boolean(process.env.CI);
 

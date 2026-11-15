@@ -1,6 +1,7 @@
 import { lazy } from "react";
 import { createBrowserRouter } from "react-router";
 import { Layout } from "./components/Layout";
+import { adminRoute } from "./admin/routes";
 
 const page = (load: () => Promise<{ default: React.ComponentType }>) => lazy(load);
 
@@ -18,6 +19,7 @@ const OrderDetail = page(() => import("./pages/OrderDetail"));
 const NotFound = page(() => import("./pages/NotFound"));
 
 export const router = createBrowserRouter([
+  adminRoute,
   {
     element: <Layout />,
     children: [

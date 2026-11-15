@@ -30,10 +30,13 @@ pedidos impagos con más de 24 horas (RN-12).
    npx wrangler hyperdrive create r-cube-db --connection-string="<cadena de Supabase>" --caching-disabled
    ```
    Copiar el `id` que devuelve al campo `hyperdrive[0].id` de `wrangler.jsonc`.
-2. **Bucket R2:**
+2. **Bucket R2 (obligatorio desde la feature 002).** Guarda las fotos que sube el administrador;
+   sin el bucket, la subida de fotos falla:
    ```
    npx wrangler r2 bucket create r-cube-fotos
    ```
+   Las fotos se sirven por `GET /api/media/*` desde el mismo Worker, con caché larga (la clave del
+   objeto cambia en cada subida, por lo que nunca se sirve una foto vieja).
 3. **Secreto de sesión:**
    ```
    npx wrangler secret put BETTER_AUTH_SECRET
@@ -45,7 +48,8 @@ pedidos impagos con más de 24 horas (RN-12).
    npm run db:seed
    ```
    El seed borra y vuelve a crear todos los datos. Solo debe correrse en una base nueva o de
-   demostración.
+   demostración. También crea el historial de stock: el saldo de cada producto coincide con la suma
+   de sus movimientos (inicial, ventas y cancelaciones).
 6. **Publicar:**
    ```
    npm run deploy
@@ -60,6 +64,9 @@ pedidos impagos con más de 24 horas (RN-12).
 | Comprar con la tarjeta `4111 1111 1111 1111` | Pedido `RC-…` en estado Pagado |
 | Comprar con `4000 0000 0000 0002` | Rechazo sin pedido |
 | Panel de Cloudflare → Worker → Triggers | Cron `0 * * * *` activo |
+| Entrar a `<URL>/admin` con `admin@rcube.pe` | Resumen con ventas, pedidos pendientes y stock bajo |
+| Panel → Productos → un producto → subir una foto de 2 MB o menos | La foto aparece en el panel y en la tienda desde `/api/media/productos/…` |
+| Entrar a `<URL>/admin` con una cuenta de cliente | «No tienes permiso para entrar al panel» |
 | Cabeceras de `<URL>/` | `Content-Security-Policy` y `X-Frame-Options: DENY` presentes |
 
 Cuentas de demostración: `admin@rcube.pe` (administrador) y `mateo@demo.pe`, `lucia@demo.pe`,

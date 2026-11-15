@@ -6,6 +6,9 @@ Software, desarrollado con Spec-Driven Development y GitHub Spec Kit.
 
 - **Tienda:** catálogo con búsqueda y filtros, detalle, carrito, cuenta, checkout con 4 métodos de
   pago simulados (tarjeta, Yape o Plin, transferencia y WhatsApp) y Mis pedidos.
+- **Panel de administración** en `/admin` (solo rol administrador): resumen de ventas, productos con
+  fotos, categorías y marcas, stock con historial, pedidos con estados válidos, confirmación o rechazo
+  de pagos, clientes, configuración de la tienda, exportación a CSV y registro de auditoría.
 - **Tema claro y oscuro** en toda la app.
 - Precios en soles con IGV incluido. Pagos simulados: no se cobra dinero real.
 
@@ -29,7 +32,7 @@ npm run dev                   # http://localhost:5173
 
 ```
 npm run check                 # tipos, lint, contraste AA, pruebas unitarias y de API
-npm run test:e2e              # compra completa y cambio de tema en el navegador
+npm run test:e2e              # compra, panel de administración, accesibilidad y tema en el navegador
 ```
 
 ## Documentación
