@@ -5,6 +5,7 @@ import { productImageRoutes, productRoutes } from "./products";
 import { taxonomyRoutes } from "./taxonomy";
 import { stockRoutes } from "./stock";
 import { adminOrderRoutes } from "./orders";
+import { paymentRoutes } from "./payments";
 
 /** Sub-router del panel: un único requireAdmin protege todas las rutas /api/admin/* (HU-26, FR-002). */
 export const adminRoutes = new Hono<AppEnv>().use(requireAdmin).route("/", summaryRoutes)
@@ -12,4 +13,5 @@ export const adminRoutes = new Hono<AppEnv>().use(requireAdmin).route("/", summa
   .route("/", productImageRoutes)
   .route("/", taxonomyRoutes)
   .route("/", stockRoutes)
-  .route("/", adminOrderRoutes);
+  .route("/", adminOrderRoutes)
+  .route("/", paymentRoutes);

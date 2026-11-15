@@ -209,14 +209,14 @@ categoría, top 5 y últimos pedidos
 
 **Independent Test**: confirmar un pago Yape pendiente y rechazar otro con motivo
 
-- [ ] T040 [US6] Escribir `tests/api/admin/payments.test.ts` (HU-36, RN-12, RN-13): lista de Pendiente de
+- [X] T040 [US6] Escribir `tests/api/admin/payments.test.ts` (HU-36, RN-12, RN-13): lista de Pendiente de
   pago del más antiguo al más nuevo con código de operación y `expiresAt` = creación + 24 h; confirmar →
   Pagado y pago `confirmed` con evento del administrador; rechazar exige motivo → Cancelado, pago
   `rejected` y stock devuelto; confirmar un pedido ya cancelado → 409 `STATE_CHANGED`; auditoría
   `pago_confirmado` y `pago_rechazado`; debe fallar
-- [ ] T041 [US6] Implementar `src/worker/routes/admin/payments.ts` (`GET /payments/pending`, `POST
+- [X] T041 [US6] Implementar `src/worker/routes/admin/payments.ts` (`GET /payments/pending`, `POST
   /orders/:number/payment/confirm`, `POST /orders/:number/payment/reject`) hasta pasar T040 (HU-36)
-- [ ] T042 [US6] Crear `src/web/admin/pages/Payments.tsx` (lista con antigüedad y tiempo restante,
+- [X] T042 [US6] Crear `src/web/admin/pages/Payments.tsx` (lista con antigüedad y tiempo restante,
   confirmar y rechazar con motivo) y agregar los mismos botones al detalle en
   `src/web/admin/pages/OrderDetail.tsx` cuando el pedido está pendiente (HU-36, FR-019)
 
