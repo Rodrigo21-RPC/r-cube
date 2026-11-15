@@ -228,13 +228,13 @@ categoría, top 5 y últimos pedidos
 
 **Independent Test**: cambiar WhatsApp, costo de una zona y desactivar transferencia; verlo en el checkout
 
-- [ ] T043 [US8] Escribir `tests/api/admin/settings.test.ts` (HU-41): validaciones (WhatsApp `^51\d{9}$`,
+- [X] T043 [US8] Escribir `tests/api/admin/settings.test.ts` (HU-41): validaciones (WhatsApp `^51\d{9}$`,
   Yape y Plin `^9\d{8}$`, CCI `^\d{20}$`, al menos un método activo, costo ≥ 0); cambios visibles en
   `/api/checkout/options`; zona nueva, editada y desactivada; pedido anterior conserva su costo de envío;
   auditoría `configuracion` y `zona` con antes y después; debe fallar
-- [ ] T044 [US8] Implementar `src/worker/routes/admin/settings.ts` (`GET /settings`, `PATCH /settings`,
+- [X] T044 [US8] Implementar `src/worker/routes/admin/settings.ts` (`GET /settings`, `PATCH /settings`,
   `POST /zones`, `PATCH /zones/:id`) hasta pasar T043 (HU-41)
-- [ ] T045 [US8] Crear `src/web/admin/pages/Settings.tsx` (formulario de contacto y pagos, métodos activos
+- [X] T045 [US8] Crear `src/web/admin/pages/Settings.tsx` (formulario de contacto y pagos, métodos activos
   con casillas y tabla de zonas editable) (HU-41)
 
 ---
