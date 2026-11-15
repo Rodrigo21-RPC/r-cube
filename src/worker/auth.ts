@@ -48,7 +48,9 @@ export function createAuth(db: Db, opts: { secret: string; origin: string }) {
       modelName: "rateLimit",
       window: 60,
       max: 100,
-      customRules: { "/sign-in/email": { window: 60, max: 20 } },
+      // Better Auth limita el registro a 3 cada 10 s por defecto; es demasiado estricto para una oficina o un
+      // colegio que comparten red. El ingreso (donde está el riesgo de fuerza bruta) sigue con tope bajo.
+      customRules: { "/sign-in/email": { window: 60, max: 20 }, "/sign-up/email": { window: 60, max: 30 } },
     },
     advanced: {
       useSecureCookies: true,

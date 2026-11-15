@@ -5,6 +5,10 @@ import { api, cookieFrom, resetDb, signIn, signUp, withDb } from "./helpers";
 beforeEach(resetDb);
 
 describe("HU-07: registro", () => {
+  it("HU-07, RNF-05: permite varios registros seguidos desde la misma red (el tope por defecto de 3 cada 10 s bloqueaba a una oficina o a las pruebas)", async () => {
+    for (let i = 0; i < 6; i++) await signUp();
+  });
+
   it("HU-07: crea la cuenta con sesión iniciada", async () => {
     const res = await api("/auth/sign-up/email", {
       method: "POST",
