@@ -92,7 +92,8 @@ categoría, top 5 y últimos pedidos
   exactos para pedidos de hoy y de ayer en hora de Lima (excluye Pendiente de pago y Cancelado), pedidos
   por preparar (Pagado y Preparando), pagos por confirmar, clientes, stock bajo (activos con stock ≤ 5);
   `salesByDay` con 30 días completos (días sin ventas en 0); ventas por categoría; top 5 por unidades;
-  últimos 5 pedidos; debe fallar
+  últimos 5 pedidos; con el Worker ya iniciado, la respuesta llega en menos de 2 s con los datos de
+  demostración (SC-004); debe fallar
 - [ ] T016 [US1] Implementar `GET /api/admin/summary` en `src/worker/routes/admin/summary.ts` hasta pasar
   T015 (HU-27)
 - [ ] T017 [US1] Crear `src/web/admin/components/SalesChart.tsx` (barras SVG de 30 días con eje, valores
@@ -115,12 +116,15 @@ categoría, top 5 y últimos pedidos
   categoría, estado, stock bajo y páginas de 20; debe fallar
 - [ ] T020 [P] [US2] Escribir `tests/api/admin/taxonomy.test.ts` (HU-32): crear, renombrar, nombre
   duplicado → 409; desactivar con productos activos sin `confirm` → 409 `HAS_ACTIVE_PRODUCTS` con
-  `count`; con `confirm` se desactiva y la tienda deja de mostrarla; auditoría; debe fallar
+  `count`; con `confirm` se desactiva y la tienda deja de mostrarla; un producto de una categoría o marca
+  desactivada aparece como no disponible en `/api/cart/quote` y el checkout lo rechaza (Edge Cases);
+  auditoría; debe fallar
 - [ ] T021 [US2] Implementar `src/worker/routes/admin/products.ts` (`GET /products`, `GET /products/:id`,
   `POST /products`, `PATCH /products/:id`, `PATCH /products/:id/status`) con Zod y auditoría hasta pasar
   T019 (HU-28 a HU-30)
-- [ ] T022 [US2] Implementar `src/worker/routes/admin/taxonomy.ts` (`/categories` y `/brands`) hasta
-  pasar T020 (HU-32)
+- [ ] T022 [US2] Implementar `src/worker/routes/admin/taxonomy.ts` (`/categories` y `/brands`) y hacer que
+  `quoteCart` en `src/worker/services/pricing.ts` trate como no disponibles los productos de una categoría
+  o marca desactivada, hasta pasar T020 (HU-32, HU-13)
 - [ ] T023 [US2] Crear `src/web/admin/pages/Products.tsx` (búsqueda, filtros, tabla con foto, precio,
   stock y estado, paginación, activar o desactivar) (HU-29, HU-30)
 - [ ] T024 [US2] Crear `src/web/admin/pages/ProductForm.tsx` (crear y editar con React Hook Form y Zod,
@@ -178,7 +182,8 @@ categoría, top 5 y últimos pedidos
 **Independent Test**: filtrar Pagados, pasar uno a Preparando y Enviado, exportar CSV
 
 - [ ] T034 [P] [US5] Escribir `tests/unit/csv.test.ts` (HU-37): BOM inicial, separador coma, comillas
-  dobles para campos con coma, comillas o saltos de línea, tildes intactas; debe fallar
+  dobles para campos con coma, comillas o saltos de línea, tildes intactas, y celdas que empiezan con
+  `=`, `+`, `-` o `@` precedidas por `'` para evitar inyección de fórmulas (RNF-05); debe fallar
 - [ ] T035 [P] [US5] Escribir `tests/api/admin/orders.test.ts` (HU-34, HU-35, HU-37, FR-017): filtros por
   estado, método, rango de fechas y texto (N.º, nombre, correo) con páginas de 20; detalle con cliente y
   `allowedTransitions` (recojo: Preparando → Entregado; delivery: Preparando → Enviado); transición
