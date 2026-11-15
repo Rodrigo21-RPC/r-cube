@@ -6,6 +6,12 @@ const Summary = lazy(() => import("./pages/Summary"));
 const Products = lazy(() => import("./pages/Products"));
 const ProductForm = lazy(() => import("./pages/ProductForm"));
 const Taxonomy = lazy(() => import("./pages/Taxonomy"));
+const Orders = lazy(() => import("./pages/Orders"));
+const OrderDetail = lazy(() => import("./pages/OrderDetail"));
+const Payments = lazy(() => import("./pages/Payments"));
+const Customers = lazy(() => import("./pages/Customers"));
+const CustomerDetail = lazy(() => import("./pages/CustomerDetail"));
+const Settings = lazy(() => import("./pages/Settings"));
 
 /** Rutas del panel /admin, protegidas por AdminLayout (HU-26). */
 export const adminRoute: RouteObject = {
@@ -17,5 +23,11 @@ export const adminRoute: RouteObject = {
     { path: "productos/nuevo", element: <ProductForm /> },
     { path: "productos/:id", element: <ProductForm /> },
     { path: "categorias", element: <Taxonomy /> },
+    { path: "pedidos", element: <Orders /> },
+    { path: "pedidos/:number", element: <OrderDetail /> },
+    { path: "pagos", element: <Payments /> },
+    { path: "clientes", element: <Customers /> },
+    { path: "clientes/:id", element: <CustomerDetail /> },
+    { path: "configuracion", element: <Settings /> },
   ],
 };

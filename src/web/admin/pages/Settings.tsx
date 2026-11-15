@@ -32,7 +32,8 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
     setErrors({});
     setBusy(true);
     try {
-      const { zones: _zones, ...body } = v;
+      const body: Partial<AdminSettings> = { ...v };
+      delete body.zones;
       await apiFetch("/admin/settings", { method: "PATCH", json: body });
       toast.success("Configuración guardada. El checkout ya usa los datos nuevos.");
       await queryClient.invalidateQueries({ queryKey: ["admin"] });

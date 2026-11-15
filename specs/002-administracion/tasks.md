@@ -245,13 +245,13 @@ categoría, top 5 y últimos pedidos
 
 **Independent Test**: buscar «mateo», bloquearlo, comprobar que no ingresa, reactivarlo
 
-- [ ] T046 [US7] Escribir `tests/api/admin/customers.test.ts` (HU-38 a HU-40, RN-08): búsqueda por
+- [X] T046 [US7] Escribir `tests/api/admin/customers.test.ts` (HU-38 a HU-40, RN-08): búsqueda por
   nombre y correo con páginas de 20, N.º de pedidos y total gastado sin pendientes ni cancelados; detalle
   con historial; bloquear borra sus sesiones (su cookie deja de valer) e impide ingresar y comprar;
   reactivar permite ingresar; bloquear a un administrador → 403; auditoría `cliente_bloqueado` y
   `cliente_reactivado`; debe fallar
-- [ ] T047 [US7] Implementar `src/worker/routes/admin/customers.ts` hasta pasar T046 (HU-38 a HU-40)
-- [ ] T048 [US7] Crear `src/web/admin/pages/Customers.tsx` y `src/web/admin/pages/CustomerDetail.tsx`
+- [X] T047 [US7] Implementar `src/worker/routes/admin/customers.ts` hasta pasar T046 (HU-38 a HU-40)
+- [X] T048 [US7] Crear `src/web/admin/pages/Customers.tsx` y `src/web/admin/pages/CustomerDetail.tsx`
   (búsqueda, tabla, detalle con pedidos y botón bloquear o reactivar con confirmación) (HU-38 a HU-40)
 
 ---

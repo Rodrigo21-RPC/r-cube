@@ -7,6 +7,7 @@ import { stockRoutes } from "./stock";
 import { adminOrderRoutes } from "./orders";
 import { paymentRoutes } from "./payments";
 import { settingsRoutes } from "./settings";
+import { customerRoutes } from "./customers";
 
 /** Sub-router del panel: un único requireAdmin protege todas las rutas /api/admin/* (HU-26, FR-002). */
 export const adminRoutes = new Hono<AppEnv>().use(requireAdmin).route("/", summaryRoutes)
@@ -16,4 +17,5 @@ export const adminRoutes = new Hono<AppEnv>().use(requireAdmin).route("/", summa
   .route("/", stockRoutes)
   .route("/", adminOrderRoutes)
   .route("/", paymentRoutes)
-  .route("/", settingsRoutes);
+  .route("/", settingsRoutes)
+  .route("/", customerRoutes);

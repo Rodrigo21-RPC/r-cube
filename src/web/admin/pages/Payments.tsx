@@ -46,7 +46,7 @@ export function PaymentActions({ number, onDone }: { number: string; onDone: () 
             await apiFetch(`/admin/orders/${number}/payment/reject`, { method: "POST", json: { reason } });
             toast.success(`Pago de ${number} rechazado.`);
           } catch (e) {
-            throw new Error(e instanceof ApiError ? e.message : "No se pudo rechazar.");
+            throw new Error(e instanceof ApiError ? e.message : "No se pudo rechazar.", { cause: e });
           } finally {
             await onDone();
           }
