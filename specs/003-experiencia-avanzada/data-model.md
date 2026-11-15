@@ -170,7 +170,7 @@ research R11). Las fotos y el stock de variantes reutilizan `foto` y `stock_ajus
 | Dato | Contenido mínimo |
 |---|---|
 | Variantes | 3 productos con 3 variantes cada uno, SKU, precios y stock distintos, una variante agotada y una con foto propia |
-| Reseñas | 6 reseñas de clientes con pedidos Entregados, una oculta |
+| Reseñas | 2 reseñas de clientes con pedidos Entregados (una oculta, para la moderación) y un pedido Entregado sin reseñar; con 8 pedidos de demostración fijos (prueba de la 001) solo hay 3 productos entregados |
 | Favoritos | 2 a 3 por cliente de demostración |
 | Direcciones | 2 clientes con 2 direcciones (una predeterminada) |
 | Cupones | `BIENVENIDO10` (10 %, vigente, 50 usos), `VERANO5` (S/ 5.00, vencido) y `ULTIMO` (10 %, 1 uso, agotado) |

@@ -208,7 +208,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 **Independent Test**: con un pedido Entregado, reseñar con 4 estrellas, ver promedio y cantidad, y no poder repetir.
 
-- [ ] T024 [US3] Escribir `tests/api/reviews.test.ts` (HU-46, RN-09, FR-012 a FR-014, SC-003): `POST
+- [X] T024 [US3] Escribir `tests/api/reviews.test.ts` (HU-46, RN-09, FR-012 a FR-014, SC-003): `POST
   /catalog/products/:slug/reviews` con el producto en un pedido Entregado → 201; en cualquier otro estado
   o sin compra → 403 `NOT_DELIVERED`; segunda reseña del mismo producto → 409 `ALREADY_REVIEWED`
   (también si el producto se compró en dos pedidos o en distintas variantes); dos envíos simultáneos →
@@ -217,15 +217,15 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   `count` solo de reseñas visibles, páginas de 5 de la más nueva a la más antigua, `authorName`
   abreviado («Mateo Q.»), `average: null` sin reseñas, y con sesión `mine` (incluso oculta) y `canReview`
   con motivo; el comentario se devuelve como texto sin interpretar HTML; debe fallar
-- [ ] T025 [US3] Crear `src/worker/routes/reviews.ts` (`GET` y `POST /products/:slug/reviews`, elegibilidad con
+- [X] T025 [US3] Crear `src/worker/routes/reviews.ts` (`GET` y `POST /products/:slug/reviews`, elegibilidad con
   `EXISTS` sobre `order_item` y `orders.status = 'delivered'`, `INSERT` con índice único) y montarlo en
   `src/worker/index.ts` bajo `/catalog` hasta pasar T024 (HU-46, RN-09, FR-012, FR-013)
-- [ ] T026 [US3] Crear `src/web/components/StarRating.tsx` (vista de solo lectura y entrada como `radiogroup`
+- [X] T026 [US3] Crear `src/web/components/StarRating.tsx` (vista de solo lectura y entrada como `radiogroup`
   de 5 `radio` operable con flechas, etiqueta «Calificación: N de 5») y `src/web/components/Reviews.tsx`
   (promedio y cantidad, lista paginada de 5 en 5, formulario «Calificar este producto» con comentario
   opcional y contador, estado vacío «Aún no hay reseñas», mensaje de por qué no puede reseñar) e integrarlo
   en `src/web/pages/Product.tsx` (HU-46, FR-014, RNF-03)
-- [ ] T027 [US3] Ampliar `src/db/seed-data.ts` con 6 reseñas de clientes con pedidos Entregados (una oculta) y
+- [X] T027 [US3] Ampliar `src/db/seed-data.ts` con 2 reseñas de clientes con pedidos Entregados (una oculta; solo hay 3 productos entregados en los 8 pedidos fijos de la 001) y
   asegurar un cliente de demostración con un pedido Entregado sin reseña para el e2e (FR-036, HU-46)
 
 **Checkpoint**: HU-46 completa.
@@ -473,7 +473,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   cupones, reseñas): sin sesión 401 y con cliente 403 sin datos; y agregar una prueba equivalente para las
   rutas de cliente nuevas (favoritos, direcciones, avisos, comprobante, reseñas `POST`) que exige sesión y
   rechaza a un cliente bloqueado (FR-032, RN-08)
-- [ ] T059 Ampliar `tests/api/seed.test.ts` (FR-036, SC-009): variantes en 3 productos, 6 reseñas (una
+- [ ] T059 Ampliar `tests/api/seed.test.ts` (FR-036, SC-009): variantes en 3 productos, 2 reseñas (una
   oculta), favoritos, direcciones, los 3 cupones en sus estados y avisos; invariantes 1, 5 y 8: `product.stock`
   = suma de variantes activas, `used_count` = pedidos no cancelados con cupón y la suma de movimientos de
   cada producto y variante = su stock actual

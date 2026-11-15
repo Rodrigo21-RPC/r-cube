@@ -215,6 +215,12 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
       from = to;
     }
   }
+  // Reseñas (HU-46, HU-47, RN-09): solo de productos de pedidos Entregados. Mateo reseña su iPhone; la de Lucía
+  // está oculta para demostrar la moderación; el kit de herramientas de Lucía queda sin reseñar para probar el formulario.
+  await db.insert(s.review).values([
+    { id: "rev-demo-1", productId: byName("iPhone 15 Pro").id, userId: "user-cliente-1", rating: 5, comment: "Titanio ligero y una cámara espectacular. Llegó bien embalado.", createdAt: new Date(now - 12 * 86_400_000) },
+    { id: "rev-demo-2", productId: byName("SSD NVMe").id, userId: "user-cliente-2", rating: 1, comment: "Este comentario no habla del producto (ejemplo de reseña ocultada).", hidden: true, createdAt: new Date(now - 9 * 86_400_000) },
+  ]);
   await db.execute(sql`SELECT setval('order_number_seq', ${ORDERS.length})`);
   await seedStockHistory(db);
 }

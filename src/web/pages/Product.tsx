@@ -12,6 +12,7 @@ import { Availability } from "@web/components/Availability";
 import { EmptyState, ErrorState, LoadingBlock } from "@web/components/States";
 import { Button } from "@web/components/ui/button";
 import { AddToCart } from "@web/cart/AddToCart";
+import { Reviews } from "@web/components/Reviews";
 
 /** Detalle de producto con galería, precio con IGV, specs y disponibilidad (HU-05). */
 export default function Product() {
@@ -120,6 +121,7 @@ export default function Product() {
           )}
         </section>
       </div>
+      <Reviews slug={p.slug} />
     </div>
   );
 }
