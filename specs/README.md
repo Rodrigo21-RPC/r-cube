@@ -3,7 +3,7 @@
 | Feature | Historias | Estado |
 |---|---|---|
 | 001 Tienda y compra | HU-01 a HU-25 (HU-19 retirada) | Cerrada: fusionada en `main` |
-| 002 Administración | HU-26 a HU-42 | Pendiente |
+| 002 Administración | HU-26 a HU-42 | Especificada (rama `002-administracion`) |
 | 003 Experiencia avanzada | HU-43 a HU-53 | Pendiente |
 
 ## Feature 001
