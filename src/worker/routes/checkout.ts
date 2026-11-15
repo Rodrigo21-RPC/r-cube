@@ -81,11 +81,14 @@ export const checkoutRoutes = new Hono<AppEnv>()
     if (!s.enabledMethods.includes(body.payment.method))
       throw new AppError(400, "VALIDATION", "Ese método de pago no está disponible.", { "payment.method": "Elige otro método de pago." });
 
-    const items = await db.select({ productId: cartItem.productId, quantity: cartItem.quantity }).from(cartItem).where(eq(cartItem.userId, userId));
+    const items = await db
+      .select({ productId: cartItem.productId, variantId: cartItem.variantId, quantity: cartItem.quantity })
+      .from(cartItem)
+      .where(eq(cartItem.userId, userId));
     if (!items.length) throw new AppError(400, "EMPTY_CART", "Tu carrito está vacío.");
     const quote = await quoteCart(db, items);
     const problem = quote.warnings.find((w) => w.type !== "price_changed");
-    if (problem) throw new AppError(409, "STOCK", problem.message, undefined, { productId: problem.productId });
+    if (problem) throw new AppError(409, "STOCK", problem.message, undefined, { productId: problem.productId, variantId: problem.variantId ?? null });
 
     let shippingCents = 0;
     let zoneName = "";
@@ -96,7 +99,10 @@ export const checkoutRoutes = new Hono<AppEnv>()
       shippingCents = zone.costCents;
       zoneName = zone.name;
     }
-    const lines = quote.lines.map((l) => ({ productId: l.productId, name: l.name, unitPriceCents: l.unitPriceCents, quantity: l.quantity, imageUrl: l.imageUrl }));
+    const lines = quote.lines.map((l) => ({
+      productId: l.productId, variantId: l.variantId, variantLabel: l.variantLabel, sku: l.sku, name: l.name,
+      unitPriceCents: l.unitPriceCents, quantity: l.quantity, imageUrl: l.imageUrl,
+    }));
     const totals = orderTotals(lines, shippingCents, 0);
     if (totals.totalCents !== body.expectedTotalCents)
       throw new AppError(409, "PRICE_CHANGED", "El total cambió desde que lo revisaste. Confirma el nuevo total.", undefined, { totalCents: totals.totalCents });

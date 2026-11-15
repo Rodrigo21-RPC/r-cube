@@ -71,8 +71,8 @@ export default function Confirmation() {
         <h2 className="text-[17px] font-semibold">Productos</h2>
         <ul className="flex flex-col gap-2 text-[15px]">
           {o.items.map((i) => (
-            <li key={i.productId} className="flex justify-between gap-3">
-              <span>{i.quantity} × {i.name}</span>
+            <li key={`${i.productId}-${i.sku ?? ""}`} className="flex justify-between gap-3">
+              <span>{i.quantity} × {i.name}{i.variantLabel ? ` (${i.variantLabel})` : ""}</span>
               <span className="tabular shrink-0">{formatPEN(i.lineTotalCents)}</span>
             </li>
           ))}

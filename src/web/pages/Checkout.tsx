@@ -294,8 +294,8 @@ function CheckoutForm({
           <h2 className="text-[17px] font-semibold">Resumen</h2>
           <ul className="flex flex-col gap-2 text-[15px]">
             {available.map((l) => (
-              <li key={l.productId} className="flex justify-between gap-3">
-                <span>{l.quantity} × {l.name}</span>
+              <li key={`${l.productId}-${l.variantId ?? ""}`} className="flex justify-between gap-3">
+                <span>{l.quantity} × {l.name}{l.variantLabel ? ` (${l.variantLabel})` : ""}</span>
                 <span className="tabular shrink-0">{formatPEN(l.lineTotalCents)}</span>
               </li>
             ))}

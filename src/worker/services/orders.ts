@@ -5,14 +5,24 @@ import { CANCELLABLE_BY_CUSTOMER, type OrderStatus } from "@shared/order-status"
 import type { OrderDetail, PaymentMethodCode } from "@shared/types";
 import { AppError } from "../middleware";
 import { applyStockChange, recordMovement, type Tx } from "./stock";
+import { lockProduct, syncProductFromVariants } from "./variants";
 
-const { orders, orderItem, payment, orderEvent, product, cartItem, deliveryZone, storeSettings } = schema;
+const { orders, orderItem, payment, orderEvent, product, productVariant, cartItem, deliveryZone, storeSettings } = schema;
 
 export type Actor = { type: "cliente" | "administrador" | "sistema"; userId: string | null };
 
 export interface NewOrder {
   userId: string;
-  lines: { productId: string; name: string; unitPriceCents: number; quantity: number; imageUrl: string }[];
+  lines: {
+    productId: string;
+    variantId?: string | null;
+    variantLabel?: string | null;
+    sku?: string | null;
+    name: string;
+    unitPriceCents: number;
+    quantity: number;
+    imageUrl: string;
+  }[];
   delivery:
     | { method: "pickup" }
     | { method: "delivery"; zoneId: string; shippingCents: number; name: string; phone: string; address: string; district: string; reference?: string };
@@ -25,17 +35,42 @@ export interface NewOrder {
  */
 export async function createOrder(db: Db, input: NewOrder): Promise<string> {
   return db.transaction(async (tx) => {
-    const sold: { productId: string; quantity: number; after: number }[] = [];
-    for (const l of input.lines) {
+    const sold: { productId: string; variantId: string | null; quantity: number; after: number }[] = [];
+    // Orden estable por producto: dos pedidos con los mismos productos nunca se bloquean entre sí.
+    for (const l of [...input.lines].sort((a, b) => a.productId.localeCompare(b.productId) || (a.variantId ?? "").localeCompare(b.variantId ?? ""))) {
+      const shown = l.variantLabel ? `${l.name} (${l.variantLabel})` : l.name;
+      if (l.variantId) {
+        // Con variante se bloquea el producto para serializar y se descuenta el stock de la variante (research R1).
+        await lockProduct(tx, l.productId);
+        const [row] = await tx
+          .update(productVariant)
+          .set({ stock: sql`${productVariant.stock} - ${l.quantity}::int` })
+          .where(
+            and(
+              eq(productVariant.id, l.variantId),
+              eq(productVariant.productId, l.productId),
+              eq(productVariant.active, true),
+              sql`${productVariant.stock} >= ${l.quantity}::int`,
+              sql`exists(select 1 from product p where p.id = ${productVariant.productId} and p.active)`,
+            ),
+          )
+          .returning({ priceCents: productVariant.priceCents, after: productVariant.stock });
+        if (!row) throw new AppError(409, "STOCK", `Ya no hay stock suficiente de ${shown}. Revisa tu carrito.`, undefined, { productId: l.productId, variantId: l.variantId });
+        if (row.priceCents !== l.unitPriceCents)
+          throw new AppError(409, "PRICE_CHANGED", `El precio de ${shown} cambió. Revisa el nuevo total antes de pagar.`);
+        await syncProductFromVariants(tx, l.productId);
+        sold.push({ productId: l.productId, variantId: l.variantId, quantity: l.quantity, after: row.after });
+        continue;
+      }
       const [row] = await tx
         .update(product)
         .set({ stock: sql`${product.stock} - ${l.quantity}::int` })
-        .where(and(eq(product.id, l.productId), eq(product.active, true), sql`${product.stock} >= ${l.quantity}::int`))
+        .where(and(eq(product.id, l.productId), eq(product.active, true), eq(product.hasVariants, false), sql`${product.stock} >= ${l.quantity}::int`))
         .returning({ priceCents: product.priceCents, after: product.stock });
       if (!row) throw new AppError(409, "STOCK", `Ya no hay stock suficiente de ${l.name}. Revisa tu carrito.`, undefined, { productId: l.productId });
       if (row.priceCents !== l.unitPriceCents)
         throw new AppError(409, "PRICE_CHANGED", `El precio de ${l.name} cambió. Revisa el nuevo total antes de pagar.`);
-      sold.push({ productId: l.productId, quantity: l.quantity, after: row.after });
+      sold.push({ productId: l.productId, variantId: null, quantity: l.quantity, after: row.after });
     }
     const shipping = input.delivery.method === "delivery" ? input.delivery.shippingCents : 0;
     const totals = orderTotals(input.lines, shipping, 0);
@@ -65,6 +100,9 @@ export async function createOrder(db: Db, input: NewOrder): Promise<string> {
         orderId: id,
         productId: l.productId,
         productName: l.name,
+        variantId: l.variantId ?? null,
+        variantLabel: l.variantLabel ?? null,
+        sku: l.sku ?? null,
         unitPriceCents: l.unitPriceCents,
         quantity: l.quantity,
         lineTotalCents: l.unitPriceCents * l.quantity,
@@ -92,6 +130,7 @@ export async function createOrder(db: Db, input: NewOrder): Promise<string> {
     for (const s of sold) {
       await recordMovement(tx, {
         productId: s.productId,
+        variantId: s.variantId,
         delta: -s.quantity,
         before: s.after + s.quantity,
         after: s.after,
@@ -125,11 +164,12 @@ export async function cancelOrder(
     if (!current || !allowedFrom.has(current.status)) return false;
     await tx.update(orders).set({ status: "cancelled" }).where(eq(orders.id, orderId));
     const lines = await tx
-      .select({ productId: orderItem.productId, quantity: orderItem.quantity })
+      .select({ productId: orderItem.productId, variantId: orderItem.variantId, quantity: orderItem.quantity })
       .from(orderItem)
-      .where(eq(orderItem.orderId, orderId));
+      .where(eq(orderItem.orderId, orderId))
+      .orderBy(asc(orderItem.productId), asc(orderItem.variantId));
     for (const l of lines) {
-      await applyStockChange(tx, { productId: l.productId, delta: l.quantity, source: "cancelacion", orderId, actor });
+      await applyStockChange(tx, { productId: l.productId, variantId: l.variantId, delta: l.quantity, source: "cancelacion", orderId, actor });
     }
     await tx.insert(orderEvent).values({
       id: crypto.randomUUID(),

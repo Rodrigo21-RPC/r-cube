@@ -4,6 +4,7 @@ import * as s from "./schema";
 import { buildSearchText } from "../shared/search";
 import { orderTotals } from "../shared/money";
 import { hashPassword } from "../worker/password";
+import { syncProductFromVariants } from "../worker/services/variants";
 
 /** Datos de demostración de REQUISITOS §6 (FR-035, FR-036). Repetible: borra y vuelve a crear. */
 
@@ -84,6 +85,7 @@ const ZONES = [
 
 export async function runSeed(db: Db, passwords: { admin: string; customer: string }) {
   await db.execute(sql`TRUNCATE TABLE audit_log, stock_movement, order_event, payment, order_item, orders, cart_item, product_image,
+    notification, review, favorite, address, coupon, product_variant,
     product, brand, category, delivery_zone, store_settings, session, account, verification,
     rate_limit, "user" RESTART IDENTITY CASCADE`);
 
@@ -116,6 +118,8 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
       position: 0,
     })),
   );
+
+  await seedVariants(db);
 
   await db.insert(s.deliveryZone).values(ZONES);
   await db.insert(s.storeSettings).values({
@@ -225,10 +229,17 @@ async function seedStockHistory(db: Db) {
     from order_item oi join orders o on o.id = oi.order_id order by o.created_at`)) as unknown as {
     product_id: string; quantity: number; order_id: string; status: string; created_at: Date; cancelled_at: Date | null;
   }[];
-  const products = (await db.execute(sql`select id, stock, created_at from product`)) as unknown as {
+  // Los productos con variantes llevan su historial por variante (HU-43); el resto, por producto.
+  const products = (await db.execute(sql`select id, stock, created_at from product where not has_variants`)) as unknown as {
     id: string; stock: number; created_at: Date;
   }[];
   const rows: (typeof s.stockMovement.$inferInsert)[] = [];
+  const variants = (await db.execute(sql`select v.id, v.product_id, v.stock, p.created_at from product_variant v
+    join product p on p.id = v.product_id`)) as unknown as { id: string; product_id: string; stock: number; created_at: Date }[];
+  for (const v of variants)
+    if (v.stock > 0)
+      rows.push({ id: `mov-${v.id}-0`, productId: v.product_id, variantId: v.id, delta: v.stock, stockBefore: 0, stockAfter: v.stock,
+        source: "inicial", reason: "Stock inicial de demostración", actorType: "sistema", createdAt: new Date(v.created_at) });
   for (const p of products) {
     const own = lines.filter((l) => l.product_id === p.id);
     let running = p.stock + own.filter((l) => l.status !== "cancelled").reduce((sum, l) => sum + l.quantity, 0);
@@ -248,4 +259,34 @@ async function seedStockHistory(db: Db) {
     });
   }
   if (rows.length) await db.insert(s.stockMovement).values(rows);
+}
+
+/**
+ * Variantes de demostración (HU-43, FR-036): tres productos que ningún pedido de demostración usa, con SKU,
+ * precios y stock distintos, una variante agotada y una con foto propia. El resumen del producto lo deja el
+ * mismo servicio que usa el panel.
+ */
+async function seedVariants(db: Db) {
+  const idOf = (name: string) => `prod-${slugify(name)}`;
+  const edge = idOf("Motorola Edge 60 Pro");
+  const xps = idOf("Dell XPS 13");
+  const tab = idOf("Lenovo Tab M10");
+  await db.insert(s.productImage).values({
+    id: "img-edge-azul", productId: edge, url: "/img/productos/celular-motorola-edge-60-pro.jpg", alt: "Motorola Edge 60 Pro en azul", position: 1,
+  });
+  const v = (id: string, productId: string, sku: string, attrs: { storage?: string; color?: string; ram?: string }, price: number, stock: number, imageId?: string) => ({
+    id, productId, sku, storage: attrs.storage ?? "", color: attrs.color ?? "", ram: attrs.ram ?? "", priceCents: price * 100, stock, imageId: imageId ?? null,
+  });
+  await db.insert(s.productVariant).values([
+    v("var-edge-256-negro", edge, "MOTO-EDGE-256-NG", { storage: "256 GB", color: "Negro" }, 2199, 5),
+    v("var-edge-256-azul", edge, "MOTO-EDGE-256-AZ", { storage: "256 GB", color: "Azul" }, 2199, 3, "img-edge-azul"),
+    v("var-edge-512-negro", edge, "MOTO-EDGE-512-NG", { storage: "512 GB", color: "Negro" }, 2499, 4),
+    v("var-xps-16-512", xps, "XPS13-16-512", { ram: "16 GB", storage: "512 GB" }, 5799, 3),
+    v("var-xps-16-1t", xps, "XPS13-16-1T", { ram: "16 GB", storage: "1 TB" }, 6299, 1),
+    v("var-xps-32-1t", xps, "XPS13-32-1T", { ram: "32 GB", storage: "1 TB" }, 6799, 0),
+    v("var-tab-64-gris", tab, "LEN-M10-64-GR", { storage: "64 GB", color: "Gris" }, 699, 12),
+    v("var-tab-128-gris", tab, "LEN-M10-128-GR", { storage: "128 GB", color: "Gris" }, 799, 8),
+    v("var-tab-128-azul", tab, "LEN-M10-128-AZ", { storage: "128 GB", color: "Azul" }, 799, 5),
+  ]);
+  for (const id of [edge, xps, tab]) await syncProductFromVariants(db, id);
 }

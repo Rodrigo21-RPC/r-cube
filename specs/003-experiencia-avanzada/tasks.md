@@ -144,7 +144,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 **Independent Test**: elegir «256 GB Azul», agregar, pagar con tarjeta y ver la variante y su precio en el pedido.
 
-- [ ] T015 [US2] Escribir `tests/api/variants-cart.test.ts` (HU-44, FR-005 a FR-008, RN-01, RN-02, RN-07):
+- [X] T015 [US2] Escribir `tests/api/variants-cart.test.ts` (HU-44, FR-005 a FR-008, RN-01, RN-02, RN-07):
   el detalle devuelve solo las variantes activas con `label`, precio y disponibilidad; `PUT
   /cart/items/:productId` con `variantId` valida pertenencia y stock de la variante (409 `STOCK`) y sin
   `variantId` en un producto con variantes → 400 `VARIANT_REQUIRED`; la misma variante suma cantidades y
@@ -159,40 +159,40 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   tarjetas traen `hasVariants` y `maxPriceCents` (clarificación 2); concurrencia: dos checkouts a la vez
   por la última unidad de una variante → uno 201 y el otro 409 `STOCK` y el stock queda en 0, sin
   negativos (SC-004); debe fallar
-- [ ] T016 [US2] Extender `src/worker/services/pricing.ts`: `RequestedItem.variantId`, clave de fusión
+- [X] T016 [US2] Extender `src/worker/services/pricing.ts`: `RequestedItem.variantId`, clave de fusión
   `productId:variantId`, precio, stock y disponibilidad de la variante activa, `variantLabel`, `sku`,
   aviso `choose_variant` para líneas sin variante de productos con variantes (HU-44, FR-006)
-- [ ] T017 [US2] Extender `src/worker/routes/cart.ts`: `variantId` en `PUT`, `DELETE` (`?variantId=`) y
+- [X] T017 [US2] Extender `src/worker/routes/cart.ts`: `variantId` en `PUT`, `DELETE` (`?variantId=`) y
   `merge`; alta con `INSERT … ON CONFLICT (user_id, product_id, (coalesce(variant_id,''))) DO UPDATE`
   (SQL de Drizzle); `VARIANT_REQUIRED`, pertenencia y stock de la variante; `seen_price_cents` de la
   variante (HU-44, FR-006, RN-01)
-- [ ] T018 [US2] Extender `src/worker/services/orders.ts` y `src/worker/routes/checkout.ts`: `NewOrder.lines`
+- [X] T018 [US2] Extender `src/worker/services/orders.ts` y `src/worker/routes/checkout.ts`: `NewOrder.lines`
   con `variantId`, `variantLabel` y `sku`; en `createOrder`, las líneas con variante descuentan con
   `UPDATE product_variant … WHERE stock >= n AND active` bajo `lockProduct`, comparan el precio y llaman
   a `syncProductFromVariants`; `cancelOrder` devuelve el stock con `applyStockChange({ variantId })`;
   `loadOrderDetail` y `loadAdminOrder` (`src/worker/routes/admin/orders.ts`) incluyen `variantLabel` y
   `sku` por línea; el checkout rechaza cualquier aviso distinto de
   cambio de precio (incluido `choose_variant`) hasta pasar T015 (HU-44, FR-007, RN-02, RN-07)
-- [ ] T019 [US2] Extender `src/worker/routes/catalog.ts`: `cardColumns` con `hasVariants` y
+- [X] T019 [US2] Extender `src/worker/routes/catalog.ts`: `cardColumns` con `hasVariants` y
   `max_price_cents`, `toCard` con `maxPriceCents` (solo si `hasVariants` y es mayor que el precio) y el
   detalle con `variants` activas ordenadas por precio y SKU, con `imageUrl` (la foto elegida o la principal)
   hasta pasar T015 (HU-44, FR-003, FR-005)
-- [ ] T020 [US2] Actualizar `src/web/stores/cart.ts` (línea `{ productId, variantId?, quantity,
+- [X] T020 [US2] Actualizar `src/web/stores/cart.ts` (línea `{ productId, variantId?, quantity,
   seenPriceCents? }`, clave `productId:variantId`, versión 2 del almacén persistido con migración que deja
   las líneas existentes sin variante), `src/web/cart/useCart.ts` (`variantId` en `add`, `setQuantity`,
   `remove`, `quantityOf` y fusión al iniciar sesión) y `src/web/cart/AddToCart.tsx` (recibe la variante y
   su stock) (HU-44, FR-006)
-- [ ] T021 [US2] Crear `src/web/components/VariantPicker.tsx` (grupo de botones `radio` por atributo con
+- [X] T021 [US2] Crear `src/web/components/VariantPicker.tsx` (grupo de botones `radio` por atributo con
   `aria-checked`, agotados deshabilitados con el texto «Agotado», operable con teclado) y
   `src/web/components/PriceRange.tsx`; integrarlos en `src/web/pages/Product.tsx` (al elegir cambian
   precio, foto y disponibilidad sin recargar; «Agregar al carrito» exige variante con el mensaje «Elige
   color, almacenamiento o RAM») y en `src/web/components/ProductCard.tsx` (rango de precios) (HU-44,
   FR-005, RNF-03)
-- [ ] T022 [US2] Mostrar la variante en `src/web/pages/Cart.tsx` (nombre de la variante, línea separada por
+- [X] T022 [US2] Mostrar la variante en `src/web/pages/Cart.tsx` (nombre de la variante, línea separada por
   variante y «Elige una variante» con enlace al detalle que bloquea «Pagar»), `src/web/pages/Checkout.tsx`,
   `src/web/pages/OrderDetail.tsx`, `src/web/pages/Confirmation.tsx` y `src/web/admin/pages/OrderDetail.tsx`
   (variante y SKU por línea) (HU-44, FR-007)
-- [ ] T023 [US2] Ampliar `src/db/seed-data.ts` con variantes en 3 productos (elegir productos que ningún
+- [X] T023 [US2] Ampliar `src/db/seed-data.ts` con variantes en 3 productos (elegir productos que ningún
   e2e existente use: verificar con `grep` en `e2e/`), 3 variantes cada uno con SKU, precios y stock
   distintos, una agotada y una con foto propia, movimientos `inicial` por variante y
   `syncProductFromVariants` al final; `seedStockHistory()` debe seguir sumando el stock actual (FR-036,

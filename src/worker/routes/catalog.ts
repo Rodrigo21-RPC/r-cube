@@ -5,10 +5,11 @@ import { and, asc, count, desc, eq, gte, ilike, inArray, lte, max, min, gt, sql,
 import { schema } from "@db/client";
 import type { Db } from "@db/client";
 import { normalizeSearch } from "@shared/search";
+import { variantLabel } from "@shared/variant";
 import type { Availability, CatalogPage, Facets, HomeData, ProductCard, ProductDetail } from "@shared/types";
 import { AppError, validationHook, type AppEnv } from "../middleware";
 
-const { product, brand, category, productImage } = schema;
+const { product, brand, category, productImage, productVariant } = schema;
 export const PAGE_SIZE = 12;
 export const GENERIC_IMAGE = "/img/generico.svg";
 
@@ -28,6 +29,8 @@ export const cardColumns = {
   priceCents: product.priceCents,
   compareAtCents: product.compareAtCents,
   stock: product.stock,
+  hasVariants: product.hasVariants,
+  maxPriceCents: product.maxPriceCents,
   imageUrl: mainImage,
 };
 
@@ -39,6 +42,8 @@ interface CardRow {
   priceCents: number;
   compareAtCents: number | null;
   stock: number;
+  hasVariants: boolean;
+  maxPriceCents: number | null;
   imageUrl: string | null;
 }
 
@@ -54,8 +59,9 @@ export function toCard(r: CardRow): ProductCard {
     availability: availabilityOf(r.stock),
     imageUrl: r.imageUrl ?? GENERIC_IMAGE,
     imageAlt: r.name,
-    hasVariants: false, // se completa con T019 (HU-43)
-    maxPriceCents: null,
+    hasVariants: r.hasVariants,
+    // Rango solo si hay variantes con distinto precio (HU-43, FR-003).
+    maxPriceCents: r.hasVariants && r.maxPriceCents !== null && r.maxPriceCents > r.priceCents ? r.maxPriceCents : null,
   };
 }
 
@@ -182,13 +188,24 @@ export const catalogRoutes = new Hono<AppEnv>()
       .from(productImage)
       .where(eq(productImage.productId, row.id))
       .orderBy(asc(productImage.position));
+    const variants = await db
+      .select({
+        v: productVariant,
+        imageUrl: sql<string | null>`(select ${productImage.url} from ${productImage} where ${productImage.id} = ${productVariant.imageId})`,
+      })
+      .from(productVariant)
+      .where(and(eq(productVariant.productId, row.id), eq(productVariant.active, true)))
+      .orderBy(asc(productVariant.priceCents), asc(productVariant.sku));
     const body: ProductDetail = {
       ...toCard(row),
       description: row.description,
       specs: row.specs,
       category: { name: row.categoryName, slug: row.categorySlug },
       images: images.length ? images : [{ url: GENERIC_IMAGE, alt: row.name }],
-      variants: [], // se completa con T019 (HU-44)
+      variants: variants.map(({ v, imageUrl }) => ({
+        id: v.id, sku: v.sku, label: variantLabel(v), color: v.color, storage: v.storage, ram: v.ram, priceCents: v.priceCents,
+        stock: v.stock, availability: availabilityOf(v.stock), imageUrl,
+      })),
     };
     return c.json(body);
   })
