@@ -2,7 +2,7 @@ import { Link, useSearchParams } from "react-router";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
-import { formatPEN } from "@shared/money";
+import { priceRangeText } from "@shared/variant";
 import type { AdminProductRow, Page, TaxonomyItem } from "@shared/admin-types";
 import { apiFetch, ApiError, queryClient } from "@web/api";
 import { useTitle } from "@web/hooks/useTitle";
@@ -95,8 +95,18 @@ export default function Products() {
               ) },
               { header: "Marca", cell: (p) => p.brand },
               { header: "Categoría", cell: (p) => p.category },
-              { header: "Precio", cell: (p) => formatPEN(p.priceCents), align: "right" },
-              { header: "Stock", cell: (p) => <span className={p.stock <= 5 ? "font-semibold text-warning" : ""}>{p.stock}</span>, align: "right" },
+              { header: "Precio", cell: (p) => priceRangeText(p.priceCents, p.hasVariants ? p.maxPriceCents : null), align: "right" },
+              {
+                header: "Stock",
+                cell: (p) => (
+                  <span className="flex flex-col items-end">
+                    <span className={(p.hasVariants ? p.lowVariants.length > 0 : p.stock <= 5) ? "font-semibold text-warning" : ""}>{p.stock}</span>
+                    {p.hasVariants && <span className="text-xs text-muted">{p.variantCount} variantes</span>}
+                    {p.lowVariants.map((v) => <span key={v.label} className="text-xs text-warning">Bajo: {v.label} ({v.stock})</span>)}
+                  </span>
+                ),
+                align: "right",
+              },
               { header: "Estado", cell: (p) => <Badge tone={p.active ? "success" : "neutral"}>{p.active ? "Activo" : "Inactivo"}</Badge> },
               { header: "Acción", cell: (p) => <Button variant="secondary" size="sm" onClick={() => toggle(p)}>{p.active ? "Desactivar" : "Activar"}</Button> },
             ]}

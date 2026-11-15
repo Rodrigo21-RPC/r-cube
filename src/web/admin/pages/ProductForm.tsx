@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -14,6 +15,7 @@ import { Field, Input, Select } from "@web/components/ui/form";
 import { Card } from "@web/components/ui/misc";
 import { ProductImages } from "./ProductImages";
 import { ProductStock } from "./ProductStock";
+import { ProductVariants } from "./ProductVariants";
 
 interface FormValues {
   name: string;
@@ -80,9 +82,11 @@ function ProductEditor({ product, categories, brands }: { product: AdminProduct 
         <Field label="Categoría" error={errors.categoryId?.message}>
           {(p) => <Select {...p} {...form.register("categoryId")}>{categories.map((c) => <option key={c.id} value={c.id}>{c.name}{c.active ? "" : " (inactiva)"}</option>)}</Select>}
         </Field>
-        <Field label="Precio (S/, con IGV)" error={errors.price?.message}>{(p) => <Input {...p} inputMode="decimal" {...form.register("price", { required: "Escribe el precio." })} />}</Field>
-        <Field label="Precio anterior (opcional)" hint="Si es mayor que el precio, el producto sale en Ofertas" error={errors.compareAt?.message}>
-          {(p) => <Input {...p} inputMode="decimal" {...form.register("compareAt")} />}
+        <Field label="Precio (S/, con IGV)" hint={product?.hasVariants ? "Con variantes, se calcula con el precio «desde» de las activas" : undefined} error={errors.price?.message}>
+          {(p) => <Input {...p} inputMode="decimal" readOnly={product?.hasVariants} className={product?.hasVariants ? "opacity-60" : undefined} {...form.register("price", { required: "Escribe el precio." })} />}
+        </Field>
+        <Field label="Precio anterior (opcional)" hint={product?.hasVariants ? "No aplica a productos con variantes" : "Si es mayor que el precio, el producto sale en Ofertas"} error={errors.compareAt?.message}>
+          {(p) => <Input {...p} inputMode="decimal" readOnly={product?.hasVariants} className={product?.hasVariants ? "opacity-60" : undefined} {...form.register("compareAt")} />}
         </Field>
         {!product && (
           <Field label="Stock inicial" error={errors.stock?.message}>{(p) => <Input {...p} inputMode="numeric" {...form.register("stock")} />}</Field>
@@ -121,6 +125,7 @@ function ProductEditor({ product, categories, brands }: { product: AdminProduct 
 export default function ProductForm() {
   const { id } = useParams();
   const isNew = !id;
+  const [adjustVariant, setAdjustVariant] = useState("");
   useTitle(isNew ? "Panel: nuevo producto" : "Panel: editar producto");
   const product = useQuery({ queryKey: ["admin", "product", id], queryFn: () => apiFetch<AdminProduct>(`/admin/products/${id}`), enabled: !isNew });
   const categories = useQuery({ queryKey: ["admin", "categories"], queryFn: () => apiFetch<TaxonomyItem[]>("/admin/categories") });
@@ -138,7 +143,8 @@ export default function ProductForm() {
       {!isNew && product.data && (
         <>
           <ProductImages product={product.data} />
-          <ProductStock product={product.data} />
+          <ProductVariants product={product.data} onAdjust={(vid) => { setAdjustVariant(vid); document.getElementById("stock-del-producto")?.scrollIntoView({ block: "center" }); }} />
+          <div id="stock-del-producto"><ProductStock product={product.data} variantId={adjustVariant} onVariantChange={setAdjustVariant} /></div>
         </>
       )}
     </div>

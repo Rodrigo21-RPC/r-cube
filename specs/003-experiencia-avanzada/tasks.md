@@ -103,7 +103,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 **Independent Test**: agregar 3 variantes a un celular y ver rango de precios y stock total en la lista del panel.
 
-- [ ] T011 [US1] Escribir `tests/api/admin/variants.test.ts` (HU-43, FR-001 a FR-004): crear variante → 201
+- [X] T011 [US1] Escribir `tests/api/admin/variants.test.ts` (HU-43, FR-001 a FR-004): crear variante → 201
   con movimiento `inicial`; SKU repetido → 409 `DUPLICATE_SKU` con error en el campo `sku`; misma
   combinación de atributos → 409 `DUPLICATE_COMBINATION`; sin ningún atributo, `priceCents <= 0` o
   `stock < 0` → 400 por campo; la variante 21 → 409 `TOO_MANY_VARIANTS`; `imageId` de otro producto →
@@ -117,16 +117,16 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   `variantId` en un producto con variantes → 400 `VARIANT_REQUIRED`; `GET /products/:id/stock-movements`
   incluye `variantLabel`; el `lowStock` del resumen cuenta cada variante activa con 5 unidades o menos
   (clarificación 3); debe fallar
-- [ ] T012 [US1] Crear `src/worker/routes/admin/variants.ts` (`GET /products/:id/variants`, `POST
+- [X] T012 [US1] Crear `src/worker/routes/admin/variants.ts` (`GET /products/:id/variants`, `POST
   /products/:id/variants`, `PATCH /variants/:id`, `DELETE /variants/:id`) con validación Zod (SKU en
   mayúsculas), auditoría en la misma transacción y `syncProductFromVariants`, y montarlo en
   `src/worker/routes/admin/index.ts` hasta pasar T011 (HU-43, FR-001, FR-002, FR-034)
-- [ ] T013 [US1] Ampliar `src/worker/routes/admin/products.ts` (`hasVariants`, `maxPriceCents`, `variants`
+- [X] T013 [US1] Ampliar `src/worker/routes/admin/products.ts` (`hasVariants`, `maxPriceCents`, `variants`
   en lista y detalle; el `PATCH /products/:id` no cambia precio ni stock cuando `has_variants`),
   `src/worker/routes/admin/stock.ts` (`variantId`, `VARIANT_REQUIRED`, `variantLabel` en movimientos) y
   `src/worker/routes/admin/summary.ts` (`lowStock` por variante con producto y variante) hasta pasar
   T011 (HU-43, FR-003, FR-004)
-- [ ] T014 [US1] Crear `src/web/admin/pages/ProductVariants.tsx` (tabla de variantes con SKU, atributos,
+- [X] T014 [US1] Crear `src/web/admin/pages/ProductVariants.tsx` (tabla de variantes con SKU, atributos,
   precio, stock y estado; diálogo de alta y edición con campos SKU, color, almacenamiento, RAM, precio,
   stock inicial, foto del producto y activo; desactivar, borrar con confirmación y «Ajustar stock» por
   variante) e integrarlo en `src/web/admin/pages/ProductForm.tsx` (con variantes, los campos de precio y
