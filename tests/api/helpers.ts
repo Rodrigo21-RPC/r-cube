@@ -39,7 +39,7 @@ export const ids = {
 /** Borra todo y carga un seed mínimo de prueba (research R10). */
 export async function resetDb() {
   await withDb(async (db) => {
-    await db.execute(sql`TRUNCATE TABLE order_event, payment, order_item, orders, cart_item, product_image,
+    await db.execute(sql`TRUNCATE TABLE audit_log, stock_movement, order_event, payment, order_item, orders, cart_item, product_image,
       product, brand, category, delivery_zone, store_settings, session, account, verification,
       rate_limit, "user" RESTART IDENTITY CASCADE`);
     await db.execute(sql`ALTER SEQUENCE order_number_seq RESTART WITH 1`);
@@ -138,4 +138,25 @@ export function cookieFrom(res: Response): string {
 /** Convierte una cuenta en administrador (la 002 tendrá su propio alta). */
 export async function makeAdmin(userId: string) {
   await withDb((db) => db.execute(sql`UPDATE "user" SET role = 'administrador' WHERE id = ${userId}`));
+}
+
+/** Crea un administrador y devuelve su cookie de sesión (002). */
+export async function signInAdmin() {
+  const u = await signUp({ name: "Admin Pruebas" });
+  await makeAdmin(u.user.id);
+  return u;
+}
+
+/** Borra todos los objetos del bucket R2 emulado entre pruebas. */
+export async function clearR2() {
+  let cursor: string | undefined;
+  do {
+    const list = await env.FOTOS.list({ cursor });
+    if (list.objects.length) await env.FOTOS.delete(list.objects.map((o) => o.key));
+    cursor = list.truncated ? list.cursor : undefined;
+  } while (cursor);
+}
+
+export async function rowsOf(q: ReturnType<typeof sql>) {
+  return withDb(async (db) => (await db.execute(q)) as unknown as Record<string, unknown>[]);
 }

@@ -4,6 +4,7 @@ import { orderTotals } from "@shared/money";
 import { CANCELLABLE_BY_CUSTOMER, type OrderStatus } from "@shared/order-status";
 import type { OrderDetail, PaymentMethodCode } from "@shared/types";
 import { AppError } from "../middleware";
+import { applyStockChange, recordMovement, type Tx } from "./stock";
 
 const { orders, orderItem, payment, orderEvent, product, cartItem, deliveryZone, storeSettings } = schema;
 
@@ -24,15 +25,17 @@ export interface NewOrder {
  */
 export async function createOrder(db: Db, input: NewOrder): Promise<string> {
   return db.transaction(async (tx) => {
+    const sold: { productId: string; quantity: number; after: number }[] = [];
     for (const l of input.lines) {
       const [row] = await tx
         .update(product)
         .set({ stock: sql`${product.stock} - ${l.quantity}::int` })
         .where(and(eq(product.id, l.productId), eq(product.active, true), sql`${product.stock} >= ${l.quantity}::int`))
-        .returning({ priceCents: product.priceCents });
+        .returning({ priceCents: product.priceCents, after: product.stock });
       if (!row) throw new AppError(409, "STOCK", `Ya no hay stock suficiente de ${l.name}. Revisa tu carrito.`, undefined, { productId: l.productId });
       if (row.priceCents !== l.unitPriceCents)
         throw new AppError(409, "PRICE_CHANGED", `El precio de ${l.name} cambió. Revisa el nuevo total antes de pagar.`);
+      sold.push({ productId: l.productId, quantity: l.quantity, after: row.after });
     }
     const shipping = input.delivery.method === "delivery" ? input.delivery.shippingCents : 0;
     const totals = orderTotals(input.lines, shipping, 0);
@@ -85,6 +88,18 @@ export async function createOrder(db: Db, input: NewOrder): Promise<string> {
       actorType: "cliente",
       actorUserId: input.userId,
     });
+    // Historial de stock de la venta (FR-013); el stock ya se descontó arriba.
+    for (const s of sold) {
+      await recordMovement(tx, {
+        productId: s.productId,
+        delta: -s.quantity,
+        before: s.after + s.quantity,
+        after: s.after,
+        source: "venta",
+        orderId: id,
+        actor: { type: "cliente", userId: input.userId },
+      });
+    }
     await tx.delete(cartItem).where(eq(cartItem.userId, input.userId));
     return number;
   });
@@ -100,6 +115,8 @@ export async function cancelOrder(
   actor: Actor,
   reason: string,
   allowedFrom: ReadonlySet<OrderStatus> = CANCELLABLE_BY_CUSTOMER,
+  /** Se ejecuta dentro de la misma transacción si la cancelación procede (auditoría, pago rechazado). */
+  alsoInTx?: (tx: Tx, fromStatus: OrderStatus) => Promise<void>,
 ): Promise<boolean> {
   return db.transaction(async (tx) => {
     const [current] = (await tx.execute(sql`select status from orders where id = ${orderId} for update`)) as unknown as {
@@ -107,8 +124,13 @@ export async function cancelOrder(
     }[];
     if (!current || !allowedFrom.has(current.status)) return false;
     await tx.update(orders).set({ status: "cancelled" }).where(eq(orders.id, orderId));
-    await tx.execute(sql`update product p set stock = p.stock + oi.quantity
-      from order_item oi where oi.order_id = ${orderId} and p.id = oi.product_id`);
+    const lines = await tx
+      .select({ productId: orderItem.productId, quantity: orderItem.quantity })
+      .from(orderItem)
+      .where(eq(orderItem.orderId, orderId));
+    for (const l of lines) {
+      await applyStockChange(tx, { productId: l.productId, delta: l.quantity, source: "cancelacion", orderId, actor });
+    }
     await tx.insert(orderEvent).values({
       id: crypto.randomUUID(),
       orderId,
@@ -118,6 +140,7 @@ export async function cancelOrder(
       actorUserId: actor.userId,
       reason,
     });
+    if (alsoInTx) await alsoInTx(tx, current.status);
     return true;
   });
 }

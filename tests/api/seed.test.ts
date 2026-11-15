@@ -49,6 +49,19 @@ describe("FR-035, FR-036: datos de demostración", () => {
     expect(await counts()).toEqual(first);
   });
 
+  it("FR-028: el historial de stock de cada producto suma su stock actual", async () => {
+    const mismatches = await withDb(async (db) =>
+      (await db.execute(sql`select p.id from product p
+        left join stock_movement m on m.product_id = p.id
+        group by p.id, p.stock having coalesce(sum(m.delta), 0) <> p.stock`)) as unknown as { id: string }[],
+    );
+    expect(mismatches).toEqual([]);
+    const sources = await withDb(async (db) =>
+      ((await db.execute(sql`select distinct source from stock_movement order by source`)) as unknown as { source: string }[]).map((r) => r.source),
+    );
+    expect(sources).toEqual(["cancelacion", "inicial", "venta"]);
+  });
+
   it("FR-036: hay productos agotados, con pocas unidades y en oferta", async () => {
     const c = await counts();
     expect(c.out).toBeGreaterThanOrEqual(1);

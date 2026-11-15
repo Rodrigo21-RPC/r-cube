@@ -89,6 +89,14 @@ export function parseBody<T>(schema: { safeParse: (d: unknown) => { success: tru
   return r.data;
 }
 
+/** Solo administradores (HU-26, FR-002): 401 sin sesión, 403 con otro rol, sin datos. */
+export const requireAdmin = createMiddleware<AppEnv>(async (c, next) => {
+  const user = c.get("user");
+  if (!user) throw new AppError(401, "UNAUTHENTICATED", "Inicia sesión para continuar.");
+  if (user.role !== "administrador") throw new AppError(403, "FORBIDDEN", "No tienes permiso para entrar al panel.");
+  await next();
+});
+
 /** Cualquier usuario con sesión (401 si no hay). */
 export const requireUser = createMiddleware<AppEnv>(async (c, next) => {
   if (!c.get("user")) throw new AppError(401, "UNAUTHENTICATED", "Inicia sesión para continuar.");

@@ -43,38 +43,38 @@ Mismo paquete que la 001: `src/shared`, `src/db`, `src/worker`, `src/web`, `test
 
 **⚠️ CRITICAL**: ninguna historia empieza antes de terminar esta fase
 
-- [ ] T004 [P] Escribir `tests/api/admin/access.test.ts` (HU-26, FR-002): `GET /api/admin/summary` sin
+- [X] T004 [P] Escribir `tests/api/admin/access.test.ts` (HU-26, FR-002): `GET /api/admin/summary` sin
   sesión → 401, con cliente → 403 sin datos, con administrador → 200; debe fallar
-- [ ] T005 [P] Escribir `tests/api/admin/stock-service.test.ts` (HU-33, FR-011 a FR-013):
+- [X] T005 [P] Escribir `tests/api/admin/stock-service.test.ts` (HU-33, FR-011 a FR-013):
   `applyStockChange` registra stock anterior y nuevo y rechaza dejar stock negativo sin cambiar nada; una
   compra de la 001 registra un movimiento `venta` por línea con el N.º de pedido y una cancelación uno
   `cancelacion`; la suma de movimientos de un producto coincide con su stock; debe fallar
-- [ ] T006 [P] Escribir `tests/api/admin/audit-service.test.ts` (HU-42): `audit()` dentro de una
+- [X] T006 [P] Escribir `tests/api/admin/audit-service.test.ts` (HU-42): `audit()` dentro de una
   transacción revertida no deja registro; dentro de una confirmada sí, con autor, tipo, objeto y detalle;
   debe fallar
-- [ ] T007 Agregar `requireAdmin` (401/403) a `src/worker/middleware.ts` y crear
+- [X] T007 Agregar `requireAdmin` (401/403) a `src/worker/middleware.ts` y crear
   `src/worker/routes/admin/index.ts` con el sub-router `/api/admin` protegido y montarlo en
   `src/worker/index.ts` hasta pasar T004 (HU-26, FR-002)
-- [ ] T008 Implementar `src/worker/services/stock.ts` (`applyStockChange(tx, { productId, delta, source,
+- [X] T008 Implementar `src/worker/services/stock.ts` (`applyStockChange(tx, { productId, delta, source,
   orderId?, reason?, actor })` con UPDATE condicional `stock + delta >= 0` e INSERT del movimiento en la
   misma transacción) y usarlo en `createOrder` y `cancelOrder` de `src/worker/services/orders.ts` hasta
   pasar T005 (HU-33, FR-012, FR-013, RN-02, RN-10)
-- [ ] T009 Implementar `src/worker/services/audit.ts` (`audit(tx, actorId, { action, entityType,
+- [X] T009 Implementar `src/worker/services/audit.ts` (`audit(tx, actorId, { action, entityType,
   entityId, entityLabel, detail, before?, after? })`) hasta pasar T006 (HU-42, FR-025)
-- [ ] T010 Actualizar `src/db/seed-data.ts`: movimiento `inicial` por producto y movimientos `venta` y
+- [X] T010 Actualizar `src/db/seed-data.ts`: movimiento `inicial` por producto y movimientos `venta` y
   `cancelacion` coherentes con los 8 pedidos, de modo que la suma de movimientos sea el stock actual, y
   ampliar `tests/api/seed.test.ts` con esa comprobación (FR-028)
-- [ ] T011 [P] Agregar a `tests/api/helpers.ts` `signInAdmin()` (crea un administrador y devuelve su
+- [X] T011 [P] Agregar a `tests/api/helpers.ts` `signInAdmin()` (crea un administrador y devuelve su
   cookie), el reinicio de `stock_movement` y `audit_log`, y el borrado de objetos de R2 entre pruebas
   (RNF-08)
-- [ ] T012 Crear `src/web/admin/AdminLayout.tsx` (menú lateral con Resumen, Productos, Categorías y
+- [X] T012 Crear `src/web/admin/AdminLayout.tsx` (menú lateral con Resumen, Productos, Categorías y
   marcas, Pedidos, Pagos por confirmar, Clientes, Configuración y Auditoría; interruptor de tema; cerrar
   sesión; pantalla de ingreso del panel si no hay sesión y «No tienes permiso para entrar al panel» si es
   cliente), las rutas `/admin/*` con carga diferida en `src/web/router.tsx` y
   `src/web/admin/pages/Login.tsx` (HU-26, FR-001, HU-25)
-- [ ] T013 [P] Crear `src/web/admin/components/` con `DataTable.tsx` (tabla accesible con encabezados),
+- [X] T013 [P] Crear `src/web/admin/components/` con `DataTable.tsx` (tabla accesible con encabezados),
   `Pagination.tsx` y `ConfirmDialog.tsx` reutilizables (RNF-02, RNF-03)
-- [ ] T014 Agregar el enlace «Panel» en `src/web/components/Header.tsx` solo para administradores
+- [X] T014 Agregar el enlace «Panel» en `src/web/components/Header.tsx` solo para administradores
   (HU-26, FR-001)
 
 **Checkpoint**: panel protegido y servicios de stock y auditoría listos
@@ -88,17 +88,17 @@ Mismo paquete que la 001: `src/shared`, `src/db`, `src/worker`, `src/web`, `test
 **Independent Test**: ingresar como administrador y ver las 5 tarjetas, el gráfico de 30 días, ventas por
 categoría, top 5 y últimos pedidos
 
-- [ ] T015 [US1] Escribir `tests/api/admin/summary.test.ts` (HU-27, FR-003, FR-004): tarjetas con valores
+- [X] T015 [US1] Escribir `tests/api/admin/summary.test.ts` (HU-27, FR-003, FR-004): tarjetas con valores
   exactos para pedidos de hoy y de ayer en hora de Lima (excluye Pendiente de pago y Cancelado), pedidos
   por preparar (Pagado y Preparando), pagos por confirmar, clientes, stock bajo (activos con stock ≤ 5);
   `salesByDay` con 30 días completos (días sin ventas en 0); ventas por categoría; top 5 por unidades;
   últimos 5 pedidos; con el Worker ya iniciado, la respuesta llega en menos de 2 s con los datos de
   demostración (SC-004); debe fallar
-- [ ] T016 [US1] Implementar `GET /api/admin/summary` en `src/worker/routes/admin/summary.ts` hasta pasar
+- [X] T016 [US1] Implementar `GET /api/admin/summary` en `src/worker/routes/admin/summary.ts` hasta pasar
   T015 (HU-27)
-- [ ] T017 [US1] Crear `src/web/admin/components/SalesChart.tsx` (barras SVG de 30 días con eje, valores
+- [X] T017 [US1] Crear `src/web/admin/components/SalesChart.tsx` (barras SVG de 30 días con eje, valores
   en S/ y tabla oculta para lectores de pantalla, colores desde los tokens de tema) (HU-27, RNF-03)
-- [ ] T018 [US1] Crear `src/web/admin/pages/Summary.tsx` con las 5 tarjetas, el gráfico, ventas por
+- [X] T018 [US1] Crear `src/web/admin/pages/Summary.tsx` con las 5 tarjetas, el gráfico, ventas por
   categoría, top 5 y últimos pedidos con enlace al detalle, y estados de carga y error (HU-27)
 
 ---
