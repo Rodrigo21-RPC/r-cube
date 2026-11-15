@@ -164,13 +164,13 @@ categoría, top 5 y últimos pedidos
 
 **Independent Test**: +5 y −2 con motivo, ver el historial; −99 se rechaza
 
-- [ ] T031 [US4] Escribir `tests/api/admin/stock.test.ts` (HU-33): ajuste con `delta` ≠ 0 y motivo de 3 a
+- [X] T031 [US4] Escribir `tests/api/admin/stock.test.ts` (HU-33): ajuste con `delta` ≠ 0 y motivo de 3 a
   200 caracteres; stock negativo → 409 `NEGATIVE_STOCK` sin cambios; historial paginado con ajustes,
   ventas y cancelaciones (N.º de pedido) del más nuevo al más antiguo; auditoría `stock_ajustado`; debe
   fallar
-- [ ] T032 [US4] Implementar `src/worker/routes/admin/stock.ts` (`GET /products/:id/stock-movements`,
+- [X] T032 [US4] Implementar `src/worker/routes/admin/stock.ts` (`GET /products/:id/stock-movements`,
   `POST /products/:id/stock-adjustments`) hasta pasar T031 (HU-33)
-- [ ] T033 [US4] Agregar a `src/web/admin/pages/ProductForm.tsx` la sección «Stock» con el formulario de
+- [X] T033 [US4] Agregar a `src/web/admin/pages/ProductForm.tsx` la sección «Stock» con el formulario de
   ajuste y la tabla del historial (HU-33)
 
 ---
