@@ -141,18 +141,18 @@ categoría, top 5 y últimos pedidos
 
 **Independent Test**: subir 2 fotos, marcar la segunda como principal y verla primero en la tienda
 
-- [ ] T026 [P] [US3] Escribir `tests/unit/image-type.test.ts` (HU-31): detecta JPG, PNG y WebP por sus
+- [X] T026 [P] [US3] Escribir `tests/unit/image-type.test.ts` (HU-31): detecta JPG, PNG y WebP por sus
   bytes iniciales y rechaza un PDF o un texto con extensión `.jpg`; debe fallar
-- [ ] T027 [P] [US3] Escribir `tests/api/admin/images.test.ts` (HU-31): subir JPG válido → 201 con URL
+- [X] T027 [P] [US3] Escribir `tests/api/admin/images.test.ts` (HU-31): subir JPG válido → 201 con URL
   `/api/media/…` servible; > 2 MB o tipo inválido → 400 `INVALID_IMAGE`; séptima foto → 409
   `MAX_IMAGES`; mover, marcar principal y editar alt cambian el orden que ve `/api/catalog/products/:slug`;
   borrar elimina el objeto de R2 y la siguiente pasa a principal; borrar una foto de demostración no toca
   archivos estáticos; auditoría `foto`; debe fallar
-- [ ] T028 [US3] Implementar `src/shared/image-type.ts` hasta pasar T026 (HU-31)
-- [ ] T029 [US3] Implementar `src/worker/services/images.ts` y las rutas de fotos en
+- [X] T028 [US3] Implementar `src/shared/image-type.ts` hasta pasar T026 (HU-31)
+- [X] T029 [US3] Implementar `src/worker/services/images.ts` y las rutas de fotos en
   `src/worker/routes/admin/products.ts`, y `GET /api/media/*` en `src/worker/routes/media.ts` (caché
   larga, 404 si no existe) hasta pasar T027 (HU-31)
-- [ ] T030 [US3] Agregar la galería a `src/web/admin/pages/ProductForm.tsx` (subir con validación previa
+- [X] T030 [US3] Agregar la galería a `src/web/admin/pages/ProductForm.tsx` (subir con validación previa
   de tipo y tamaño, botones «Subir», «Bajar», «Principal», editar alt y borrar con confirmación) (HU-31,
   RNF-03)
 

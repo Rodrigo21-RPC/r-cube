@@ -11,6 +11,7 @@ import { AppError, validationHook, type AppEnv } from "../../middleware";
 import { audit } from "../../services/audit";
 import { recordMovement, type Tx } from "../../services/stock";
 import { GENERIC_IMAGE } from "../catalog";
+import { deleteImage, makeMainImage, moveImage, updateImageAlt, uploadImage } from "../../services/images";
 
 const { product, brand, category, productImage } = schema;
 const PAGE = 20;
@@ -206,4 +207,29 @@ export const productRoutes = new Hono<AppEnv>()
       });
     });
     return c.json(await loadAdminProduct(c.get("db"), id));
+  });
+
+/** Fotos del producto en R2 (HU-31, FR-009). */
+export const productImageRoutes = new Hono<AppEnv>()
+  .post("/products/:id/images", async (c) => {
+    const form = await c.req.formData().catch(() => null);
+    const file = form?.get("file");
+    if (!(file instanceof File)) throw new AppError(400, "INVALID_IMAGE", "Adjunta una foto JPG, PNG o WebP.");
+    return c.json(await uploadImage(c.get("db"), c.env.FOTOS, c.req.param("id"), file, c.get("user")!.id), 201);
+  })
+  .patch("/products/:id/images/:imageId", zValidator("json", z.object({ alt: z.string().trim().min(1, "Escribe el texto alternativo.").max(150) }), validationHook), async (c) => {
+    await updateImageAlt(c.get("db"), c.req.param("id"), c.req.param("imageId"), c.req.valid("json").alt, c.get("user")!.id);
+    return c.json(await loadAdminProduct(c.get("db"), c.req.param("id")));
+  })
+  .post("/products/:id/images/:imageId/move", zValidator("json", z.object({ direction: z.enum(["up", "down"]) }), validationHook), async (c) => {
+    await moveImage(c.get("db"), c.req.param("id"), c.req.param("imageId"), c.req.valid("json").direction, c.get("user")!.id);
+    return c.json(await loadAdminProduct(c.get("db"), c.req.param("id")));
+  })
+  .post("/products/:id/images/:imageId/main", async (c) => {
+    await makeMainImage(c.get("db"), c.req.param("id"), c.req.param("imageId"), c.get("user")!.id);
+    return c.json(await loadAdminProduct(c.get("db"), c.req.param("id")));
+  })
+  .delete("/products/:id/images/:imageId", async (c) => {
+    await deleteImage(c.get("db"), c.env.FOTOS, c.req.param("id"), c.req.param("imageId"), c.get("user")!.id);
+    return c.json(await loadAdminProduct(c.get("db"), c.req.param("id")));
   });
