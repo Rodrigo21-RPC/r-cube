@@ -99,7 +99,7 @@ describe("HU-37: exportar a CSV", () => {
     expect(res.headers.get("content-type")).toContain("text/csv");
     expect(res.headers.get("content-disposition")).toMatch(/attachment; filename="pedidos-/);
     const text = new TextDecoder().decode(await res.arrayBuffer());
-    const lines = text.replace(/^﻿/, "").trim().split("\r\n");
+    const lines = text.replace(/^\uFEFF/, "").trim().split("\r\n");
     expect(lines[0]).toBe("N.º,Fecha,Cliente,Total,Método,Estado");
     expect(lines).toHaveLength(3);
     expect(text).toContain("Ana Pérez");

@@ -6,5 +6,5 @@ function cell(value: string): string {
 
 /** CSV con BOM (tildes correctas en hojas de cálculo), coma como separador y CRLF entre filas. */
 export function toCsv(headers: string[], rows: string[][]): string {
-  return `﻿${[headers, ...rows].map((r) => r.map(cell).join(",")).join("\r\n")}\r\n`;
+  return `\uFEFF${[headers, ...rows].map((r) => r.map(cell).join(",")).join("\r\n")}\r\n`;
 }
