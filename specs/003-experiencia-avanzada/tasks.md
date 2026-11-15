@@ -67,18 +67,18 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 **⚠️ CRITICAL**: ninguna historia empieza antes de terminar esta fase
 
-- [ ] T006 [P] Escribir `tests/unit/coupon.test.ts` (HU-49, RN-04, RN-14): `couponDiscount` de porcentaje
+- [X] T006 [P] Escribir `tests/unit/coupon.test.ts` (HU-49, RN-04, RN-14): `couponDiscount` de porcentaje
   redondea al céntimo (10 % de S/ 2,999.00 = 29990 céntimos, 15 % de 33333 = 5000), de monto fijo
   descuenta el valor, el descuento se limita a `subtotal − 100` (nunca deja menos de S/ 1.00), nunca es
   negativo ni mayor que el subtotal y no toca el envío; `couponStatus` devuelve `inactive`, `exhausted`,
   `expired` y `active` en ese orden de prioridad con fechas de Lima; mensajes de `COUPON_*` exactos;
   debe fallar
-- [ ] T007 [P] Escribir `tests/unit/variant.test.ts` (HU-43, HU-44): `variantLabel` ordena almacenamiento,
+- [X] T007 [P] Escribir `tests/unit/variant.test.ts` (HU-43, HU-44): `variantLabel` ordena almacenamiento,
   color y RAM («256 GB · Azul · 8 GB RAM») y omite los vacíos; `priceRangeText` devuelve «S/ a a S/ b» o un
   solo precio si coinciden; debe fallar
-- [ ] T008 Implementar `src/shared/coupon.ts` (`couponDiscount`, `couponStatus`, `COUPON_MESSAGES`) y
+- [X] T008 Implementar `src/shared/coupon.ts` (`couponDiscount`, `couponStatus`, `COUPON_MESSAGES`) y
   `src/shared/variant.ts` (`variantLabel`, `priceRangeText`) hasta pasar T006 y T007 (HU-43, HU-49)
-- [ ] T009 [P] Escribir `tests/api/variants-service.test.ts` (HU-43, FR-003, FR-004, invariantes 1 y 2):
+- [X] T009 [P] Escribir `tests/api/variants-service.test.ts` (HU-43, FR-003, FR-004, invariantes 1 y 2):
   `syncProductFromVariants` deja `product.stock` = suma del stock de las variantes activas,
   `price_cents` = menor precio de las activas (de todas si ninguna está activa), `max_price_cents` = mayor
   precio de las activas y `has_variants` = existe alguna variante; sin variantes no toca el producto;
@@ -87,7 +87,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   producto; un descuento que dejaría la variante en negativo responde 409 `NEGATIVE_STOCK` sin cambiar
   nada; dos descuentos simultáneos de variantes del mismo producto dejan `product.stock` correcto; debe
   fallar
-- [ ] T010 Implementar `src/worker/services/variants.ts` (`syncProductFromVariants(tx, productId)` y
+- [X] T010 Implementar `src/worker/services/variants.ts` (`syncProductFromVariants(tx, productId)` y
   `lockProduct(tx, productId)` con `SELECT … FOR UPDATE`) y extender `src/worker/services/stock.ts`
   (`StockChange.variantId?`; con variante bloquea el producto, actualiza `product_variant`, llama a
   `syncProductFromVariants` y registra el movimiento con `variant_id`) hasta pasar T009; las pruebas de
