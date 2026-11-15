@@ -262,12 +262,12 @@ categoría, top 5 y últimos pedidos
 
 **Independent Test**: cambiar precio, stock, un pago y la configuración, y verlos en la auditoría
 
-- [ ] T049 [US9] Escribir `tests/api/admin/audit.test.ts` (HU-42, SC-006): tras cambiar precio, stock,
+- [X] T049 [US9] Escribir `tests/api/admin/audit.test.ts` (HU-42, SC-006): tras cambiar precio, stock,
   estado de pedido, confirmar un pago, bloquear un cliente y cambiar la configuración, `GET /audit` los
   lista del más nuevo al más antiguo con autor, tipo, objeto y detalle; filtro por `action`; páginas de
   30; no existen rutas de escritura (PUT/PATCH/DELETE → 404); debe fallar
-- [ ] T050 [US9] Implementar `GET /audit` en `src/worker/routes/admin/audit.ts` hasta pasar T049 (HU-42)
-- [ ] T051 [US9] Crear `src/web/admin/pages/Audit.tsx` (tabla con filtro por tipo y paginación) (HU-42)
+- [X] T050 [US9] Implementar `GET /audit` en `src/worker/routes/admin/audit.ts` hasta pasar T049 (HU-42)
+- [X] T051 [US9] Crear `src/web/admin/pages/Audit.tsx` (tabla con filtro por tipo y paginación) (HU-42)
 
 ---
 
