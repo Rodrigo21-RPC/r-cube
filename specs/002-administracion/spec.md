@@ -20,6 +20,21 @@ sus cuentas, pedidos, pagos, línea de tiempo, configuración de la tienda y tem
 `chaski-DESIGN-administrador.md`. Se toma su estructura (menú lateral, tarjetas de indicadores, tablas,
 formularios) con la marca R Cube y el alcance de las historias; el tema oscuro usa los tokens de la 001.
 
+## Clarifications
+
+### Session 2026-11-15
+
+- Q: ¿Se puede confirmar o rechazar un pago pendiente desde el detalle del pedido, además de la lista
+  «Pagos por confirmar»? → A: Sí, con la misma acción y las mismas reglas en ambos lugares.
+- Q: ¿Ve el administrador un acceso al panel desde la tienda? → A: Sí, un enlace «Panel» en el
+  encabezado de la tienda, visible solo para administradores.
+- Q: ¿Qué pasa al borrar una foto de demostración que no fue subida desde el panel? → A: Se quita del
+  producto; el archivo estático de demostración no se modifica.
+- Q: ¿Tiene límite la exportación de pedidos a CSV? → A: Hasta 10 000 filas; si los filtros dan más, se
+  pide acotarlos.
+- Q: ¿Cómo se reordenan las fotos de un producto? → A: Con botones «Subir» y «Bajar» usables con
+  teclado, en lugar de arrastrar y soltar.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Acceso al panel y resumen del negocio (Priority: P1)
@@ -302,7 +317,8 @@ abrir la auditoría y ver las cuatro acciones con autor, fecha y detalle.
 **Acceso y resumen**
 
 - **FR-001**: El panel MUST estar en `/admin`, con su propio formulario de ingreso; solo las cuentas con
-  rol administrador pueden usarlo; un cliente ve «sin permiso» (HU-26).
+  rol administrador pueden usarlo; un cliente ve «sin permiso». Para un administrador con sesión, el
+  encabezado de la tienda muestra un enlace «Panel» (HU-26).
 - **FR-002**: Toda operación del panel en el servidor MUST exigir sesión de administrador y rechazar
   la petición sin sesión o con otro rol, sin devolver datos (HU-26, RNF-05).
 - **FR-003**: El resumen MUST mostrar ventas de hoy, pedidos por preparar (Pagado y Preparando), pagos
@@ -325,8 +341,10 @@ abrir la auditoría y ver las cuatro acciones con autor, fecha y detalle.
   estado y stock bajo (5 o menos), paginada de 20 en 20, y mostrar foto principal, precio, stock y
   estado (HU-30).
 - **FR-009**: El administrador MUST poder subir hasta 6 fotos por producto (JPG, PNG o WebP, hasta 2 MB,
-  verificando que el contenido sea realmente una imagen), elegir la principal, reordenarlas, editar su
-  texto alternativo y borrarlas; se guardan en el almacenamiento de archivos de la tienda (HU-31).
+  verificando que el contenido sea realmente una imagen), elegir la principal, reordenarlas con botones «Subir» y
+  «Bajar» usables con teclado, editar su texto alternativo y borrarlas; se guardan en el almacenamiento
+  de archivos de la tienda. Borrar una foto de demostración la quita del producto sin modificar el
+  archivo estático (HU-31, RNF-03).
 - **FR-010**: El administrador MUST poder crear, renombrar, desactivar y reactivar categorías y marcas,
   con nombres únicos; desactivar una con productos activos MUST mostrar cuántos dejarán de verse y
   pedir confirmación (HU-32).
@@ -356,11 +374,13 @@ abrir la auditoría y ver las cuatro acciones con autor, fecha y detalle.
   cliente, método, monto, código de operación, antigüedad y tiempo restante hasta el vencimiento de 24
   horas (HU-36, RN-12).
 - **FR-019**: Confirmar un pago MUST pasar el pedido a Pagado y el pago a confirmado; rechazarlo MUST
-  pedir motivo, pasar el pedido a Cancelado, devolver el stock y marcar el pago como rechazado (HU-36,
-  RN-13).
+  pedir motivo, pasar el pedido a Cancelado, devolver el stock y marcar el pago como rechazado. Ambas
+  acciones están en «Pagos por confirmar» y en el detalle del pedido, con las mismas reglas; en el
+  detalle, el paso de Pendiente de pago a Pagado solo se hace con «Confirmar pago» (HU-36, RN-13).
 - **FR-020**: La exportación MUST generar un CSV con los pedidos que cumplen los filtros activos (todas
-  las páginas) y las columnas N.º, fecha, cliente, total, método y estado, codificado para abrirse con
-  tildes correctas en una hoja de cálculo (HU-37).
+  las páginas, hasta 10 000 filas; si son más, pide acotar los filtros) y las columnas N.º, fecha,
+  cliente, total, método y estado, codificado para abrirse con tildes correctas en una hoja de cálculo
+  (HU-37).
 
 **Clientes y configuración**
 
