@@ -20,6 +20,7 @@ test.describe("HU-01 a HU-05: descubrir productos", () => {
     await expect(page).toHaveURL(/brand=apple/);
     await expect(page).toHaveURL(/sort=price_desc/);
 
+    await expect(page.getByRole("heading", { level: 3 }).first()).toHaveText("iPhone 15 Pro 256 GB");
     const before = await page.getByRole("heading", { level: 3 }).allTextContents();
     await page.reload();
     await expect(page.getByRole("heading", { level: 3 })).toHaveText(before);

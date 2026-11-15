@@ -11,7 +11,7 @@ export interface Column<T> {
 /** Tabla accesible con encabezados y desplazamiento horizontal en pantallas chicas (RNF-03). */
 export function DataTable<T>({ caption, columns, rows, rowKey }: { caption: string; columns: Column<T>[]; rows: T[]; rowKey: (row: T) => string }) {
   return (
-    <div className="overflow-x-auto rounded-[18px] border border-border">
+    <div role="region" aria-label={caption} tabIndex={0} className="overflow-x-auto rounded-[18px] border border-border">
       <table className="w-full min-w-[640px] text-[15px]">
         <caption className="sr-only">{caption}</caption>
         <thead className="bg-surface text-left text-xs uppercase tracking-wide text-muted">

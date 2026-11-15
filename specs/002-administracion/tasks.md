@@ -273,10 +273,10 @@ categoría, top 5 y últimos pedidos
 
 ## Phase 12: Polish & Cross-Cutting Concerns
 
-- [ ] T052 Escribir `e2e/admin.spec.ts` (HU-26 a HU-42): cliente ve «sin permiso»; administrador ve el
+- [X] T052 Escribir `e2e/admin.spec.ts` (HU-26 a HU-42): cliente ve «sin permiso»; administrador ve el
   resumen, crea un producto con foto, ajusta stock, pasa un pedido a Preparando, confirma un pago, bloquea
   y reactiva un cliente, cambia la configuración y ve todo en la auditoría
-- [ ] T053 Agregar las páginas del panel (resumen, productos, formulario, pedidos, detalle, pagos,
+- [X] T053 Agregar las páginas del panel (resumen, productos, formulario, pedidos, detalle, pagos,
   clientes, configuración, auditoría) a `e2e/accesibilidad.spec.ts` en ambos temas (RNF-03, SC-007)
 - [ ] T054 [P] Actualizar `DESPLIEGUE.md`: el bucket R2 `r-cube-fotos` es ahora obligatorio (fotos
   subidas), las fotos se sirven por `/api/media/*`, cómo comprobar una subida y que el seed crea el
