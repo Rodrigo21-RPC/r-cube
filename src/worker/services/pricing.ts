@@ -61,6 +61,9 @@ export async function quoteCart(db: Db, requested: RequestedItem[]): Promise<Car
     }
     lines.push({
       productId,
+      variantId: null, // se completa con T016 (HU-44)
+      variantLabel: null,
+      sku: null,
       slug: p.slug,
       name: p.name,
       imageUrl: p.imageUrl ?? GENERIC_IMAGE,
@@ -85,5 +88,7 @@ export async function quoteCart(db: Db, requested: RequestedItem[]): Promise<Car
       igvCents: totals.igvCents,
       totalCents: totals.totalCents,
     },
+    coupon: null, // se completa con T045 (HU-49)
+    couponError: null,
   };
 }

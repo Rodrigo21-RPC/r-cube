@@ -33,10 +33,33 @@ export interface AdminProductRow {
   name: string;
   brand: string;
   category: string;
+  /** Con variantes, el precio «desde» (menor entre las activas) y el stock total (HU-43). */
   priceCents: number;
+  maxPriceCents: number | null;
   stock: number;
+  hasVariants: boolean;
+  variantCount: number;
+  /** Variantes activas con 5 unidades o menos, para el filtro de stock bajo (clarificación 3). */
+  lowVariants: { label: string; stock: number }[];
   active: boolean;
   imageUrl: string;
+}
+
+/** Variante de un producto vista por el administrador, activa o no (HU-43). */
+export interface AdminVariant {
+  id: string;
+  sku: string;
+  color: string;
+  storage: string;
+  ram: string;
+  label: string;
+  priceCents: number;
+  stock: number;
+  imageId: string | null;
+  imageUrl: string | null;
+  active: boolean;
+  /** Ya aparece en algún pedido: no se puede borrar, solo desactivar. */
+  sold: boolean;
 }
 
 export interface AdminImage {
@@ -58,6 +81,9 @@ export interface AdminProduct {
   priceCents: number;
   compareAtCents: number | null;
   stock: number;
+  maxPriceCents: number | null;
+  hasVariants: boolean;
+  variants: AdminVariant[];
   active: boolean;
   images: AdminImage[];
 }
@@ -76,6 +102,7 @@ export interface StockMovementDto {
   stockBefore: number;
   stockAfter: number;
   source: "inicial" | "ajuste" | "venta" | "cancelacion";
+  variantLabel: string | null;
   orderNumber: string | null;
   reason: string | null;
   actor: string;
@@ -142,6 +169,33 @@ export interface AuditRow {
   detail: string;
 }
 
+/** Cupón visto por el administrador (HU-50). */
+export interface AdminCoupon {
+  id: string;
+  code: string;
+  kind: "percent" | "fixed";
+  value: number;
+  startsOn: string;
+  endsOn: string;
+  maxUses: number;
+  usedCount: number;
+  active: boolean;
+  status: "active" | "inactive" | "expired" | "exhausted";
+}
+
+/** Reseña vista por el administrador para moderarla (HU-47). */
+export interface AdminReview {
+  id: string;
+  productId: string;
+  productName: string;
+  authorName: string;
+  authorEmail: string;
+  rating: number;
+  comment: string | null;
+  hidden: boolean;
+  createdAt: string;
+}
+
 export const AUDIT_LABEL: Record<string, string> = {
   producto_creado: "Producto creado",
   producto_editado: "Producto editado",
@@ -158,4 +212,8 @@ export const AUDIT_LABEL: Record<string, string> = {
   cliente_reactivado: "Cliente reactivado",
   configuracion: "Configuración",
   zona: "Zona de delivery",
+  variante: "Variante de producto",
+  cupon: "Cupón",
+  resena_oculta: "Reseña ocultada",
+  resena_visible: "Reseña mostrada",
 };

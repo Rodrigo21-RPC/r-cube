@@ -67,6 +67,7 @@ export const checkoutRoutes = new Hono<AppEnv>()
       bank: { name: s.bankName, holder: s.bankHolder, account: s.bankAccount, cci: s.bankCci },
       whatsappNumber: s.whatsappNumber,
       address: { name: me!.name, phone: me!.phone ?? "", address: me!.addressLine ?? "", district: me!.district ?? "", reference: me!.addressReference ?? "" },
+      addresses: [], // se completa con T038 (HU-48)
     };
     return c.json(body);
   })

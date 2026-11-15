@@ -40,6 +40,7 @@ export const stockRoutes = new Hono<AppEnv>()
         stockBefore: m.stockBefore,
         stockAfter: m.stockAfter,
         source: m.source,
+        variantLabel: null, // se completa con T013 (HU-43)
         orderNumber,
         reason: m.reason,
         actor: m.actorType === "sistema" ? "Sistema" : (actorName ?? "Usuario"),

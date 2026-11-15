@@ -39,18 +39,16 @@ async function upsert(db: Db, userId: string, productId: string, quantity: numbe
   const [p] = await db.select({ stock: product.stock, active: product.active, price: product.priceCents }).from(product).where(eq(product.id, productId));
   if (!p || !p.active) throw new AppError(404, "NOT_FOUND", "Este producto ya no está disponible.");
   if (p.stock <= 0) throw new AppError(409, "STOCK", "Este producto está agotado.");
-  await db
-    .insert(cartItem)
-    .values({ id: crypto.randomUUID(), userId, productId, quantity: Math.min(quantity, p.stock), seenPriceCents: p.price })
-    .onConflictDoUpdate({
-      target: [cartItem.userId, cartItem.productId],
-      set: {
-        quantity:
-          mode === "add"
-            ? sql`least(${cartItem.quantity} + ${quantity}::int, ${p.stock}::int)`
-            : sql`least(${quantity}::int, ${p.stock}::int)`,
-      },
-    });
+  // El índice único es (user_id, product_id, coalesce(variant_id, '')): el conflicto se declara con SQL (research R2).
+  await db.execute(sql`
+    insert into cart_item (id, user_id, product_id, quantity, seen_price_cents)
+    values (${crypto.randomUUID()}, ${userId}, ${productId}, ${Math.min(quantity, p.stock)}::int, ${p.price}::int)
+    on conflict (user_id, product_id, (coalesce(variant_id, ''))) do update
+    set quantity = ${
+      mode === "add"
+        ? sql`least(cart_item.quantity + ${quantity}::int, ${p.stock}::int)`
+        : sql`least(${quantity}::int, ${p.stock}::int)`
+    }`);
 }
 
 export const cartRoutes = new Hono<AppEnv>()

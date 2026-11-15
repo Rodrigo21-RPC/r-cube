@@ -54,6 +54,8 @@ export function toCard(r: CardRow): ProductCard {
     availability: availabilityOf(r.stock),
     imageUrl: r.imageUrl ?? GENERIC_IMAGE,
     imageAlt: r.name,
+    hasVariants: false, // se completa con T019 (HU-43)
+    maxPriceCents: null,
   };
 }
 
@@ -186,6 +188,7 @@ export const catalogRoutes = new Hono<AppEnv>()
       specs: row.specs,
       category: { name: row.categoryName, slug: row.categorySlug },
       images: images.length ? images : [{ url: GENERIC_IMAGE, alt: row.name }],
+      variants: [], // se completa con T019 (HU-44)
     };
     return c.json(body);
   })

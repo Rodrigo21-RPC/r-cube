@@ -34,12 +34,15 @@ export const ids = {
   pOff: "p-inactivo",
   zone: "zona-centro",
   zoneOff: "zona-inactiva",
+  /** Variantes de prueba del iPhone (se crean con `iphoneVariants()`, feature 003). */
+  variants: { v128: "var-iphone-128", v256: "var-iphone-256", v256blue: "var-iphone-256-azul" },
 };
 
 /** Borra todo y carga un seed mínimo de prueba (research R10). */
 export async function resetDb() {
   await withDb(async (db) => {
     await db.execute(sql`TRUNCATE TABLE audit_log, stock_movement, order_event, payment, order_item, orders, cart_item, product_image,
+      notification, review, favorite, address, coupon, product_variant,
       product, brand, category, delivery_zone, store_settings, session, account, verification,
       rate_limit, "user" RESTART IDENTITY CASCADE`);
     await db.execute(sql`ALTER SEQUENCE order_number_seq RESTART WITH 1`);
@@ -159,4 +162,106 @@ export async function clearR2() {
 
 export async function rowsOf(q: ReturnType<typeof sql>) {
   return withDb(async (db) => (await db.execute(q)) as unknown as Record<string, unknown>[]);
+}
+
+// ---------------------------------------------------------------- Feature 003
+
+export interface VariantDef {
+  id: string;
+  sku: string;
+  storage?: string;
+  color?: string;
+  ram?: string;
+  priceCents: number;
+  stock: number;
+  active?: boolean;
+  imageId?: string | null;
+}
+
+/**
+ * Inserta variantes y deja el resumen del producto (precio «desde», precio máximo, stock total y marca de
+ * variantes) como lo deja el servicio real. Es SQL propio para no depender del código que se prueba.
+ */
+export async function makeVariants(productId: string, defs: VariantDef[]) {
+  await withDb(async (db) => {
+    await db.insert(schema.productVariant).values(
+      defs.map((d) => ({
+        id: d.id,
+        productId,
+        sku: d.sku,
+        storage: d.storage ?? "",
+        color: d.color ?? "",
+        ram: d.ram ?? "",
+        priceCents: d.priceCents,
+        stock: d.stock,
+        active: d.active ?? true,
+        imageId: d.imageId ?? null,
+      })),
+    );
+    await db.execute(sql`UPDATE product p SET has_variants = true,
+      price_cents = coalesce((SELECT min(v.price_cents) FROM product_variant v WHERE v.product_id = p.id AND v.active),
+                             (SELECT min(v.price_cents) FROM product_variant v WHERE v.product_id = p.id)),
+      max_price_cents = (SELECT max(v.price_cents) FROM product_variant v WHERE v.product_id = p.id AND v.active),
+      stock = coalesce((SELECT sum(v.stock) FROM product_variant v WHERE v.product_id = p.id AND v.active), 0)::int
+      WHERE p.id = ${productId}`);
+  });
+}
+
+/** Tres variantes del iPhone 15 Pro: 128 GB Negro, 256 GB Negro y 256 GB Azul (una sola unidad). */
+export function iphoneVariants() {
+  return makeVariants(ids.p10, [
+    { id: ids.variants.v128, sku: "IP15-128-NG", storage: "128 GB", color: "Negro", priceCents: 459900, stock: 4 },
+    { id: ids.variants.v256, sku: "IP15-256-NG", storage: "256 GB", color: "Negro", priceCents: 499900, stock: 5 },
+    { id: ids.variants.v256blue, sku: "IP15-256-AZ", storage: "256 GB", color: "Azul", priceCents: 519900, stock: 1 },
+  ]);
+}
+
+export interface PlaceOrderOptions {
+  payment?: Record<string, unknown>;
+  delivery?: "pickup" | "delivery";
+  couponCode?: string;
+  /** Si no se indica, se toma del total que cotiza el carrito más el envío. */
+  expectedTotalCents?: number;
+}
+
+/**
+ * Arma el carrito de la cuenta y crea el pedido por el checkout real. Devuelve la respuesta cruda,
+ * el número de pedido (si se creó) y el cuerpo ya leído.
+ */
+export async function placeOrder(
+  cookie: string,
+  items: { productId: string; variantId?: string; quantity?: number }[],
+  opts: PlaceOrderOptions = {},
+) {
+  for (const it of items) {
+    await api(`/cart/items/${it.productId}`, { method: "PUT", cookie, json: { quantity: it.quantity ?? 1, variantId: it.variantId } });
+  }
+  const shipping = opts.delivery === "delivery" ? 1500 : 0;
+  let expected = opts.expectedTotalCents;
+  if (expected === undefined) {
+    const quote = (await (await api(`/cart${opts.couponCode ? `?coupon=${encodeURIComponent(opts.couponCode)}` : ""}`, { cookie })).json()) as {
+      totals: { totalCents: number };
+    };
+    expected = quote.totals.totalCents + shipping;
+  }
+  const res = await api("/checkout/orders", {
+    method: "POST",
+    cookie,
+    json: {
+      delivery:
+        opts.delivery === "delivery"
+          ? { method: "delivery", zoneId: ids.zone, name: "Cliente Prueba", phone: "987654321", address: "Av. Larco 123", district: "Miraflores" }
+          : { method: "pickup" },
+      payment: opts.payment ?? { method: "transfer" },
+      expectedTotalCents: expected,
+      ...(opts.couponCode ? { couponCode: opts.couponCode } : {}),
+    },
+  });
+  const body = (await res.clone().json().catch(() => null)) as { order?: { number: string } } | null;
+  return { res, status: res.status, number: body?.order?.number ?? null, body };
+}
+
+/** Deja un pedido en Entregado por SQL (necesario para reseñar, RN-09). */
+export async function deliverOrder(number: string) {
+  await withDb((db) => db.execute(sql`UPDATE orders SET status = 'delivered' WHERE number = ${number}`));
 }

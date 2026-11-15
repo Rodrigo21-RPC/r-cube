@@ -24,7 +24,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Agregar a `src/db/schema.ts` las tablas `product_variant`, `favorite`, `review`, `address`,
+- [X] T001 Agregar a `src/db/schema.ts` las tablas `product_variant`, `favorite`, `review`, `address`,
   `coupon` y `notification` y las columnas nuevas de `product`, `cart_item`, `order_item`, `orders` y
   `stock_movement`, exactamente como en data-model.md: `product_variant.sku` único de 3 a 40 caracteres
   en mayúsculas, `color`/`storage`/`ram` texto no nulo con `''` por defecto y máx. 40, `price_cents > 0`,
@@ -37,7 +37,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   coalesce(variant_id, ''))` en lugar del actual; `order_item.variant_id`, `variant_label`, `sku`;
   `orders.coupon_id`, `coupon_code`; `stock_movement.variant_id`. Agregar `variante`, `cupon`,
   `resena_oculta` y `resena_visible` a `AUDIT_ACTIONS` (HU-43 a HU-53, RN-07, RN-14)
-- [ ] T002 Generar la migración con `npm run db:generate`, renombrarla `drizzle/0003_experiencia_avanzada.sql`
+- [X] T002 Generar la migración con `npm run db:generate`, renombrarla `drizzle/0003_experiencia_avanzada.sql`
   (y su entrada en `drizzle/meta/_journal.json`), agregar al final el `INSERT INTO address` que copia la
   dirección única de cada `"user"` con `address_line IS NOT NULL` como primera dirección predeterminada
   (`label = 'Principal'`, destinatario = nombre del usuario, `phone` = teléfono del usuario o `''`,
@@ -45,16 +45,16 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   único de expresión (`INSERT … ON CONFLICT (user_id, product_id, (coalesce(variant_id,''))) DO UPDATE` con
   SQL de Drizzle) sin cambiar su comportamiento, para que las pruebas de la 001 sigan en verde en este
   commit (RNF-07, RNF-10, FR-019, FR-037, HU-48)
-- [ ] T003 [P] Ampliar `src/shared/types.ts` según contracts/api.md: `ProductCard.hasVariants` y
+- [X] T003 [P] Ampliar `src/shared/types.ts` según contracts/api.md: `ProductCard.hasVariants` y
   `maxPriceCents`; `ProductDetail.variants`; `CartLine.variantId/variantLabel/sku`; `CartWarning.type`
   con `"choose_variant"` y `"coupon"`; `CartQuote.coupon` y `couponError`; `OrderDetail.couponCode` y
   líneas con `variantLabel` y `sku`; tipos `Review`, `ReviewsPage`, `Address`, `Notification`,
   `NotificationsSummary`, `Receipt` y `CheckoutOptions.addresses` (HU-43 a HU-53)
-- [ ] T004 [P] Ampliar `src/shared/admin-types.ts` con `AdminVariant`, `AdminCoupon`, `AdminReview`, los
+- [X] T004 [P] Ampliar `src/shared/admin-types.ts` con `AdminVariant`, `AdminCoupon`, `AdminReview`, los
   campos `hasVariants`, `maxPriceCents` y `variants` de `AdminProductRow`/`AdminProduct`,
   `couponCode` y `discountCents` de `AdminOrderDetail`, y las etiquetas de `AUDIT_LABEL` para
   `variante`, `cupon`, `resena_oculta` y `resena_visible` (HU-43, HU-47, HU-50)
-- [ ] T005 [P] Ampliar `tests/api/helpers.ts`: agregar `product_variant, favorite, review, address, coupon,
+- [X] T005 [P] Ampliar `tests/api/helpers.ts`: agregar `product_variant, favorite, review, address, coupon,
   notification` al `TRUNCATE` de `resetDb`; helpers `makeVariants(productId, defs)` (inserta variantes y
   ejecuta `syncProductFromVariants`), `placeOrder(cookie, items, opts)` (carrito + `POST
   /checkout/orders` con transferencia o tarjeta `4111 1111 1111 1111`), `deliverOrder(number)`

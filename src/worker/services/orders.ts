@@ -177,11 +177,14 @@ export async function loadOrderDetail(db: Db, number: string, userId?: string): 
     items: items.map((i) => ({
       productId: i.productId,
       name: i.productName,
+      variantLabel: i.variantLabel,
+      sku: i.sku,
       unitPriceCents: i.unitPriceCents,
       quantity: i.quantity,
       lineTotalCents: i.lineTotalCents,
       imageUrl: i.imageUrl,
     })),
+    couponCode: ord.couponCode,
     totals: {
       subtotalCents: ord.subtotalCents,
       shippingCents: ord.shippingCents,

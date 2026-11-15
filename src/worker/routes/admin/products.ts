@@ -73,6 +73,9 @@ export async function loadAdminProduct(db: Db | Tx, id: string): Promise<AdminPr
     priceCents: p.priceCents,
     compareAtCents: p.compareAtCents,
     stock: p.stock,
+    maxPriceCents: p.maxPriceCents,
+    hasVariants: p.hasVariants,
+    variants: [], // se completa con T013 (HU-43)
     active: p.active,
     images: images.map((i) => ({ id: i.id, url: i.url, alt: i.alt, position: i.position, uploaded: i.r2Key !== null })),
   };
@@ -105,7 +108,8 @@ export const productRoutes = new Hono<AppEnv>()
     const rows = await db
       .select({
         id: product.id, slug: product.slug, name: product.name, brand: brand.name, category: category.name,
-        priceCents: product.priceCents, stock: product.stock, active: product.active,
+        priceCents: product.priceCents, maxPriceCents: product.maxPriceCents, stock: product.stock, hasVariants: product.hasVariants,
+        active: product.active,
         imageUrl: sql<string | null>`(select ${productImage.url} from ${productImage} where ${productImage.productId} = ${product.id} order by ${productImage.position} limit 1)`,
       })
       .from(product)
@@ -116,7 +120,8 @@ export const productRoutes = new Hono<AppEnv>()
       .limit(PAGE)
       .offset((f.page - 1) * PAGE);
     const body: Page<AdminProductRow> = {
-      items: rows.map((r) => ({ ...r, imageUrl: r.imageUrl ?? GENERIC_IMAGE })),
+      // variantCount y lowVariants se completan con T013 (HU-43).
+      items: rows.map((r) => ({ ...r, variantCount: 0, lowVariants: [], imageUrl: r.imageUrl ?? GENERIC_IMAGE })),
       total,
       page: f.page,
       pageSize: PAGE,
