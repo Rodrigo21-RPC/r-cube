@@ -41,7 +41,10 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   (y su entrada en `drizzle/meta/_journal.json`), agregar al final el `INSERT INTO address` que copia la
   dirección única de cada `"user"` con `address_line IS NOT NULL` como primera dirección predeterminada
   (`label = 'Principal'`, destinatario = nombre del usuario, `phone` = teléfono del usuario o `''`,
-  `is_default = true`) y aplicarla con `npm run db:migrate` (RNF-07, RNF-10, FR-019, HU-48)
+  `is_default = true`) y aplicarla con `npm run db:migrate`; en la misma tarea, adaptar el `upsert` de `src/worker/routes/cart.ts` al nuevo índice
+  único de expresión (`INSERT … ON CONFLICT (user_id, product_id, (coalesce(variant_id,''))) DO UPDATE` con
+  SQL de Drizzle) sin cambiar su comportamiento, para que las pruebas de la 001 sigan en verde en este
+  commit (RNF-07, RNF-10, FR-019, FR-037, HU-48)
 - [ ] T003 [P] Ampliar `src/shared/types.ts` según contracts/api.md: `ProductCard.hasVariants` y
   `maxPriceCents`; `ProductDetail.variants`; `CartLine.variantId/variantLabel/sku`; `CartWarning.type`
   con `"choose_variant"` y `"coupon"`; `CartQuote.coupon` y `couponError`; `OrderDetail.couponCode` y
@@ -107,7 +110,8 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   400; la primera variante de un producto con stock propio registra antes un movimiento `ajuste` de
   `-stock` y deja el producto en el resumen de sus variantes; `GET /products` y `GET /products/:id`
   devuelven `hasVariants`, `maxPriceCents` y `variants`; editar (`PATCH /variants/:id`) cambia precio,
-  stock no, y escribe auditoría `variante` con antes y después; desactivar saca la variante del stock total;
+  stock no; crear, editar, desactivar y borrar una variante escriben auditoría `variante` con antes y
+  después (FR-034); desactivar saca la variante del stock total;
   `DELETE` de una variante nunca vendida → 204 y de una vendida → 409 `VARIANT_SOLD`;
   `POST /products/:id/stock-adjustments` con `variantId` registra el movimiento con su variante y sin
   `variantId` en un producto con variantes → 400 `VARIANT_REQUIRED`; `GET /products/:id/stock-movements`
@@ -166,7 +170,8 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   con `variantId`, `variantLabel` y `sku`; en `createOrder`, las líneas con variante descuentan con
   `UPDATE product_variant … WHERE stock >= n AND active` bajo `lockProduct`, comparan el precio y llaman
   a `syncProductFromVariants`; `cancelOrder` devuelve el stock con `applyStockChange({ variantId })`;
-  `loadOrderDetail` incluye `variantLabel` y `sku`; el checkout rechaza cualquier aviso distinto de
+  `loadOrderDetail` y `loadAdminOrder` (`src/worker/routes/admin/orders.ts`) incluyen `variantLabel` y
+  `sku` por línea; el checkout rechaza cualquier aviso distinto de
   cambio de precio (incluido `choose_variant`) hasta pasar T015 (HU-44, FR-007, RN-02, RN-07)
 - [ ] T019 [US2] Extender `src/worker/routes/catalog.ts`: `cardColumns` con `hasVariants` y
   `max_price_cents`, `toCard` con `maxPriceCents` (solo si `hasVariants` y es mayor que el precio) y el
@@ -203,7 +208,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 **Independent Test**: con un pedido Entregado, reseñar con 4 estrellas, ver promedio y cantidad, y no poder repetir.
 
-- [ ] T024 [US3] Escribir `tests/api/reviews.test.ts` (HU-46, RN-09, FR-012 a FR-014): `POST
+- [ ] T024 [US3] Escribir `tests/api/reviews.test.ts` (HU-46, RN-09, FR-012 a FR-014, SC-003): `POST
   /catalog/products/:slug/reviews` con el producto en un pedido Entregado → 201; en cualquier otro estado
   o sin compra → 403 `NOT_DELIVERED`; segunda reseña del mismo producto → 409 `ALREADY_REVIEWED`
   (también si el producto se compró en dos pedidos o en distintas variantes); dos envíos simultáneos →
@@ -267,8 +272,9 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   el favorito pendiente tras iniciar sesión antes de volver (HU-45, FR-011, RNF-03)
 - [ ] T034 [US5] Crear `src/web/pages/Favorites.tsx` (tarjetas con foto, precio y disponibilidad; «Agregar al
   carrito» o «Elegir variante» si `hasVariants`; «Quitar»; «No disponible» o «Agotado» sin botón; estados de
-  carga, vacío «Aún no tienes favoritos» y error), la ruta `/favoritos` en `src/web/router.tsx` y el
-  enlace «Mis favoritos» en el menú de cuenta de `src/web/components/Header.tsx` (HU-45, FR-010)
+  carga, vacío «Aún no tienes favoritos» y error), la ruta `/favoritos` en `src/web/router.tsx` el
+  icono de corazón «Mis favoritos» en `src/web/components/Header.tsx` junto al carrito (solo clientes) y el
+  enlace «Mis favoritos» en `src/web/pages/Account.tsx` (HU-45, FR-010)
 - [ ] T035 [US5] Ampliar `src/db/seed-data.ts` con 2 a 3 favoritos por cliente de demostración, incluido un
   producto agotado o inactivo (FR-036, HU-45)
 
@@ -282,7 +288,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 **Independent Test**: crear dos direcciones, predeterminar la segunda y comprar eligiendo la primera.
 
-- [ ] T036 [US6] Escribir `tests/api/addresses.test.ts` (HU-48, FR-016 a FR-019): `POST /account/addresses`
+- [ ] T036 [US6] Escribir `tests/api/addresses.test.ts` (HU-48, FR-016 a FR-019, FR-033): `POST /account/addresses`
   valida `label` de 2 a 40, `recipientName` de 2 a 80, `phone` de 9 dígitos que empieza con 9, `line` de 5
   a 160, `district` de 2 a 80 y `reference` ≤ 160 con error por campo; la primera queda predeterminada;
   `POST /account/addresses/:id/default` deja una sola predeterminada; borrar la predeterminada promueve la
@@ -319,7 +325,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 **Independent Test**: crear `BIENVENIDO10`, verlo en la lista, desactivarlo y reactivarlo, y ver la auditoría.
 
-- [ ] T041 [US7] Escribir `tests/api/admin/coupons.test.ts` (HU-50, FR-020, FR-025): `POST /coupons` valida
+- [ ] T041 [US7] Escribir `tests/api/admin/coupons.test.ts` (HU-50, FR-020, FR-025, FR-033): `POST /coupons` valida
   `code` de 3 a 20 caracteres `[A-Z0-9-]` (se guarda en mayúsculas), `kind` y `value` (porcentaje de 1 a 90,
   monto fijo desde 100 céntimos), `startsOn`, `endsOn >= startsOn` y `maxUses >= 1` con error por campo; código
   repetido (sin distinguir mayúsculas) → 409 `DUPLICATE_CODE` en el campo `code`; `GET /coupons` calcula
@@ -346,7 +352,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 **Independent Test**: aplicar `BIENVENIDO10` a un producto de S/ 2,999.00, ver S/ 299.90 de descuento y pagar.
 
-- [ ] T044 [US8] Escribir `tests/api/coupons.test.ts` (HU-49, FR-021 a FR-024, RN-02, RN-04, RN-14):
+- [ ] T044 [US8] Escribir `tests/api/coupons.test.ts` (HU-49, FR-021 a FR-024, SC-002, RN-02, RN-04, RN-14):
   `GET /cart?coupon=` y `POST /cart/quote` con cupón válido devuelven `coupon` y `totals.discountCents`
   con base imponible + IGV = total; porcentaje redondeado al céntimo; monto fijo; el descuento no baja el
   total de productos de S/ 1.00; el envío no se descuenta; `couponError` con `COUPON_NOT_FOUND`,
@@ -364,9 +370,10 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   hoy`) y `releaseCoupon(tx, orderId)`; extender `src/worker/services/pricing.ts` (`quoteCart(db, items, {
   couponCode })` con `coupon`, `couponError` y descuento vía `couponDiscount`), `src/worker/routes/cart.ts`
   (`?coupon=` y cuerpo `coupon`), `src/worker/services/orders.ts` (`createOrder` canjea y guarda el cupón;
-  `cancelOrder` lo devuelve; `loadOrderDetail` con `couponCode`) y `src/worker/routes/checkout.ts`
-  (`couponCode`, revalidación y `expectedTotalCents` con descuento) hasta pasar T044 (HU-49, FR-021 a
-  FR-024, RN-02)
+  `cancelOrder` lo devuelve; `loadOrderDetail` con `couponCode`), `loadAdminOrder` de `src/worker/routes/admin/orders.ts` con
+  `couponCode` y `discountCents` en el desglose y `src/worker/routes/checkout.ts`
+  (`couponCode`, revalidación y `expectedTotalCents` con descuento) hasta pasar T044 (HU-49, FR-021, FR-022,
+  FR-023, FR-024, RN-02)
 - [ ] T046 [US8] Crear `src/web/stores/coupon.ts` (código pendiente persistido, `rcube-cupon`) y
   `src/web/components/CouponBox.tsx` (campo, «Aplicar», «Quitar», mensajes de error por código, aviso al
   visitante «Inicia sesión para aplicar tu cupón»); integrarlos en `src/web/pages/Cart.tsx` y
@@ -376,7 +383,9 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   RN-04)
 - [ ] T047 [US8] Ampliar `src/db/seed-data.ts` con 3 cupones: `BIENVENIDO10` (10 %, vigente, 50 usos),
   `VERANO5` (S/ 5.00, vencido) y `ULTIMO` (10 %, 1 uso, agotado por un pedido de demostración que lo
-  usa); `used_count` coincide con los pedidos no cancelados con cupón (FR-036, invariante 5)
+  usa: aplicarlo a un pedido existente no cancelado recalculando sus totales con `orderTotals`, sin crear
+  pedidos nuevos para no alterar los 8 de la 001; verificar con `grep` que ninguna prueba depende de ese
+  total); `used_count` coincide con los pedidos no cancelados con cupón (FR-036, invariante 5)
 
 **Checkpoint**: HU-49 completa; cupones de punta a punta.
 
@@ -408,7 +417,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 **Independent Test**: abrir un pedido Pagado, «Ver comprobante» y revisar la vista previa de impresión.
 
 - [ ] T051 [US10] Escribir `tests/api/receipt.test.ts` (HU-52, FR-027, FR-028, RN-07, RN-08): `GET
-  /orders/:number/receipt` devuelve el pedido, `store` (nombre, WhatsApp y dirección de recojo de la
+  /orders/:number/receipt` devuelve el pedido, `store` (nombre fijo «R Cube», WhatsApp y dirección de recojo de la
   configuración) y `customer`; incluye variantes, cupón, envío, total, base imponible e IGV con los montos
   congelados (cambiar el precio del producto después no los altera); el pedido de otro cliente → 404; sin
   sesión → 401; pedido Pendiente de pago o Cancelado devuelve su estado real; debe fallar
@@ -434,7 +443,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 - [ ] T054 [US11] Escribir `tests/api/notifications.test.ts` (HU-53, FR-029 a FR-031): confirmar el pago, pasar
   a Preparando, Enviado y Entregado desde el panel crea un aviso «Tu pedido RC-… está <Estado>»; cancelar
-  por el administrador, rechazar un pago y la cancelación automática a las 24 h (`runExpiry`) crean «Tu
+  por el administrador, rechazar un pago y la cancelación automática a las 24 h (`expirePendingOrders` de `src/worker/cron.ts`) crean «Tu
   pedido RC-… fue cancelado: <motivo>»; cancelar el propio cliente no crea aviso; `GET
   /notifications/summary` devuelve `unread` y los últimos 20; `GET /notifications` pagina de 20 en 20;
   `POST /notifications/:id/read` y `POST /notifications/read-all` marcan leídos; un cliente no ve ni marca
@@ -471,9 +480,11 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 - [ ] T060 [P] Escribir `e2e/variantes-compra.spec.ts` (HU-44, HU-49, SC-001): elegir una variante, ver cambiar
   precio y disponibilidad, probar «Elige color, almacenamiento o RAM», agregar, aplicar `BIENVENIDO10`, ver
   el descuento, probar `VERANO5` («El cupón venció») y `NOEXISTE`, pagar con `4111 1111 1111 1111` y ver
-  variante y descuento en el pedido
+  variante y descuento en el pedido; como visitante, escribir un cupón muestra «Inicia sesión para aplicar tu
+  cupón» y el código se conserva al ingresar (US8, escenario 9)
 - [ ] T061 [P] Escribir `e2e/extras-cliente.spec.ts` (HU-45, HU-46, HU-48, HU-51, HU-52, HU-53): favorito con
-  recarga y paso al carrito; reseña de un producto Entregado (y sin formulario si no lo recibió); dos
+  recarga y paso al carrito (y, como visitante, el corazón lleva a ingresar y el favorito queda guardado al
+  volver); reseña de un producto Entregado (y sin formulario si no lo recibió); dos
   direcciones con predeterminada y elección en el checkout; relacionados en el detalle; comprobante con
   `page.emulateMedia({ media: 'print' })` (sin encabezado ni botones) y PDF de una página A4 con
   `page.pdf()`; aviso en la campana tras un cambio de estado hecho con la cookie de `adminCookies`
@@ -490,7 +501,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   la 003 y su sección) (RNF-09, RNF-10)
 - [ ] T065 Revisión de seguridad del diff de la 003: favoritos, direcciones, avisos y comprobante siempre
   filtrados por `user_id` (404 si es ajeno); comentarios de reseñas mostrados como texto; validación de
-  `variantId`, `addressId` y `couponCode` en el servidor; el cupón solo se consulta con sesión (sin enumeración
+  `variantId`, `addressId` y `couponCode` en el servidor con mensajes por campo y montos en céntimos (FR-033); el cupón solo se consulta con sesión (sin enumeración
   anónima); ninguna acción de variantes, cupones o reseñas sin auditoría; ningún dato sensible en los avisos
   ni en el comprobante (solo últimos 4 de la tarjeta) (RNF-05, RNF-06, RN-08)
 - [ ] T066 Verificar la migración aplicando `0003` sobre una base con la dirección única de la 001, ejecutar

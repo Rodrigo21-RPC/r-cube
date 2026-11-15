@@ -57,7 +57,7 @@ lista de productos del panel el rango de precios y el stock total.
 
 1. **Given** un producto sin variantes, **When** el administrador agrega la variante «256 GB Azul» con
    SKU `IP15-256-AZ`, precio S/ 4,599.00 y stock 4, **Then** la variante queda guardada y el producto
-   pasa a mostrar «Desde S/ …» o el rango de sus variantes.
+   pasa a mostrar el rango de precios de sus variantes.
 2. **Given** un producto con 3 variantes de S/ 3,999.00, S/ 4,299.00 y S/ 4,599.00, **When** se ve en la
    lista de la tienda y en el detalle, **Then** el precio se muestra como el rango «S/ 3,999.00 a
    S/ 4,599.00».
@@ -425,9 +425,9 @@ a Enviado, ver el contador subir a 1, abrir el aviso, llegar al pedido y comprob
   carrito.
 - **Combinación repetida**: dos variantes del mismo producto con exactamente los mismos atributos
   (mismo color, almacenamiento y RAM) no se permiten.
-- **Reseña de un producto desactivado**: el cliente que lo recibió puede reseñarlo mientras la página del
-  producto exista para él; los productos desactivados siguen mostrando sus reseñas existentes a quien
-  llegue por un enlace de su pedido.
+- **Reseña de un producto desactivado**: un producto desactivado no tiene página pública (como en la 001),
+  así que no se puede reseñar mientras esté desactivado; sus reseñas se conservan y vuelven a verse y a
+  contar cuando se reactiva.
 - **Cupón vence a medianoche**: la vigencia se evalúa con la hora de Lima; un cupón vigente hasta el día
   D vale durante todo el día D.
 - **Cupón y carrito cambian**: si el carrito cambia después de aplicar el cupón, el descuento se
@@ -454,7 +454,8 @@ a Enviado, ver el contador subir a 1, abrir el aviso, llegar al pedido y comprob
 
 - **FR-001**: El administrador MUST poder agregar, editar, desactivar y borrar variantes de un producto;
   cada variante tiene SKU único en toda la tienda, atributos (color, almacenamiento y RAM, al menos uno
-  con valor), precio en soles con IGV incluido, stock y, opcionalmente, una de las fotos del producto.
+  con valor), precio en soles con IGV incluido, stock y, opcionalmente, una de las fotos del producto; un
+  producto admite hasta 20 variantes.
 - **FR-002**: Dos variantes del mismo producto MUST NOT tener la misma combinación de atributos; una
   variante vendida alguna vez MUST NOT poder borrarse, solo desactivarse (RN-06).
 - **FR-003**: Un producto con variantes MUST mostrar, en la lista de la tienda, el detalle y el panel, el
@@ -607,7 +608,7 @@ a Enviado, ver el contador subir a 1, abrir el aviso, llegar al pedido y comprob
   se vende más de lo disponible ni se usa un cupón más veces que sus usos máximos.
 - **SC-005**: Un administrador crea un producto con 3 variantes en menos de 3 minutos y un cupón en menos
   de 1 minuto, siguiendo solo lo que ve en pantalla.
-- **SC-006**: Un cambio de estado de un pedido se refleja en la campana del cliente en menos de 60 segundos
+- **SC-006**: Un cambio de estado de un pedido se refleja en la campana del cliente como máximo en 1 minuto
   sin recargar la página.
 - **SC-007**: El comprobante de un pedido de hasta 10 productos distintos se imprime en una sola hoja A4,
   sin encabezado ni botones, y sus montos coinciden con los del pedido.
@@ -626,7 +627,8 @@ a Enviado, ver el contador subir a 1, abrir el aviso, llegar al pedido y comprob
   descuento nunca se aplica al envío.
 - Las reseñas no se editan ni se borran por el cliente en esta feature; la calificación no se muestra en
   las tarjetas del catálogo, solo en el detalle del producto.
-- El nombre del cliente en la reseña es su primer nombre y la inicial del apellido.
+- El nombre del cliente en la reseña es su primer nombre y la inicial del apellido; si su nombre tiene una
+  sola palabra, se muestra completa.
 - La hora de referencia para vigencias, fechas y relativas es la de Lima (UTC−5).
 - No hay correos electrónicos: los avisos son solo dentro de la app (REQUISITOS §1). El contador se
   consulta periódicamente; no hay notificaciones en tiempo real ni del navegador.

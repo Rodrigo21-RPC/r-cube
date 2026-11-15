@@ -138,7 +138,7 @@ drizzle/
 
 tests/
 ├── unit/                            # coupon, variant
-└── api/                             # variants, favorites, reviews, addresses, coupons, related, receipt, notifications (+ admin/)
+└── api/                             # variants-service, variants-cart, favorites, reviews, addresses, coupons, related, receipt, notifications (+ admin/)
 
 e2e/                                 # variantes-compra, extras-cliente, admin-extras; accesibilidad ampliada
 ```
