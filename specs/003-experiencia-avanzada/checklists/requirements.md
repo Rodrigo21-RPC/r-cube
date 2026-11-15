@@ -33,4 +33,4 @@
 
 - Las 11 historias HU-43 a HU-53 tienen su propia historia de usuario (HU-49 y HU-50 en US8 y US7).
 - Las decisiones de detalle (comentario opcional, un cupón por pedido, devolución de usos al cancelar,
-  sin límite por cliente, sin edición de reseñas) están en Assumptions y se confirman en `/speckit-clarify`.
+  sin límite por cliente, sin edición de reseñas) están en Assumptions y se confirmaron en `/speckit-clarify` (sesión 2026-11-15, 5 preguntas).

@@ -18,6 +18,26 @@ stock con historial, el panel `/admin`, la auditoría y el tema claro y oscuro. 
 tarjetas, las tablas y los diálogos de las features 001 y 002, en tema claro y oscuro
 (`docs/diseno/*-DESIGN-comprador.md` y `docs/diseno/*-DESIGN-administrador.md`).
 
+## Clarifications
+
+### Session 2026-11-15
+
+- Q: ¿Qué pasa con las líneas de carrito sin variante de un producto al que luego se le agregan
+  variantes? → A: La línea sigue en el carrito pero muestra «Elige una variante» y bloquea el pago hasta
+  que el cliente elija una o la quite; nunca se cobra ni se descuenta stock de una línea sin variante
+  de un producto con variantes.
+- Q: ¿Cómo participan los productos con variantes en el filtro y el orden por precio del catálogo? →
+  A: Con el precio «desde», que es el menor entre sus variantes activas; la tarjeta sigue mostrando el
+  rango completo.
+- Q: ¿Cómo cuenta el «Stock bajo» del resumen del panel en productos con variantes? → A: Cuenta cada
+  variante activa con 5 unidades o menos y la lista indica producto y variante; los productos sin
+  variantes cuentan como en la 002.
+- Q: ¿Puede el cliente editar o borrar su reseña? → A: No en esta feature (cero alcance fantasma): una
+  reseña enviada solo cambia por moderación del administrador (ocultar o mostrar).
+- Q: ¿Cómo se ve un pedido con cupón en el panel y en el CSV de pedidos? → A: El detalle del pedido en
+  el panel muestra el código y el descuento en el desglose; el CSV de la 002 no cambia (su columna
+  Total ya es el total pagado).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Definir variantes de un producto (Priority: P1)
@@ -397,6 +417,9 @@ a Enviado, ver el contador subir a 1, abrir el aviso, llegar al pedido y comprob
 - **Producto con variantes con stock propio**: al agregar la primera variante a un producto que ya tenía
   stock, ese stock propio deja de contar (el stock del producto es la suma de sus variantes) y el cambio
   queda en el historial de stock; el administrador asigna el stock a cada variante.
+- **Producto que gana variantes con unidades en carritos**: esas líneas quedan marcadas «Elige una
+  variante» y no se pueden pagar hasta resolverlas; un producto con variantes nunca vende ni descuenta
+  stock sin variante.
 - **Variante sin foto propia**: usa la foto principal del producto.
 - **Todas las variantes agotadas o desactivadas**: el producto aparece «Agotado» y no se puede agregar al
   carrito.
@@ -437,6 +460,9 @@ a Enviado, ver el contador subir a 1, abrir el aviso, llegar al pedido y comprob
 - **FR-003**: Un producto con variantes MUST mostrar, en la lista de la tienda, el detalle y el panel, el
   rango de precios de sus variantes activas («S/ a a S/ b», o un solo precio si coinciden), y su
   disponibilidad MUST ser la suma del stock de sus variantes activas.
+  El filtro y el orden por precio del catálogo MUST usar el precio «desde» (el menor de sus variantes
+  activas), y el «Stock bajo» del resumen del panel MUST contar cada variante activa con 5 unidades o
+  menos, indicando producto y variante.
 - **FR-004**: El administrador MUST poder ajustar el stock de una variante con motivo, y el historial de
   stock MUST registrar cada movimiento con su variante (venta, cancelación, ajuste o stock inicial).
 - **FR-005**: El detalle MUST mostrar un selector de variante accesible con teclado; al elegir, el precio,
@@ -444,7 +470,8 @@ a Enviado, ver el contador subir a 1, abrir el aviso, llegar al pedido y comprob
   variante disponible elegida.
 - **FR-006**: El carrito (de visitante y de cuenta) MUST guardar la variante de cada línea; la misma
   variante MUST sumar cantidades y variantes distintas MUST ser líneas distintas; RN-01 MUST validarse
-  contra el stock de la variante.
+  contra el stock de la variante. Una línea de carrito sin variante de un producto que ya tiene variantes MUST
+  mostrar «Elige una variante» y bloquear el pago hasta que se elija una o se quite la línea.
 - **FR-007**: El checkout y el pedido MUST guardar la variante, su SKU y su precio al momento de la compra
   (RN-07); el stock descontado y devuelto (cancelaciones, rechazos y vencimiento a las 24 h) MUST ser el
   de la variante, dentro de la misma transacción del pedido (RN-02).
@@ -467,7 +494,7 @@ a Enviado, ver el contador subir a 1, abrir el aviso, llegar al pedido y comprob
   estado Entregado, una sola vez por producto (RN-09); el servidor MUST rechazar cualquier otro intento.
 - **FR-013**: La reseña MUST tener una calificación entera de 1 a 5 (obligatoria) y un comentario opcional
   de hasta 1000 caracteres; MUST mostrarse con el nombre abreviado del cliente, estrellas, comentario y
-  fecha.
+  fecha. El cliente MUST NOT poder editar ni borrar su reseña; solo el administrador la oculta o muestra.
 - **FR-014**: El detalle MUST mostrar el promedio (un decimal), la cantidad de reseñas visibles y la lista
   paginada de 5 en 5 de la más nueva a la más antigua, con estado vacío cuando no hay.
 - **FR-015**: El administrador MUST poder listar todas las reseñas (filtro por estado y búsqueda por
@@ -502,7 +529,8 @@ a Enviado, ver el contador subir a 1, abrir el aviso, llegar al pedido y comprob
   mostrarse en el desglose cumpliendo RN-04 y RN-14.
 - **FR-023**: Un pedido MUST llevar como máximo un cupón; el código y el descuento MUST quedar guardados en
   el pedido (RN-07); el uso MUST consumirse en la misma transacción que el pedido (RN-02), sin sobrepasar
-  nunca los usos máximos aunque haya compras simultáneas.
+  nunca los usos máximos aunque haya compras simultáneas. El detalle del pedido en el panel MUST mostrar el código y
+  el descuento; el CSV de pedidos de la 002 MUST NOT cambiar.
 - **FR-024**: Cuando un pedido con cupón se cancela por cualquier vía (cliente, rechazo del pago,
   vencimiento a las 24 h o administrador), el uso del cupón MUST devolverse.
 - **FR-025**: Los cambios de un cupón MUST aplicarse solo a usos futuros y quedar en la auditoría, y el
