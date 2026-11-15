@@ -15,6 +15,13 @@
       "when": 1794504495898,
       "tag": "0001_precio_visto_carrito",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794761243340,
+      "tag": "0002_administracion",
+      "breakpoints": true
     }
   ]
 }

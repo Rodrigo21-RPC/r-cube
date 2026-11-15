@@ -157,6 +157,8 @@ export const productImage = pgTable(
     url: text("url").notNull(),
     alt: text("alt").notNull(),
     position: integer("position").notNull().default(0),
+    /** Clave del archivo en R2; null en las fotos estáticas de demostración (HU-31). */
+    r2Key: text("r2_key"),
   },
   (t) => [index("product_image_product_idx").on(t.productId, t.position)],
 );
@@ -298,4 +300,75 @@ export const orderEvent = pgTable(
     createdAt: createdAt(),
   },
   (t) => [index("order_event_order_idx").on(t.orderId, t.createdAt)],
+);
+
+// ---------------------------------------------------------------- Administración (002)
+
+export const STOCK_SOURCES = ["inicial", "ajuste", "venta", "cancelacion"] as const;
+export type StockSource = (typeof STOCK_SOURCES)[number];
+
+/** Historial de cada cambio de stock (HU-33, FR-011). */
+export const stockMovement = pgTable(
+  "stock_movement",
+  {
+    id: text("id").primaryKey(),
+    productId: text("product_id")
+      .notNull()
+      .references(() => product.id, { onDelete: "cascade" }),
+    delta: integer("delta").notNull(),
+    stockBefore: integer("stock_before").notNull(),
+    stockAfter: integer("stock_after").notNull(),
+    source: text("source", { enum: STOCK_SOURCES }).notNull(),
+    orderId: text("order_id").references(() => orders.id),
+    reason: text("reason"),
+    actorType: text("actor_type", { enum: ["cliente", "administrador", "sistema"] }).notNull(),
+    actorUserId: text("actor_user_id").references(() => user.id),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    check("stock_movement_delta_nonzero", sql`${t.delta} <> 0`),
+    check("stock_movement_after_non_negative", sql`${t.stockAfter} >= 0`),
+    index("stock_movement_product_idx").on(t.productId, t.createdAt.desc()),
+  ],
+);
+
+export const AUDIT_ACTIONS = [
+  "producto_creado",
+  "producto_editado",
+  "precio_cambiado",
+  "producto_estado",
+  "foto",
+  "categoria",
+  "marca",
+  "stock_ajustado",
+  "pedido_estado",
+  "pago_confirmado",
+  "pago_rechazado",
+  "cliente_bloqueado",
+  "cliente_reactivado",
+  "configuracion",
+  "zona",
+] as const;
+export type AuditAction = (typeof AUDIT_ACTIONS)[number];
+
+/** Registro de acciones del panel; solo se inserta, nunca se edita (HU-42). */
+export const auditLog = pgTable(
+  "audit_log",
+  {
+    id: text("id").primaryKey(),
+    actorUserId: text("actor_user_id")
+      .notNull()
+      .references(() => user.id),
+    action: text("action", { enum: AUDIT_ACTIONS }).notNull(),
+    entityType: text("entity_type").notNull(),
+    entityId: text("entity_id").notNull(),
+    entityLabel: text("entity_label").notNull(),
+    detail: text("detail").notNull(),
+    data: jsonb("data").$type<{ before?: unknown; after?: unknown }>(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index("audit_log_created_idx").on(t.createdAt.desc()),
+    index("audit_log_action_idx").on(t.action, t.createdAt.desc()),
+  ],
 );

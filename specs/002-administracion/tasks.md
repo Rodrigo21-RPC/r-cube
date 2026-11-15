@@ -24,15 +24,15 @@ Mismo paquete que la 001: `src/shared`, `src/db`, `src/worker`, `src/web`, `test
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Agregar a `src/db/schema.ts` la tabla `stock_movement` (`delta` ≠ 0, `stock_before` ≥ 0,
+- [X] T001 Agregar a `src/db/schema.ts` la tabla `stock_movement` (`delta` ≠ 0, `stock_before` ≥ 0,
   `stock_after` ≥ 0, `source` `inicial|ajuste|venta|cancelacion`, `order_id` null, `reason` null,
   `actor_type`, `actor_user_id` null, índice `(product_id, created_at desc)`), la tabla `audit_log`
   (`action`, `entity_type`, `entity_id`, `entity_label`, `detail`, `data` jsonb, índices
   `(created_at desc)` y `(action, created_at desc)`) y la columna `product_image.r2_key` text null, según
   data-model.md (FR-011, HU-31, HU-42)
-- [ ] T002 Generar la migración `drizzle/0002_*` con `npm run db:generate` y aplicarla a la base de Docker
+- [X] T002 Generar la migración `drizzle/0002_*` con `npm run db:generate` y aplicarla a la base de Docker
   con `npm run db:migrate` (RNF-07, RNF-10)
-- [ ] T003 [P] Crear `src/shared/admin-types.ts` con los tipos de respuesta de contracts/admin-api.md
+- [X] T003 [P] Crear `src/shared/admin-types.ts` con los tipos de respuesta de contracts/admin-api.md
   (`AdminSummary`, `AdminProductRow`, `AdminProduct`, `StockMovementDto`, `AdminOrderRow`,
   `AdminOrderDetail`, `PendingPayment`, `CustomerRow`, `CustomerDetail`, `AdminSettings`, `AuditRow`)
   (HU-26 a HU-42)
