@@ -3,7 +3,12 @@ import type { AppEnv } from "../middleware";
 
 /** Fotos subidas al panel, servidas desde R2 con caché larga: la clave nunca se reutiliza (HU-31). */
 export const mediaRoutes = new Hono<AppEnv>().get("/*", async (c) => {
-  const key = decodeURIComponent(c.req.path.replace(/^\/api\/media\//, ""));
+  let key = "";
+  try {
+    key = decodeURIComponent(c.req.path.replace(/^\/api\/media\//, ""));
+  } catch {
+    // Escape de URL mal formado: no corresponde a ninguna foto.
+  }
   if (!key.startsWith("productos/") || key.includes("..")) return c.json({ error: { code: "NOT_FOUND", message: "No encontrado." } }, 404);
   const obj = await c.env.FOTOS.get(key);
   if (!obj) return c.json({ error: { code: "NOT_FOUND", message: "No encontrado." } }, 404);

@@ -282,7 +282,7 @@ categoría, top 5 y últimos pedidos
   subidas), las fotos se sirven por `/api/media/*`, cómo comprobar una subida y que el seed crea el
   historial de stock (RNF-10)
 - [X] T055 [P] Actualizar `specs/README.md` y `README.md` con el panel de administración (RNF-09)
-- [ ] T056 Revisión de seguridad del diff de la 002: autorización en cada ruta de `/api/admin/*`,
+- [X] T056 Revisión de seguridad del diff de la 002: autorización en cada ruta de `/api/admin/*`,
   validación de subidas, CSV sin inyección de fórmulas (anteponer `'` a celdas que empiezan con `=`, `+`,
   `-` o `@`), sin datos sensibles en la auditoría (RNF-05)
 - [ ] T057 Ejecutar `npm run check` y `npm run test:e2e`, recorrer quickstart.md en tema claro y oscuro y
