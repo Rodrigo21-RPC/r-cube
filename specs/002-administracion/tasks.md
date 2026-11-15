@@ -278,10 +278,10 @@ categoría, top 5 y últimos pedidos
   y reactiva un cliente, cambia la configuración y ve todo en la auditoría
 - [X] T053 Agregar las páginas del panel (resumen, productos, formulario, pedidos, detalle, pagos,
   clientes, configuración, auditoría) a `e2e/accesibilidad.spec.ts` en ambos temas (RNF-03, SC-007)
-- [ ] T054 [P] Actualizar `DESPLIEGUE.md`: el bucket R2 `r-cube-fotos` es ahora obligatorio (fotos
+- [X] T054 [P] Actualizar `DESPLIEGUE.md`: el bucket R2 `r-cube-fotos` es ahora obligatorio (fotos
   subidas), las fotos se sirven por `/api/media/*`, cómo comprobar una subida y que el seed crea el
   historial de stock (RNF-10)
-- [ ] T055 [P] Actualizar `specs/README.md` y `README.md` con el panel de administración (RNF-09)
+- [X] T055 [P] Actualizar `specs/README.md` y `README.md` con el panel de administración (RNF-09)
 - [ ] T056 Revisión de seguridad del diff de la 002: autorización en cada ruta de `/api/admin/*`,
   validación de subidas, CSV sin inyección de fórmulas (anteponer `'` a celdas que empiezan con `=`, `+`,
   `-` o `@`), sin datos sensibles en la auditoría (RNF-05)
