@@ -181,23 +181,23 @@ categoría, top 5 y últimos pedidos
 
 **Independent Test**: filtrar Pagados, pasar uno a Preparando y Enviado, exportar CSV
 
-- [ ] T034 [P] [US5] Escribir `tests/unit/csv.test.ts` (HU-37): BOM inicial, separador coma, comillas
+- [X] T034 [P] [US5] Escribir `tests/unit/csv.test.ts` (HU-37): BOM inicial, separador coma, comillas
   dobles para campos con coma, comillas o saltos de línea, tildes intactas, y celdas que empiezan con
   `=`, `+`, `-` o `@` precedidas por `'` para evitar inyección de fórmulas (RNF-05); debe fallar
-- [ ] T035 [P] [US5] Escribir `tests/api/admin/orders.test.ts` (HU-34, HU-35, HU-37, FR-017): filtros por
+- [X] T035 [P] [US5] Escribir `tests/api/admin/orders.test.ts` (HU-34, HU-35, HU-37, FR-017): filtros por
   estado, método, rango de fechas y texto (N.º, nombre, correo) con páginas de 20; detalle con cliente y
   `allowedTransitions` (recojo: Preparando → Entregado; delivery: Preparando → Enviado); transición
   válida registra evento con actor `administrador`; inválida → 409 `INVALID_TRANSITION`; `expectedStatus`
   desactualizado → 409 `STATE_CHANGED`; cancelar exige motivo y devuelve stock; Pendiente de pago →
   Pagado por esta ruta → 409; CSV con filtros, columnas pedidas y 422 `TOO_MANY_ROWS` por encima de
   10 000; auditoría `pedido_estado`; debe fallar
-- [ ] T036 [US5] Implementar `src/shared/csv.ts` hasta pasar T034 (HU-37)
-- [ ] T037 [US5] Implementar `src/worker/routes/admin/orders.ts` (`GET /orders`, `GET
+- [X] T036 [US5] Implementar `src/shared/csv.ts` hasta pasar T034 (HU-37)
+- [X] T037 [US5] Implementar `src/worker/routes/admin/orders.ts` (`GET /orders`, `GET
   /orders/export.csv`, `GET /orders/:number`, `POST /orders/:number/status`) reutilizando
   `loadOrderDetail`, `cancelOrder` y `canTransition` hasta pasar T035 (HU-34, HU-35, HU-37)
-- [ ] T038 [US5] Crear `src/web/admin/pages/Orders.tsx` (filtros sincronizados con la URL, tabla,
+- [X] T038 [US5] Crear `src/web/admin/pages/Orders.tsx` (filtros sincronizados con la URL, tabla,
   paginación y botón «Exportar CSV» con los filtros activos) (HU-34, HU-37)
-- [ ] T039 [US5] Crear `src/web/admin/pages/OrderDetail.tsx` (cliente, productos, desglose, pago, entrega,
+- [X] T039 [US5] Crear `src/web/admin/pages/OrderDetail.tsx` (cliente, productos, desglose, pago, entrega,
   línea de tiempo y cambio de estado solo con las transiciones permitidas, motivo al cancelar, aviso si
   el estado cambió) (HU-35)
 
