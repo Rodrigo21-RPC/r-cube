@@ -325,7 +325,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 **Independent Test**: crear `BIENVENIDO10`, verlo en la lista, desactivarlo y reactivarlo, y ver la auditoría.
 
-- [ ] T041 [US7] Escribir `tests/api/admin/coupons.test.ts` (HU-50, FR-020, FR-025, FR-033): `POST /coupons` valida
+- [X] T041 [US7] Escribir `tests/api/admin/coupons.test.ts` (HU-50, FR-020, FR-025, FR-033): `POST /coupons` valida
   `code` de 3 a 20 caracteres `[A-Z0-9-]` (se guarda en mayúsculas), `kind` y `value` (porcentaje de 1 a 90,
   monto fijo desde 100 céntimos), `startsOn`, `endsOn >= startsOn` y `maxUses >= 1` con error por campo; código
   repetido (sin distinguir mayúsculas) → 409 `DUPLICATE_CODE` en el campo `code`; `GET /coupons` calcula
@@ -334,10 +334,10 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   cambiar el código de un cupón con `usedCount > 0` → 409 `COUPON_USED`; `maxUses < usedCount` → 400 con
   «El cupón ya lleva N usos»; `DELETE` sin usos → 204 y con usos → 409 `COUPON_USED`; cada alta, cambio,
   activación y baja escribe auditoría `cupon`; un cliente recibe 403; debe fallar
-- [ ] T042 [US7] Crear `src/worker/services/coupons.ts` (`couponStatusSql` con `America/Lima`) y
+- [X] T042 [US7] Crear `src/worker/services/coupons.ts` (`couponStatusSql` con `America/Lima`) y
   `src/worker/routes/admin/coupons.ts` y montarlo en `src/worker/routes/admin/index.ts` hasta pasar T041
   (HU-50, FR-020, FR-025, FR-034)
-- [ ] T043 [US7] Crear `src/web/admin/pages/Coupons.tsx` (tabla con código, tipo y valor, vigencia, usos
+- [X] T043 [US7] Crear `src/web/admin/pages/Coupons.tsx` (tabla con código, tipo y valor, vigencia, usos
   «usados de máximos» y estado con insignia; diálogo de alta y edición con errores por campo; activar,
   desactivar y borrar con confirmación; estado vacío «Aún no hay cupones»), agregar la ruta en
   `src/web/admin/routes.tsx` y «Cupones» al menú de `src/web/admin/AdminLayout.tsx` (HU-50, FR-035)

@@ -9,6 +9,7 @@ import { variantLabel } from "@shared/variant";
 import { AppError, validationHook, type AppEnv } from "../../middleware";
 import { audit } from "../../services/audit";
 import { applyStockChange, recordMovement, type Tx } from "../../services/stock";
+import { uniqueViolation } from "../../services/db-errors";
 import { lockProduct, syncProductFromVariants } from "../../services/variants";
 
 const { product, productImage, productVariant, orderItem } = schema;
@@ -58,13 +59,6 @@ function toDto(v: typeof productVariant.$inferSelect, imageUrl: string | null, s
     id: v.id, sku: v.sku, color: v.color, storage: v.storage, ram: v.ram, label: variantLabel(v), priceCents: v.priceCents,
     stock: v.stock, imageId: v.imageId, imageUrl, active: v.active, sold,
   };
-}
-
-/** Código y restricción de una violación de índice único, venga o no envuelta por Drizzle. */
-function uniqueViolation(e: unknown): string | null {
-  const err = e as { code?: string; constraint_name?: string; constraint?: string; cause?: unknown };
-  const src = err?.code === "23505" ? err : (err?.cause as typeof err | undefined);
-  return src?.code === "23505" ? (src.constraint_name ?? src.constraint ?? "") : null;
 }
 
 const duplicates = (constraint: string | null): AppError | null =>

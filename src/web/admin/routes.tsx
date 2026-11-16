@@ -14,6 +14,7 @@ const CustomerDetail = lazy(() => import("./pages/CustomerDetail"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Audit = lazy(() => import("./pages/Audit"));
 const Reviews = lazy(() => import("./pages/Reviews"));
+const Coupons = lazy(() => import("./pages/Coupons"));
 
 /** Rutas del panel /admin, protegidas por AdminLayout (HU-26). */
 export const adminRoute: RouteObject = {
@@ -32,6 +33,7 @@ export const adminRoute: RouteObject = {
     { path: "clientes/:id", element: <CustomerDetail /> },
     { path: "configuracion", element: <Settings /> },
     { path: "resenas", element: <Reviews /> },
+    { path: "cupones", element: <Coupons /> },
     { path: "auditoria", element: <Audit /> },
   ],
 };
