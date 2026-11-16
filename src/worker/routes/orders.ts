@@ -3,11 +3,11 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { and, count, desc, eq } from "drizzle-orm";
 import { schema } from "@db/client";
-import type { OrderSummary } from "@shared/types";
+import type { OrderSummary, Receipt } from "@shared/types";
 import { requireUser, AppError, parseBody, validationHook, type AppEnv } from "../middleware";
 import { cancelOrder, loadOrderDetail } from "../services/orders";
 
-const { orders } = schema;
+const { orders, storeSettings, user } = schema;
 const PAGE = 10;
 
 export const CANCEL_REASONS = {
@@ -52,6 +52,24 @@ export const orderRoutes = new Hono<AppEnv>()
     const order = await loadOrderDetail(c.get("db"), c.req.param("number"), c.get("user")!.id);
     if (!order) throw new AppError(404, "NOT_FOUND", "No encontramos ese pedido.");
     return c.json(order);
+  })
+  /** Comprobante imprimible: el pedido con los datos de la tienda y del cliente, con los montos congelados (HU-52). */
+  .get("/:number/receipt", async (c) => {
+    const db = c.get("db");
+    const me = c.get("user")!;
+    // El dueño se comprueba en la misma consulta: un pedido ajeno siempre parece inexistente (RN-08).
+    const order = await loadOrderDetail(db, c.req.param("number"), me.id);
+    if (!order) throw new AppError(404, "NOT_FOUND", "No encontramos ese pedido.");
+    const [[s], [customer]] = await Promise.all([
+      db.select({ whatsappNumber: storeSettings.whatsappNumber, pickupAddress: storeSettings.pickupAddress }).from(storeSettings).where(eq(storeSettings.id, 1)),
+      db.select({ name: user.name, email: user.email, phone: user.phone }).from(user).where(eq(user.id, me.id)),
+    ]);
+    const body: Receipt = {
+      ...order,
+      store: { name: "R Cube", whatsappNumber: s?.whatsappNumber ?? "", pickupAddress: s?.pickupAddress ?? "" },
+      customer: { name: customer!.name, email: customer!.email, phone: customer!.phone ?? "" },
+    };
+    return c.json(body);
   })
   .post("/:number/cancel", async (c) => {
     const db = c.get("db");

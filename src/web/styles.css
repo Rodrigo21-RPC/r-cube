@@ -83,3 +83,32 @@
     }
   }
 }
+
+/* Impresión (HU-52, FR-028): hoja A4, colores claros sobre blanco aunque el tema oscuro esté activo y sin avisos. */
+@media print {
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+  :root,
+  .dark {
+    --canvas: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #f0f0f0;
+    --border: #8a8a8a;
+    --text: #000000;
+    --text-muted: #333333;
+    --accent: #000000;
+    --success: #000000;
+    --warning: #000000;
+    --danger: #000000;
+    color-scheme: light;
+  }
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+}

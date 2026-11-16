@@ -416,14 +416,14 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 **Independent Test**: abrir un pedido Pagado, «Ver comprobante» y revisar la vista previa de impresión.
 
-- [ ] T051 [US10] Escribir `tests/api/receipt.test.ts` (HU-52, FR-027, FR-028, RN-07, RN-08): `GET
+- [X] T051 [US10] Escribir `tests/api/receipt.test.ts` (HU-52, FR-027, FR-028, RN-07, RN-08): `GET
   /orders/:number/receipt` devuelve el pedido, `store` (nombre fijo «R Cube», WhatsApp y dirección de recojo de la
   configuración) y `customer`; incluye variantes, cupón, envío, total, base imponible e IGV con los montos
   congelados (cambiar el precio del producto después no los altera); el pedido de otro cliente → 404; sin
   sesión → 401; pedido Pendiente de pago o Cancelado devuelve su estado real; debe fallar
-- [ ] T052 [US10] Agregar `GET /:number/receipt` a `src/worker/routes/orders.ts` hasta pasar T051 (HU-52,
+- [X] T052 [US10] Agregar `GET /:number/receipt` a `src/worker/routes/orders.ts` hasta pasar T051 (HU-52,
   FR-027, RN-08)
-- [ ] T053 [US10] Crear `src/web/pages/Receipt.tsx` (datos de la tienda y del cliente, entrega, productos con
+- [X] T053 [US10] Crear `src/web/pages/Receipt.tsx` (datos de la tienda y del cliente, entrega, productos con
   variante, cupón, envío, total, base imponible e IGV, estado visible, leyenda «Comprobante de pedido, no es
   factura electrónica. Pago simulado.», botón «Imprimir» con `window.print()`), la ruta
   `/pedidos/:number/comprobante`, el enlace «Ver comprobante» en `src/web/pages/OrderDetail.tsx` y el CSS

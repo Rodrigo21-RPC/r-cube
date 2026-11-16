@@ -18,6 +18,7 @@ const Orders = page(() => import("./pages/Orders"));
 const OrderDetail = page(() => import("./pages/OrderDetail"));
 const Favorites = page(() => import("./pages/Favorites"));
 const Addresses = page(() => import("./pages/Addresses"));
+const ReceiptPage = page(() => import("./pages/Receipt"));
 const NotFound = page(() => import("./pages/NotFound"));
 
 export const router = createBrowserRouter([
@@ -38,6 +39,7 @@ export const router = createBrowserRouter([
       { path: "/favoritos", element: <Favorites /> },
       { path: "/pedidos", element: <Orders /> },
       { path: "/pedidos/:number", element: <OrderDetail /> },
+      { path: "/pedidos/:number/comprobante", element: <ReceiptPage /> },
       { path: "*", element: <NotFound /> },
     ],
   },

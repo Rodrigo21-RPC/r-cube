@@ -19,7 +19,7 @@ export function Header({ themeToggle }: { themeToggle?: React.ReactNode }) {
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-canvas/85 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 border-b border-border bg-canvas/85 backdrop-blur-xl print:hidden">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-3 md:flex-nowrap md:px-6">
         <Link to="/" className="flex items-center gap-2 rounded-xl" aria-label="R Cube, ir al inicio">
           <img src="/img/logo.png" alt="" width={36} height={36} className="size-9 rounded-lg bg-black" />

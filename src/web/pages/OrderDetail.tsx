@@ -99,8 +99,9 @@ export default function OrderDetail() {
           <h1 className="tabular text-[28px] font-semibold tracking-tight">Pedido {o.number}</h1>
           <p className="text-sm text-muted">{formatDate(o.createdAt)}</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <StatusBadge status={o.status} />
+          <Button asChild variant="secondary" size="sm"><Link to={`/pedidos/${o.number}/comprobante`}>Ver comprobante</Link></Button>
           {o.canCancel && (
             <CancelDialog
               number={o.number}
