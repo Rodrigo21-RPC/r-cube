@@ -18,6 +18,8 @@
   --warning: #9a5b00;
   --danger: #c4161c;
   --focus: #0066cc;
+  --whatsapp: #15803d;
+  --on-whatsapp: #ffffff;
   color-scheme: light;
 }
 
@@ -36,6 +38,8 @@
   --warning: #e3a33b;
   --danger: #ff6b6b;
   --focus: #64aaff;
+  --whatsapp: #22c55e;
+  --on-whatsapp: #052e16;
   color-scheme: dark;
 }
 
@@ -53,6 +57,8 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
+  --color-whatsapp: var(--whatsapp);
+  --color-on-whatsapp: var(--on-whatsapp);
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --radius-card: 18px;
 }

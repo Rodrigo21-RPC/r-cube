@@ -441,12 +441,12 @@ tienda, con el número de la configuración (HU-59).
 
 ### Tests for User Story 6 (escribir primero, deben fallar)
 
-- [ ] T054 [P] [US6] Prueba de API `tests/api/store-contact.test.ts` (HU-59, FR-039): `GET
+- [X] T054 [P] [US6] Prueba de API `tests/api/store-contact.test.ts` (HU-59, FR-039): `GET
   /catalog/contact` sin sesión responde 200 con `{ name: "R Cube", whatsappNumber }` solo con dígitos (por
   ejemplo `51987000111` si en la configuración está «+51 987 000 111»); después de cambiar el número desde
   `PUT /admin/settings` la consulta devuelve el nuevo; sin número devuelve `""`; la respuesta solo tiene esas
   dos claves (ningún dato de pago ni de cuentas)
-- [ ] T055 [P] [US6] Prueba e2e `e2e/whatsapp.spec.ts` (HU-59, FR-037 a FR-039, FR-041, SC-010): en
+- [X] T055 [P] [US6] Prueba e2e `e2e/whatsapp.spec.ts` (HU-59, FR-037 a FR-039, FR-041, SC-010): en
   `/producto/samsung-galaxy-s23-256-gb` el enlace «Consultar por WhatsApp» tiene `href` que empieza con
   `https://wa.me/<número de la configuración>?text=` y, decodificado, nombra el producto y su enlace, con
   `target="_blank"` y `rel` con `noopener`; en `/producto/motorola-edge-60-pro` el mensaje incluye la variante
@@ -459,10 +459,10 @@ tienda, con el número de la configuración (HU-59).
 
 ### Implementation for User Story 6
 
-- [ ] T056 [US6] En `src/worker/routes/catalog.ts` agregar `GET /contact` (pública) que lee `store_settings` y
+- [X] T056 [US6] En `src/worker/routes/catalog.ts` agregar `GET /contact` (pública) que lee `store_settings` y
   devuelve `{ name: "R Cube", whatsappNumber: <solo dígitos> }` con `""` si no hay número, según
   contracts/api.md; pasar T054 (HU-59, FR-039)
-- [ ] T057 [US6] Crear `src/web/hooks/useStoreContact.ts` (TanStack Query a `/catalog/contact`, `staleTime` de
+- [X] T057 [US6] Crear `src/web/hooks/useStoreContact.ts` (TanStack Query a `/catalog/contact`, `staleTime` de
   5 minutos, sin reintentos ruidosos), `src/web/components/WhatsAppButton.tsx` (botón «Consultar por
   WhatsApp» con icono `MessageCircle` y nombre accesible, usa `productInquiryUrl` con la variante elegida,
   enlace `target="_blank"` `rel="noopener noreferrer"`) y `src/web/components/WhatsAppFloat.tsx` (botón fijo
@@ -470,10 +470,10 @@ tienda, con el número de la configuración (HU-59).
   `md`, `print:hidden`, `z-index` por debajo del `Dialog`); agregar los tokens `--whatsapp` y `--on-whatsapp`
   a `src/web/styles.css` (claro y oscuro, contraste ≥ 4.5) y su par a `scripts/contrast.ts`; sin número no
   renderizan nada (R14, FR-035, FR-037 a FR-039)
-- [ ] T058 [US6] Integrar: `WhatsAppButton` en `src/web/pages/Product.tsx` bajo «Agregar al carrito»;
+- [X] T058 [US6] Integrar: `WhatsAppButton` en `src/web/pages/Product.tsx` bajo «Agregar al carrito»;
   `WhatsAppFloat` en `src/web/components/Layout.tsx` salvo en `/checkout`, el comprobante (`/pedidos/:number/
   comprobante`) y el panel; enlace «WhatsApp» en el pie; pasar T055 (HU-59, FR-037, FR-038)
-- [ ] T059 [US6] Commit de cierre de fase (HU-59, SC-010)
+- [X] T059 [US6] Commit de cierre de fase (HU-59, SC-010)
 
 **Checkpoint**: la tienda ya ofrece contacto por WhatsApp.
 

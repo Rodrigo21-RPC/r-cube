@@ -17,6 +17,7 @@ import { Reviews } from "@web/components/Reviews";
 import { FavoriteButton } from "@web/components/FavoriteButton";
 import { ProductGallery } from "@web/components/ProductGallery";
 import { Highlights } from "@web/components/Highlights";
+import { WhatsAppButton } from "@web/components/WhatsAppButton";
 
 /** Al cambiar de producto se vuelve a montar la página: la galería y la variante elegida empiezan de cero (FR-007). */
 export default function Product() {
@@ -102,6 +103,12 @@ function ProductPage({ slug }: { slug: string }) {
               onMissingVariant={() => setMissing(true)}
             />
           )}
+          <WhatsAppButton
+            name={p.name}
+            variantLabel={selected?.label ?? null}
+            url={`${window.location.origin}/producto/${p.slug}`}
+            className="w-full md:w-auto"
+          />
           <p className="leading-relaxed text-muted">{p.description}</p>
           {p.specs.length > 0 && (
             <div className="overflow-hidden rounded-[18px] bg-surface">

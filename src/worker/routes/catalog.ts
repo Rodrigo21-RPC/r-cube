@@ -7,10 +7,10 @@ import type { Db } from "@db/client";
 import { licenseUrl } from "@shared/photo-credit";
 import { normalizeSearch } from "@shared/search";
 import { variantLabel } from "@shared/variant";
-import type { Availability, CatalogPage, Facets, HomeData, PhotoCredits, ProductCard, ProductDetail } from "@shared/types";
+import type { Availability, CatalogPage, Facets, HomeData, PhotoCredits, ProductCard, ProductDetail, StoreContact } from "@shared/types";
 import { AppError, validationHook, type AppEnv } from "../middleware";
 
-const { product, brand, category, productImage, productVariant } = schema;
+const { product, brand, category, productImage, productVariant, storeSettings } = schema;
 export const PAGE_SIZE = 12;
 export const GENERIC_IMAGE = "/img/generico.svg";
 
@@ -96,6 +96,12 @@ const soldUnits = sql<number>`coalesce((select sum(oi.quantity) from order_item 
 
 export const catalogRoutes = new Hono<AppEnv>()
   /** Portada: categorías, ofertas, más vendidos y novedades (HU-06). */
+  /** Contacto público de la tienda para los botones de WhatsApp: solo el nombre y el número, con dígitos (HU-59). */
+  .get("/contact", async (c) => {
+    const [s] = await c.get("db").select({ number: storeSettings.whatsappNumber }).from(storeSettings).where(eq(storeSettings.id, 1));
+    const body: StoreContact = { name: "R Cube", whatsappNumber: (s?.number ?? "").replace(/\D/g, "") };
+    return c.json(body);
+  })
   /** Créditos de las fotos: las externas con autor, licencia y origen, y los productos con fotos del proyecto (HU-58). */
   .get("/photo-credits", async (c) => {
     const rows = await c
