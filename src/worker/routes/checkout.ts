@@ -11,6 +11,7 @@ import { quoteCart } from "../services/pricing";
 import { simulateCard } from "../services/payments";
 import { createOrder, loadOrderDetail } from "../services/orders";
 import { findAddress, listAddresses } from "../services/addresses";
+import { couponAppError, findCoupon } from "../services/coupons";
 
 const { storeSettings, deliveryZone, cartItem, user } = schema;
 
@@ -55,6 +56,7 @@ const orderSchema = z.object({
   delivery: deliverySchema,
   payment: paymentSchema,
   expectedTotalCents: z.number().int().min(0),
+  couponCode: z.string().trim().max(40).optional(),
 });
 
 export const checkoutRoutes = new Hono<AppEnv>()
@@ -98,7 +100,8 @@ export const checkoutRoutes = new Hono<AppEnv>()
       .from(cartItem)
       .where(eq(cartItem.userId, userId));
     if (!items.length) throw new AppError(400, "EMPTY_CART", "Tu carrito está vacío.");
-    const quote = await quoteCart(db, items);
+    const quote = await quoteCart(db, items, { couponCode: body.couponCode });
+    if (quote.couponError) throw couponAppError(quote.couponError.code);
     const problem = quote.warnings.find((w) => w.type !== "price_changed");
     if (problem) throw new AppError(409, "STOCK", problem.message, undefined, { productId: problem.productId, variantId: problem.variantId ?? null });
 
@@ -134,9 +137,11 @@ export const checkoutRoutes = new Hono<AppEnv>()
       productId: l.productId, variantId: l.variantId, variantLabel: l.variantLabel, sku: l.sku, name: l.name,
       unitPriceCents: l.unitPriceCents, quantity: l.quantity, imageUrl: l.imageUrl,
     }));
-    const totals = orderTotals(lines, shippingCents, 0);
+    const totals = orderTotals(lines, shippingCents, quote.coupon?.discountCents ?? 0);
     if (totals.totalCents !== body.expectedTotalCents)
       throw new AppError(409, "PRICE_CHANGED", "El total cambió desde que lo revisaste. Confirma el nuevo total.", undefined, { totalCents: totals.totalCents });
+
+    const couponRow = quote.coupon && body.couponCode ? await findCoupon(db, body.couponCode) : undefined;
 
     // La tarjeta se decide antes de la transacción: un rechazo no crea nada (HU-16).
     let pay: Parameters<typeof createOrder>[1]["payment"];
@@ -154,6 +159,7 @@ export const checkoutRoutes = new Hono<AppEnv>()
       lines,
       delivery: delivery.method === "delivery" ? { ...delivery, shippingCents } : delivery,
       payment: pay,
+      coupon: quote.coupon && couponRow ? { id: couponRow.id, code: couponRow.code, discountCents: quote.coupon.discountCents } : undefined,
     });
     const order = (await loadOrderDetail(db, number, userId))!;
     const link =

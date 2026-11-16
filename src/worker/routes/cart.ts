@@ -18,13 +18,13 @@ const itemSchema = z.object({
 const itemsSchema = z.object({ items: z.array(itemSchema).max(50) });
 
 /** Carrito de la cuenta: recalcula, ajusta cantidades al stock y registra el precio ya avisado (HU-13, HU-44). */
-async function accountCart(db: Db, userId: string) {
+async function accountCart(db: Db, userId: string, couponCode?: string | null) {
   const rows = await db
     .select({ productId: cartItem.productId, variantId: cartItem.variantId, quantity: cartItem.quantity, seenPriceCents: cartItem.seenPriceCents })
     .from(cartItem)
     .where(eq(cartItem.userId, userId))
     .orderBy(asc(cartItem.createdAt), asc(cartItem.id));
-  const quote = await quoteCart(db, rows);
+  const quote = await quoteCart(db, rows, { couponCode });
   for (const line of quote.lines) {
     const row = rows.find((r) => r.productId === line.productId && (r.variantId ?? null) === line.variantId)!;
     if (line.available && (row.quantity !== line.quantity || row.seenPriceCents !== line.unitPriceCents)) {
@@ -77,7 +77,7 @@ export const cartRoutes = new Hono<AppEnv>()
     c.json(await quoteCart(c.get("db"), c.req.valid("json").items)),
   )
   .use(requireUser)
-  .get("/", async (c) => c.json(await accountCart(c.get("db"), c.get("user")!.id)))
+  .get("/", async (c) => c.json(await accountCart(c.get("db"), c.get("user")!.id, c.req.query("coupon"))))
   .put("/items/:productId", zValidator("json", z.object({ quantity: itemSchema.shape.quantity, variantId }), validationHook), async (c) => {
     const db = c.get("db");
     const userId = c.get("user")!.id;

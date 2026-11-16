@@ -4,6 +4,7 @@ import { formatPEN, orderTotals } from "@shared/money";
 import { variantLabel } from "@shared/variant";
 import type { CartLine, CartQuote, CartWarning } from "@shared/types";
 import { GENERIC_IMAGE } from "../routes/catalog";
+import { applyCoupon } from "./coupons";
 
 export interface RequestedItem {
   productId: string;
@@ -13,7 +14,7 @@ export interface RequestedItem {
 }
 
 /** Recalcula el carrito con precios y stock vigentes del servidor (HU-11, HU-13, HU-44, RNF-07). */
-export async function quoteCart(db: Db, requested: RequestedItem[]): Promise<CartQuote> {
+export async function quoteCart(db: Db, requested: RequestedItem[], opts: { couponCode?: string | null } = {}): Promise<CartQuote> {
   const keyOf = (i: { productId: string; variantId?: string | null }) => `${i.productId}:${i.variantId ?? ""}`;
   const merged = new Map<string, RequestedItem>();
   for (const it of requested) {
@@ -119,21 +120,22 @@ export async function quoteCart(db: Db, requested: RequestedItem[]): Promise<Car
       available,
     });
   }
-  const totals = orderTotals(
-    lines.filter((l) => l.available).map((l) => ({ unitPriceCents: l.unitPriceCents, quantity: l.quantity })),
-    0,
-    0,
-  );
+  const priced = lines.filter((l) => l.available).map((l) => ({ unitPriceCents: l.unitPriceCents, quantity: l.quantity }));
+  const subtotal = orderTotals(priced, 0, 0).subtotalCents;
+  // Cupón (HU-49): con el carrito sin productos disponibles no se aplica; el servidor decide el descuento (RNF-07).
+  const applied = opts.couponCode && subtotal > 0 ? await applyCoupon(db, opts.couponCode, subtotal) : { coupon: null, error: null };
+  const totals = orderTotals(priced, 0, applied.coupon?.discountCents ?? 0);
   return {
     lines,
     warnings,
     totals: {
       subtotalCents: totals.subtotalCents,
+      discountCents: totals.discountCents,
       taxableBaseCents: totals.taxableBaseCents,
       igvCents: totals.igvCents,
       totalCents: totals.totalCents,
     },
-    coupon: null, // se completa con T045 (HU-49)
-    couponError: null,
+    coupon: applied.coupon,
+    couponError: applied.error,
   };
 }

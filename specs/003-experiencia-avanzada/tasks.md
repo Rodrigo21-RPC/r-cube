@@ -352,7 +352,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 **Independent Test**: aplicar `BIENVENIDO10` a un producto de S/ 2,999.00, ver S/ 299.90 de descuento y pagar.
 
-- [ ] T044 [US8] Escribir `tests/api/coupons.test.ts` (HU-49, FR-021 a FR-024, SC-002, RN-02, RN-04, RN-14):
+- [X] T044 [US8] Escribir `tests/api/coupons.test.ts` (HU-49, FR-021 a FR-024, SC-002, RN-02, RN-04, RN-14):
   `GET /cart?coupon=` y `POST /cart/quote` con cupón válido devuelven `coupon` y `totals.discountCents`
   con base imponible + IGV = total; porcentaje redondeado al céntimo; monto fijo; el descuento no baja el
   total de productos de S/ 1.00; el envío no se descuenta; `couponError` con `COUPON_NOT_FOUND`,
@@ -365,7 +365,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   por rechazo de pago, por el administrador y por vencimiento a las 24 h devuelve el uso; un solo cupón por
   pedido; el pedido conserva código y descuento si el cupón cambia después; el detalle de pedido del panel
   muestra `couponCode` y `discountCents` y el CSV de pedidos no cambia; debe fallar
-- [ ] T045 [US8] Implementar en `src/worker/services/coupons.ts` `validateCoupon`, `redeemCoupon(tx, …)` (`UPDATE
+- [X] T045 [US8] Implementar en `src/worker/services/coupons.ts` `validateCoupon`, `redeemCoupon(tx, …)` (`UPDATE
   coupon SET used_count = used_count + 1 WHERE … AND used_count < max_uses AND starts_on <= hoy AND ends_on >=
   hoy`) y `releaseCoupon(tx, orderId)`; extender `src/worker/services/pricing.ts` (`quoteCart(db, items, {
   couponCode })` con `coupon`, `couponError` y descuento vía `couponDiscount`), `src/worker/routes/cart.ts`
@@ -374,14 +374,14 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   `couponCode` y `discountCents` en el desglose y `src/worker/routes/checkout.ts`
   (`couponCode`, revalidación y `expectedTotalCents` con descuento) hasta pasar T044 (HU-49, FR-021, FR-022,
   FR-023, FR-024, RN-02)
-- [ ] T046 [US8] Crear `src/web/stores/coupon.ts` (código pendiente persistido, `rcube-cupon`) y
+- [X] T046 [US8] Crear `src/web/stores/coupon.ts` (código pendiente persistido, `rcube-cupon`) y
   `src/web/components/CouponBox.tsx` (campo, «Aplicar», «Quitar», mensajes de error por código, aviso al
   visitante «Inicia sesión para aplicar tu cupón»); integrarlos en `src/web/pages/Cart.tsx` y
   `src/web/pages/Checkout.tsx`, pasar el cupón desde `src/web/cart/useCart.ts`, mostrar la línea «Cupón
   CÓDIGO» en negativo en `src/web/components/TotalsBox.tsx`, `src/web/pages/OrderDetail.tsx`,
   `src/web/pages/Confirmation.tsx` y `src/web/admin/pages/OrderDetail.tsx` (HU-49, FR-021, FR-022,
   RN-04)
-- [ ] T047 [US8] Ampliar `src/db/seed-data.ts` con 3 cupones: `BIENVENIDO10` (10 %, vigente, 50 usos),
+- [X] T047 [US8] Ampliar `src/db/seed-data.ts` con 3 cupones: `BIENVENIDO10` (10 %, vigente, 50 usos),
   `VERANO5` (S/ 5.00, vencido) y `ULTIMO` (10 %, 1 uso, agotado por un pedido de demostración que lo
   usa: aplicarlo a un pedido existente no cancelado recalculando sus totales con `orderTotals`, sin crear
   pedidos nuevos para no alterar los 8 de la 001; verificar con `grep` que ninguna prueba depende de ese

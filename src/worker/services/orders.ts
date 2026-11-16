@@ -1,13 +1,15 @@
 import { and, asc, eq, sql } from "drizzle-orm";
 import { schema, type Db } from "@db/client";
+import { couponDiscount } from "@shared/coupon";
 import { orderTotals } from "@shared/money";
 import { CANCELLABLE_BY_CUSTOMER, type OrderStatus } from "@shared/order-status";
 import type { OrderDetail, PaymentMethodCode } from "@shared/types";
 import { AppError } from "../middleware";
 import { applyStockChange, recordMovement, type Tx } from "./stock";
+import { couponAppError, couponProblem, redeemCoupon, releaseCoupon } from "./coupons";
 import { lockProduct, syncProductFromVariants } from "./variants";
 
-const { orders, orderItem, payment, orderEvent, product, productVariant, cartItem, deliveryZone, storeSettings } = schema;
+const { orders, orderItem, payment, orderEvent, product, productVariant, cartItem, deliveryZone, storeSettings, coupon } = schema;
 
 export type Actor = { type: "cliente" | "administrador" | "sistema"; userId: string | null };
 
@@ -27,6 +29,8 @@ export interface NewOrder {
     | { method: "pickup" }
     | { method: "delivery"; zoneId: string; shippingCents: number; name: string; phone: string; address: string; district: string; reference?: string };
   payment: { method: PaymentMethodCode; status: "approved" | "pending"; cardLast4?: string; operationCode?: string };
+  /** Cupón ya validado al cotizar; se vuelve a validar y canjear dentro de la transacción (FR-023). */
+  coupon?: { id: string; code: string; discountCents: number };
 }
 
 /**
@@ -73,7 +77,19 @@ export async function createOrder(db: Db, input: NewOrder): Promise<string> {
       sold.push({ productId: l.productId, variantId: null, quantity: l.quantity, after: row.after });
     }
     const shipping = input.delivery.method === "delivery" ? input.delivery.shippingCents : 0;
-    const totals = orderTotals(input.lines, shipping, 0);
+    // Canje del cupón en la misma transacción: el UPDATE condicional decide quién se queda con el último uso (RN-02).
+    let discount = 0;
+    if (input.coupon) {
+      const redeemed = await redeemCoupon(tx, input.coupon.id);
+      if (!redeemed) {
+        const [c] = await tx.select().from(coupon).where(eq(coupon.id, input.coupon.id));
+        throw couponAppError(couponProblem(c) ?? "COUPON_EXHAUSTED");
+      }
+      discount = couponDiscount(redeemed.kind, redeemed.value, input.lines.reduce((s, l) => s + l.unitPriceCents * l.quantity, 0));
+      if (discount !== input.coupon.discountCents)
+        throw new AppError(409, "PRICE_CHANGED", "El total cambió desde que lo revisaste. Confirma el nuevo total.");
+    }
+    const totals = orderTotals(input.lines, shipping, discount);
     const status: OrderStatus = input.payment.status === "approved" ? "paid" : "pending_payment";
     const [{ seq } = { seq: 0 }] = (await tx.execute(sql`select nextval('order_number_seq')::int as seq`)) as unknown as { seq: number }[];
     const id = crypto.randomUUID();
@@ -92,6 +108,8 @@ export async function createOrder(db: Db, input: NewOrder): Promise<string> {
       shipDistrict: d.method === "delivery" ? d.district : null,
       shipReference: d.method === "delivery" ? d.reference || null : null,
       ...totals,
+      couponId: input.coupon?.id ?? null,
+      couponCode: input.coupon?.code ?? null,
       paymentMethod: input.payment.method,
     });
     await tx.insert(orderItem).values(
@@ -163,6 +181,7 @@ export async function cancelOrder(
     }[];
     if (!current || !allowedFrom.has(current.status)) return false;
     await tx.update(orders).set({ status: "cancelled" }).where(eq(orders.id, orderId));
+    await releaseCoupon(tx, orderId); // el uso del cupón se devuelve (FR-024)
     const lines = await tx
       .select({ productId: orderItem.productId, variantId: orderItem.variantId, quantity: orderItem.quantity })
       .from(orderItem)

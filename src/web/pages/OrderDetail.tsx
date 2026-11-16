@@ -147,7 +147,7 @@ export default function OrderDetail() {
           </Card>
         </div>
         <div className="flex flex-col gap-5">
-          <Card><TotalsBox totals={o.totals} showShipping /></Card>
+          <Card><TotalsBox totals={o.totals} showShipping couponCode={o.couponCode} /></Card>
           <Card>
             <dl className="flex flex-col gap-3 text-[15px]">
               <div>

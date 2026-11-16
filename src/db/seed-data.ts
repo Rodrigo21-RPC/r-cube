@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import type { Db } from "./client";
 import * as s from "./schema";
 import { buildSearchText } from "../shared/search";
+import { couponDiscount, limaToday } from "../shared/coupon";
 import { orderTotals } from "../shared/money";
 import { hashPassword } from "../worker/password";
 import { syncProductFromVariants } from "../worker/services/variants";
@@ -153,16 +154,25 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
     })),
   );
 
+  // Cupones de demostración (HU-49, HU-50): uno vigente, uno vencido y uno agotado por el pedido de demostración que lo usa.
+  const dayOf = (days: number) => new Date(new Date(`${limaToday()}T12:00:00Z`).getTime() + days * 86_400_000).toISOString().slice(0, 10);
+  const COUPONS = [
+    { id: "cup-bienvenido10", code: "BIENVENIDO10", kind: "percent" as const, value: 10, startsOn: dayOf(-30), endsOn: dayOf(60), maxUses: 50, usedCount: 0 },
+    { id: "cup-verano5", code: "VERANO5", kind: "fixed" as const, value: 500, startsOn: dayOf(-90), endsOn: dayOf(-10), maxUses: 100, usedCount: 0 },
+    { id: "cup-ultimo", code: "ULTIMO", kind: "percent" as const, value: 10, startsOn: dayOf(-30), endsOn: dayOf(60), maxUses: 1, usedCount: 1 },
+  ];
+  await db.insert(s.coupon).values(COUPONS);
+
   // 8 pedidos en distintos estados, coherentes con el stock y la línea de tiempo.
   const byName = (n: string) => products.find((p) => p.name.startsWith(n))!;
   const ORDERS: {
     user: number; status: s.OrderStatusDb; method: s.PaymentMethod; delivery: "pickup" | "delivery";
-    zone?: string; items: [string, number][]; daysAgo: number; path: s.OrderStatusDb[]; reason?: string; code?: string;
+    zone?: string; items: [string, number][]; daysAgo: number; path: s.OrderStatusDb[]; reason?: string; code?: string; coupon?: string;
   }[] = [
     { user: 1, status: "delivered", method: "card", delivery: "delivery", zone: "zona-lima-centro", items: [["iPhone 15 Pro", 1]], daysAgo: 20, path: ["paid", "preparing", "shipped", "delivered"] },
     { user: 2, status: "shipped", method: "yape_plin", delivery: "delivery", zone: "zona-lima-periferia", items: [["Xiaomi Redmi Note 12", 2]], daysAgo: 6, path: ["pending_payment", "paid", "preparing", "shipped"], code: "40028871" },
     { user: 3, status: "preparing", method: "transfer", delivery: "pickup", items: [["MacBook Air M1", 1], ["Pasta térmica", 2]], daysAgo: 4, path: ["pending_payment", "paid", "preparing"] },
-    { user: 4, status: "paid", method: "card", delivery: "delivery", zone: "zona-callao", items: [["Samsung Galaxy S23", 1]], daysAgo: 2, path: ["paid"] },
+    { user: 4, status: "paid", method: "card", delivery: "delivery", zone: "zona-callao", items: [["Samsung Galaxy S23", 1]], daysAgo: 2, path: ["paid"], coupon: "ULTIMO" },
     { user: 5, status: "pending_payment", method: "whatsapp", delivery: "delivery", zone: "zona-callao", items: [["Asus Vivobook 15", 1]], daysAgo: 0, path: ["pending_payment"] },
     { user: 1, status: "cancelled", method: "yape_plin", delivery: "pickup", items: [["Google Pixel 8", 1]], daysAgo: 10, path: ["pending_payment", "cancelled"], reason: "Pago no recibido en 24 h", code: "11223344" },
     { user: 2, status: "delivered", method: "card", delivery: "pickup", items: [["Kit de herramientas", 1], ["SSD NVMe", 1]], daysAgo: 15, path: ["paid", "preparing", "delivered"] },
@@ -178,7 +188,9 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
       return { p, quantity, unitPriceCents: p.priceCents };
     });
     const zone = ZONES.find((z) => z.id === o.zone);
-    const totals = orderTotals(lines, zone?.costCents ?? 0, 0);
+    const cp = COUPONS.find((c) => c.code === o.coupon);
+    const subtotal = lines.reduce((sum, l) => sum + l.unitPriceCents * l.quantity, 0);
+    const totals = orderTotals(lines, zone?.costCents ?? 0, cp ? couponDiscount(cp.kind, cp.value, subtotal) : 0);
     const id = `order-demo-${i + 1}`;
     const created = new Date(now - o.daysAgo * 86_400_000 - (8 - i) * 3_600_000);
     await db.insert(s.orders).values({
@@ -188,7 +200,7 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
       shipPhone: o.delivery === "delivery" ? customer.phone : null,
       shipAddress: o.delivery === "delivery" ? customer.address : null,
       shipDistrict: o.delivery === "delivery" ? customer.district : null,
-      ...totals, paymentMethod: o.method, createdAt: created,
+      ...totals, couponId: cp?.id ?? null, couponCode: cp?.code ?? null, paymentMethod: o.method, createdAt: created,
     });
     await db.insert(s.orderItem).values(
       lines.map((l, j) => ({

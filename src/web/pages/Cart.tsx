@@ -5,6 +5,7 @@ import { useCart } from "@web/cart/useCart";
 import { lineKey } from "@web/stores/cart";
 import { useTitle } from "@web/hooks/useTitle";
 import { EmptyState, ErrorState, LoadingBlock } from "@web/components/States";
+import { CouponBox } from "@web/components/CouponBox";
 import { TotalsBox } from "@web/components/TotalsBox";
 import { Button } from "@web/components/ui/button";
 import { Card } from "@web/components/ui/misc";
@@ -96,7 +97,8 @@ export default function Cart() {
 
         <Card className="flex h-fit flex-col gap-4 lg:sticky lg:top-24">
           <h2 className="text-[17px] font-semibold">Resumen</h2>
-          <TotalsBox totals={totals} />
+          <CouponBox quote={quote.data} signedIn={cart.signedIn} busy={cart.busy} />
+          <TotalsBox totals={totals} couponCode={quote.data.coupon?.code} />
           <p className="text-sm text-muted">El costo de envío se calcula en el siguiente paso.</p>
           <Button size="lg" disabled={!payable || cart.busy} onClick={() => navigate(cart.signedIn ? "/checkout" : "/ingresar?volver=/checkout")}>
             Pagar

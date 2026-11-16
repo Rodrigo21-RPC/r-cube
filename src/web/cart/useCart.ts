@@ -4,6 +4,7 @@ import type { CartQuote } from "@shared/types";
 import { apiFetch, queryClient } from "@web/api";
 import { useSession } from "@web/auth";
 import { lineKey, useLocalCart } from "@web/stores/cart";
+import { useCouponStore } from "@web/stores/coupon";
 
 const ACCOUNT_KEY = ["cart", "account"] as const;
 
@@ -34,14 +35,15 @@ export function useCart() {
   const session = useSession();
   const signedIn = Boolean(session.data);
   const local = useLocalCart();
+  const coupon = useCouponStore((s) => s.code);
   const [busy, setBusy] = useState(false);
 
   const localKey = local.items.map((i) => `${lineKey(i.productId, i.variantId)}:${i.quantity}`).join(",");
   const quote = useQuery({
-    queryKey: signedIn ? ACCOUNT_KEY : ["cart", "local", localKey],
+    queryKey: signedIn ? [...ACCOUNT_KEY, coupon] : ["cart", "local", localKey],
     queryFn: () =>
       signedIn
-        ? apiFetch<CartQuote>("/cart")
+        ? apiFetch<CartQuote>(coupon ? `/cart?coupon=${encodeURIComponent(coupon)}` : "/cart")
         : apiFetch<CartQuote>("/cart/quote", { method: "POST", json: { items: local.items.map((i) => ({ ...i, variantId: i.variantId ?? undefined })) } }),
     enabled: !session.isPending,
   });
@@ -60,7 +62,7 @@ export function useCart() {
     setBusy(true);
     try {
       const data = await fn();
-      if (data) queryClient.setQueryData(ACCOUNT_KEY, data);
+      if (data) await queryClient.invalidateQueries({ queryKey: ACCOUNT_KEY });
     } finally {
       setBusy(false);
     }

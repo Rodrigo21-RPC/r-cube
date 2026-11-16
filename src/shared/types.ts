@@ -1,4 +1,5 @@
 /** Tipos de respuesta de la API (contracts/api.md), compartidos por el Worker y la web. */
+import type { CouponErrorCode } from "./coupon";
 import type { OrderStatus, DeliveryMethod } from "./order-status";
 
 export type Availability = "in_stock" | "low" | "out";
@@ -109,7 +110,7 @@ export interface CartQuote {
   warnings: CartWarning[];
   totals: Totals;
   coupon: CouponApplied | null;
-  couponError: { code: string; message: string } | null;
+  couponError: { code: CouponErrorCode; message: string } | null;
 }
 
 export interface CheckoutOptions {

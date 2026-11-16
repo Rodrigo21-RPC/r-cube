@@ -77,7 +77,7 @@ export default function Confirmation() {
             </li>
           ))}
         </ul>
-        <TotalsBox totals={o.totals} showShipping />
+        <TotalsBox totals={o.totals} showShipping couponCode={o.couponCode} />
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-[15px]">
           <dt className="text-muted">Pago</dt>
           <dd>{PAYMENT_LABEL[o.payment.method]}{o.payment.cardLast4 ? ` terminada en ${o.payment.cardLast4}` : ""}</dd>

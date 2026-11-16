@@ -112,7 +112,7 @@ export default function OrderDetail() {
           </table>
         </Card>
         <div className="flex flex-col gap-5">
-          <Card><TotalsBox totals={o.totals} showShipping /></Card>
+          <Card><TotalsBox totals={o.totals} showShipping couponCode={o.couponCode} /></Card>
           <Card>
             <p className="text-xs uppercase tracking-wide text-muted">Pago</p>
             <p>{PAYMENT_LABEL[o.payment.method]}{o.payment.cardLast4 ? ` terminada en ${o.payment.cardLast4}` : ""}</p>

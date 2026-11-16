@@ -11,6 +11,7 @@ import { useSession } from "@web/auth";
 import { useCart } from "@web/cart/useCart";
 import { useTitle } from "@web/hooks/useTitle";
 import { EmptyState, ErrorState, LoadingBlock } from "@web/components/States";
+import { CouponBox } from "@web/components/CouponBox";
 import { TotalsBox } from "@web/components/TotalsBox";
 import { Button } from "@web/components/ui/button";
 import { Field, Input, Select } from "@web/components/ui/form";
@@ -75,7 +76,8 @@ function CheckoutForm({
 
   const zone = o.zones.find((z) => z.id === addr.zoneId);
   const shipping = method === "delivery" ? (zone?.costCents ?? 0) : 0;
-  const totals = orderTotals(available, shipping, 0);
+  const quote = cart.quote.data!;
+  const totals = orderTotals(available, shipping, quote.coupon?.discountCents ?? 0);
   const err = (k: string) => errors[k];
 
   function validate(): Errors {
@@ -129,7 +131,7 @@ function CheckoutForm({
     try {
       const res = await apiFetch<{ order: OrderDetail; whatsappUrl?: string }>("/checkout/orders", {
         method: "POST",
-        json: { delivery, payment, expectedTotalCents: totals.totalCents },
+        json: { delivery, payment, expectedTotalCents: totals.totalCents, ...(quote.coupon ? { couponCode: quote.coupon.code } : {}) },
       });
       await queryClient.invalidateQueries({ queryKey: ["cart"] });
       if (res.whatsappUrl) {
@@ -149,6 +151,12 @@ function CheckoutForm({
           return;
         }
         if (x.code === "PRICE_CHANGED") await cart.quote.refetch();
+        // El cupón dejó de valer entre el carrito y el pago: se explica y se puede continuar sin cupón (HU-49).
+        if (x.code.startsWith("COUPON_")) {
+          setFormError(`${x.message}. Puedes quitar el cupón y continuar con tu pedido.`);
+          await cart.quote.refetch();
+          return;
+        }
         setErrors(x.fields);
         setFormError(x.message);
       } else setFormError("No pudimos completar el pedido. Intenta de nuevo.");
@@ -332,7 +340,8 @@ function CheckoutForm({
               </li>
             ))}
           </ul>
-          <TotalsBox totals={totals} showShipping />
+          <CouponBox quote={quote} signedIn busy={sending} />
+          <TotalsBox totals={totals} showShipping couponCode={quote.coupon?.code} />
           <Button type="submit" size="lg" disabled={sending || !pay}>
             {sending ? "Procesando…" : pay === "whatsapp" ? "Coordinar por WhatsApp" : `Confirmar pedido por ${formatPEN(totals.totalCents)}`}
           </Button>
