@@ -102,6 +102,8 @@ test.describe("HU-59: contactar a la tienda por WhatsApp", () => {
     await page.goto("/carrito");
     await expect(page.getByRole("button", { name: "Pagar" })).toBeVisible();
     expect(await centerIsClickable(page.getByRole("button", { name: "Pagar" }))).toBe(true);
+    // Con una fuente ancha (la de Linux en el CI lo es) tampoco debe haber desplazamiento horizontal: el resultado no depende del sistema.
+    await page.addStyleTag({ content: '*{font-family:Verdana,"DejaVu Sans",sans-serif !important}' });
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(0);
   });

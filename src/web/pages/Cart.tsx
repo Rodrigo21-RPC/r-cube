@@ -54,9 +54,9 @@ export default function Cart() {
         <ul className="flex flex-col gap-3">
           {lines.map((l) => (
             <li key={lineKey(l.productId, l.variantId)}>
-              <Card className={`flex gap-4 ${l.available ? "" : "opacity-70"}`}>
+              <Card className={`flex flex-wrap gap-x-4 gap-y-3 sm:flex-nowrap ${l.available ? "" : "opacity-70"}`}>
                 <img src={l.imageUrl} alt="" width={88} height={88} loading="lazy" className="size-20 shrink-0 rounded-xl bg-canvas object-contain" />
-                <div className="flex min-w-0 flex-1 flex-col gap-2">
+                <div className="flex min-w-32 flex-1 basis-32 flex-col gap-2">
                   <Link to={`/producto/${l.slug}`} className="font-semibold hover:underline">{l.name}</Link>
                   {l.variantLabel && <p className="text-sm text-muted">{l.variantLabel}</p>}
                   <p className="tabular text-sm text-muted">{formatPEN(l.unitPriceCents)} c/u</p>
@@ -84,7 +84,7 @@ export default function Cart() {
                     <p className="text-sm font-medium text-danger">No disponible: no se incluye en el total</p>
                   )}
                 </div>
-                <div className="flex flex-col items-end justify-between gap-2">
+                <div className="flex basis-full items-center justify-between gap-2 sm:basis-auto sm:flex-col sm:items-end">
                   <span className="tabular font-semibold">{formatPEN(l.lineTotalCents)}</span>
                   <Button variant="ghost" size="icon" aria-label={`Quitar ${l.name}${l.variantLabel ? ` (${l.variantLabel})` : ""} del carrito`} disabled={cart.busy} onClick={() => cart.remove(l.productId, l.variantId)}>
                     <Trash2 aria-hidden className="size-5" />
