@@ -61,6 +61,9 @@ function CheckoutForm({
 }) {
   const [method, setMethod] = useState<"pickup" | "delivery">("delivery");
   const [addr, setAddr] = useState({ ...o.address, zoneId: o.zones[0]?.id ?? "" });
+  // Dirección guardada elegida (la predeterminada viene elegida) o «otra» para escribirla a mano (HU-48).
+  const [addressChoice, setAddressChoice] = useState(o.addresses.find((a) => a.isDefault)?.id ?? "otra");
+  const manual = addressChoice === "otra";
   const [pay, setPay] = useState<PaymentMethodCode | null>(o.methods[0] ?? null);
   const [card, setCard] = useState({ number: "", expiry: "", cvv: "" });
   const [operationCode, setOperationCode] = useState("");
@@ -79,10 +82,12 @@ function CheckoutForm({
     const e: Errors = {};
     if (method === "delivery") {
       if (!addr.zoneId) e["delivery.zoneId"] = "Elige una zona de delivery.";
-      if (addr.name.trim().length < 2) e["delivery.name"] = "Escribe el nombre de quien recibe.";
-      if (!/^9\d{8}$/.test(addr.phone.trim())) e["delivery.phone"] = "Escribe un celular de 9 dígitos que empiece con 9.";
-      if (addr.address.trim().length < 5) e["delivery.address"] = "Escribe la dirección de entrega.";
-      if (addr.district.trim().length < 2) e["delivery.district"] = "Escribe el distrito.";
+      if (manual) {
+        if (addr.name.trim().length < 2) e["delivery.name"] = "Escribe el nombre de quien recibe.";
+        if (!/^9\d{8}$/.test(addr.phone.trim())) e["delivery.phone"] = "Escribe un celular de 9 dígitos que empiece con 9.";
+        if (addr.address.trim().length < 5) e["delivery.address"] = "Escribe la dirección de entrega.";
+        if (addr.district.trim().length < 2) e["delivery.district"] = "Escribe el distrito.";
+      }
     }
     if (!pay) e["payment.method"] = "Elige un método de pago.";
     if (pay === "card") {
@@ -118,7 +123,8 @@ function CheckoutForm({
           : pay === "transfer"
             ? { method: pay, operationCode: operationCode.trim() || undefined }
             : { method: pay };
-    const delivery = method === "pickup" ? { method } : { method, ...addr };
+    const delivery =
+      method === "pickup" ? { method } : manual ? { method, ...addr } : { method, zoneId: addr.zoneId, addressId: addressChoice };
     setSending(true);
     try {
       const res = await apiFetch<{ order: OrderDetail; whatsappUrl?: string }>("/checkout/orders", {
@@ -183,6 +189,27 @@ function CheckoutForm({
               {method === "pickup" ? (
                 <p className="text-[15px] text-muted">Recoges en: {o.pickupAddress}</p>
               ) : (
+                <div className="flex flex-col gap-4">
+                {o.addresses.length > 0 && (
+                  <fieldset className="flex flex-col gap-2">
+                    <legend className="mb-1 text-sm font-medium">Dirección de entrega</legend>
+                    {o.addresses.map((a) => (
+                      <label key={a.id} className={`flex cursor-pointer items-start gap-3 rounded-2xl border-2 p-3 ${addressChoice === a.id ? "border-accent" : "border-border"}`}>
+                        <input type="radio" name="direccion" className="mt-1 size-4 accent-[var(--accent)]" checked={addressChoice === a.id} onChange={() => setAddressChoice(a.id)} />
+                        <span className="flex flex-col">
+                          <span className="font-medium">{a.label}{a.isDefault ? " (predeterminada)" : ""}</span>
+                          <span className="text-sm text-muted">{a.recipientName} · {a.phone}</span>
+                          <span className="text-sm text-muted">{a.line}, {a.district}{a.reference ? ` (${a.reference})` : ""}</span>
+                        </span>
+                      </label>
+                    ))}
+                    <label className={`flex cursor-pointer items-center gap-3 rounded-2xl border-2 p-3 ${manual ? "border-accent" : "border-border"}`}>
+                      <input type="radio" name="direccion" className="size-4 accent-[var(--accent)]" checked={manual} onChange={() => setAddressChoice("otra")} />
+                      <span className="font-medium">Otra dirección</span>
+                    </label>
+                    {err("delivery.addressId") && <p role="alert" className="text-sm text-danger">{err("delivery.addressId")}</p>}
+                  </fieldset>
+                )}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="Zona de delivery" error={err("delivery.zoneId")}>
                     {(p) => (
@@ -193,6 +220,8 @@ function CheckoutForm({
                       </Select>
                     )}
                   </Field>
+                  {manual && (
+                  <>
                   {(
                     [
                       ["name", "Nombre de quien recibe", "name"],
@@ -208,6 +237,9 @@ function CheckoutForm({
                   <Field label="Referencia (opcional)" error={err("delivery.reference")}>
                     {(p) => <Input {...p} value={addr.reference} onChange={(e) => setAddr({ ...addr, reference: e.target.value })} />}
                   </Field>
+                  </>
+                  )}
+                </div>
                 </div>
               )}
             </fieldset>

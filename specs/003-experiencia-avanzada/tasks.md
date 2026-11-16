@@ -288,7 +288,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 **Independent Test**: crear dos direcciones, predeterminar la segunda y comprar eligiendo la primera.
 
-- [ ] T036 [US6] Escribir `tests/api/addresses.test.ts` (HU-48, FR-016 a FR-019, FR-033): `POST /account/addresses`
+- [X] T036 [US6] Escribir `tests/api/addresses.test.ts` (HU-48, FR-016 a FR-019, FR-033): `POST /account/addresses`
   valida `label` de 2 a 40, `recipientName` de 2 a 80, `phone` de 9 dígitos que empieza con 9, `line` de 5
   a 160, `district` de 2 a 80 y `reference` ≤ 160 con error por campo; la primera queda predeterminada;
   `POST /account/addresses/:id/default` deja una sola predeterminada; borrar la predeterminada promueve la
@@ -299,20 +299,20 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   dirección después no cambia el pedido; `addressId` inexistente o ajeno → 400 con error en
   `delivery.addressId`; sin `addressId` funciona la dirección escrita a mano; `GET /checkout/options`
   devuelve `addresses` con la predeterminada primero; debe fallar
-- [ ] T037 [US6] Crear `src/worker/services/addresses.ts` (tope de 10, predeterminada única en transacción,
+- [X] T037 [US6] Crear `src/worker/services/addresses.ts` (tope de 10, predeterminada única en transacción,
   promoción al borrar) y ampliar `src/worker/routes/account.ts` con `GET/POST /addresses`, `PATCH
   /addresses/:id`, `POST /addresses/:id/default` y `DELETE /addresses/:id`, y con `/me` leyendo y
   escribiendo la dirección predeterminada hasta pasar T036 y `tests/api/account.test.ts` sin cambios
   (HU-48, FR-016, FR-017, FR-019)
-- [ ] T038 [US6] Extender `src/worker/routes/checkout.ts` con `delivery.addressId` (carga la dirección del
+- [X] T038 [US6] Extender `src/worker/routes/checkout.ts` con `delivery.addressId` (carga la dirección del
   cliente y congela sus datos) y `addresses` en `GET /options`; actualizar `src/web/pages/Checkout.tsx` con
   la lista de direcciones guardadas (la predeterminada viene elegida), la opción «Otra dirección» sin
   guardar y el mensaje si la dirección ya no existe (HU-48, FR-018)
-- [ ] T039 [US6] Crear `src/web/pages/Addresses.tsx` (lista con la predeterminada marcada, diálogo de alta y
+- [X] T039 [US6] Crear `src/web/pages/Addresses.tsx` (lista con la predeterminada marcada, diálogo de alta y
   edición con errores por campo, «Marcar como predeterminada», borrar con confirmación, estado vacío con
   «Agregar dirección»), la ruta `/cuenta/direcciones` en `src/web/router.tsx` y un enlace «Mis direcciones»
   en `src/web/pages/Account.tsx` (HU-48, FR-016, FR-035)
-- [ ] T040 [US6] Ampliar `src/db/seed-data.ts` con 2 direcciones (una predeterminada) para 2 clientes de
+- [X] T040 [US6] Ampliar `src/db/seed-data.ts` con 2 direcciones (una predeterminada) para 2 clientes de
   demostración y mantener a los demás con una (FR-036, HU-48)
 
 **Checkpoint**: HU-48 completa.

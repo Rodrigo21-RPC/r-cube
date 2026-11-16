@@ -221,6 +221,12 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
     { id: "rev-demo-1", productId: byName("iPhone 15 Pro").id, userId: "user-cliente-1", rating: 5, comment: "Titanio ligero y una cámara espectacular. Llegó bien embalado.", createdAt: new Date(now - 12 * 86_400_000) },
     { id: "rev-demo-2", productId: byName("SSD NVMe").id, userId: "user-cliente-2", rating: 1, comment: "Este comentario no habla del producto (ejemplo de reseña ocultada).", hidden: true, createdAt: new Date(now - 9 * 86_400_000) },
   ]);
+  // Direcciones guardadas (HU-48): la dirección del perfil de cada cliente es la predeterminada y dos clientes tienen una segunda.
+  await db.insert(s.address).values([
+    ...CUSTOMERS.map((c, i) => ({ id: `addr-demo-${i + 1}`, userId: `user-cliente-${i + 1}`, label: "Casa", recipientName: c.name, phone: c.phone, line: c.address, district: c.district, isDefault: true })),
+    { id: "addr-demo-6", userId: "user-cliente-1", label: "Trabajo", recipientName: "Mateo Quispe", phone: "987654321", line: "Av. Javier Prado Este 4200", district: "Santiago de Surco", reference: "Torre B, piso 5", isDefault: false },
+    { id: "addr-demo-7", userId: "user-cliente-3", label: "Casa de mis padres", recipientName: "Rosa Mamani", phone: "955112233", line: "Av. Grau 310", district: "Barranco", isDefault: false },
+  ]);
   // Favoritos (HU-45): incluye un producto agotado, uno inactivo y uno con variantes para mostrar sus estados.
   const favs: [number, string[]][] = [
     [1, ["iPhone 13 Pro", "MacBook Pro 16", "Lenovo Tab M10"]],

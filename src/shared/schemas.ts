@@ -31,6 +31,17 @@ export const addressSchema = z.object({
   reference: z.string().trim().max(160, "Máximo 160 caracteres."),
 });
 
+/** Dirección guardada del cliente (HU-48, FR-016). */
+export const savedAddressSchema = z.object({
+  label: z.string().trim().min(2, "Escribe un nombre para la dirección (por ejemplo, Casa).").max(40, "Máximo 40 caracteres."),
+  recipientName: z.string().trim().min(2, "Escribe el nombre de quien recibe.").max(80, "Máximo 80 caracteres."),
+  phone: phoneSchema,
+  line: z.string().trim().min(5, "Escribe la dirección de entrega.").max(160, "Máximo 160 caracteres."),
+  district: z.string().trim().min(2, "Escribe el distrito.").max(80, "Máximo 80 caracteres."),
+  reference: z.string().trim().max(160, "Máximo 160 caracteres.").optional().default(""),
+});
+export type SavedAddressInput = z.infer<typeof savedAddressSchema>;
+
 export const profileSchema = z.object({
   name: nameSchema,
   phone: phoneSchema,
