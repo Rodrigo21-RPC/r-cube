@@ -15,10 +15,16 @@ import { AddToCart } from "@web/cart/AddToCart";
 import { RelatedProducts } from "@web/components/RelatedProducts";
 import { Reviews } from "@web/components/Reviews";
 import { FavoriteButton } from "@web/components/FavoriteButton";
+import { ProductGallery } from "@web/components/ProductGallery";
 
-/** Detalle de producto con galería, precio con IGV, specs y disponibilidad (HU-05). */
+/** Al cambiar de producto se vuelve a montar la página: la galería y la variante elegida empiezan de cero (FR-007). */
 export default function Product() {
   const { slug = "" } = useParams();
+  return <ProductPage key={slug} slug={slug} />;
+}
+
+/** Detalle de producto con galería, precio con IGV, specs y disponibilidad (HU-05, HU-54). */
+function ProductPage({ slug }: { slug: string }) {
   const q = useQuery({ queryKey: ["product", slug], queryFn: () => apiFetch<ProductDetail>(`/catalog/products/${slug}`) });
   const [active, setActive] = useState(0);
   const [choice, setChoice] = useState<VariantChoice>({});
@@ -39,7 +45,6 @@ export default function Product() {
   }
 
   const p = q.data;
-  const image = p.images[active] ?? p.images[0]!;
   const hasVariants = p.variants.length > 0;
   const selected = hasVariants ? variantFor(p.variants, choice) : null;
 
@@ -56,20 +61,7 @@ export default function Product() {
         <ArrowLeft aria-hidden className="size-4" /> Volver al catálogo
       </Link>
       <div className="grid gap-8 md:grid-cols-2">
-        <section aria-label="Galería de fotos" className="flex flex-col gap-3">
-          <div className="flex aspect-square items-center justify-center overflow-hidden rounded-[18px] bg-surface p-6">
-            <img src={image.url} alt={image.alt} width={600} height={600} className="h-full w-full object-contain" onError={(e) => { e.currentTarget.src = "/img/generico.svg"; }} />
-          </div>
-          {p.images.length > 1 && (
-            <div className="flex gap-2">
-              {p.images.map((img, i) => (
-                <button key={img.url} type="button" onClick={() => setActive(i)} aria-label={`Ver foto ${i + 1} de ${p.images.length}`} aria-pressed={i === active} className={`size-16 overflow-hidden rounded-xl border-2 bg-surface ${i === active ? "border-accent" : "border-transparent"}`}>
-                  <img src={img.url} alt="" width={64} height={64} loading="lazy" className="h-full w-full object-contain" />
-                </button>
-              ))}
-            </div>
-          )}
-        </section>
+        <ProductGallery name={p.name} photos={p.images} index={active} onIndexChange={setActive} />
 
         <section className="flex flex-col gap-4">
           <div>

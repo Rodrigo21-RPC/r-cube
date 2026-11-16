@@ -152,7 +152,7 @@ flecha, con una miniatura, con el teclado y deslizando, y comprobar contador y m
 
 ### Tests for User Story 1 (escribir primero, deben fallar)
 
-- [ ] T019 [P] [US1] Ampliar `tests/unit/gallery-data.test.ts` con la integridad de las fotos (HU-54, FR-025 a
+- [X] T019 [P] [US1] Ampliar `tests/unit/gallery-data.test.ts` con la integridad de las fotos (HU-54, FR-025 a
   FR-030): cada producto activo tiene de 4 a 6 fotos; la primera es real o del proyecto (no tarjeta); hay de 1
   a 3 fotos reales o del proyecto y exactamente 3 tarjetas, al final y en el orden características, destacados
   y compra segura (`card`); los `alt` no están vacíos y son distintos entre sí dentro del producto; cada foto
@@ -160,14 +160,14 @@ flecha, con una miniatura, con el teclado y deslizando, y comprobar contador y m
   empieza con `/img/` y el archivo existe en `public/`; cada archivo `.webp` pesa como máximo 204 800 bytes y
   mide como máximo 1 200 px de lado mayor (leer ancho y alto de la cabecera WebP en el propio test); el
   producto inactivo no se valida
-- [ ] T020 [P] [US1] Pruebas de API en `tests/api/seed.test.ts` y `tests/api/catalog.test.ts` (HU-54,
+- [X] T020 [P] [US1] Pruebas de API en `tests/api/seed.test.ts` y `tests/api/main-photo.test.ts` (HU-54,
   FR-025, FR-032, FR-034): los 37 productos activos tienen de 4 a 6 filas de `product_image`, posiciones 0 a
   n-1 sin huecos, exactamente 3 con `origin = 'tarjeta'` y la foto de cada variante
   (`product_variant.image_id`) es de su mismo producto; con un producto de 3 fotos (`makeImages`) la tarjeta
   del catálogo, la línea del carrito y los favoritos usan la foto de posición 0, y al marcar otra como
   principal (`POST /admin/products/:id/images/:imageId/main`) pasan a usar esa; la línea de carrito de una
   variante con foto propia usa la de la variante (HU-44)
-- [ ] T021 [P] [US1] Prueba e2e `e2e/galeria.spec.ts` (HU-54, FR-001 a FR-009): en
+- [X] T021 [P] [US1] Prueba e2e `e2e/galeria.spec.ts` (HU-54, FR-001 a FR-009): en
   `/producto/samsung-galaxy-s23-256-gb` el contador dice «1 de N» con N entre 4 y 6 y hay N miniaturas;
   «Foto siguiente» da «2 de N» y marca la miniatura con `aria-current`; con el foco en la galería la flecha
   derecha del teclado avanza y la izquierda retrocede; en la última, «Foto siguiente» vuelve a la primera y en
@@ -184,21 +184,21 @@ flecha, con una miniatura, con el teclado y deslizando, y comprobar contador y m
 
 ### Implementation for User Story 1
 
-- [ ] T022 [P] [US1] Crear `scripts/fotos/buscar.ts` (solo desarrollo): recibe una consulta (`npm run
+- [X] T022 [P] [US1] Crear `scripts/fotos/buscar.ts` (solo desarrollo): recibe una consulta (`npm run
   fotos:buscar -- "Samsung Galaxy S23"`), consulta la API de Wikimedia Commons (`action=query`,
   `generator=search`, `gsrnamespace=6`, `prop=imageinfo`, `iiprop=url|size|mime|extmetadata`,
   `iiextmetadatafilter=LicenseShortName|Artist`, `iiurlwidth=800`) con `User-Agent` genérico
   «RCubeLab/1.0 (proyecto educativo)», descarta las candidatas cuya licencia no cumpla `isAllowedLicense`,
   imprime título, autor sin HTML, licencia, tamaño y enlace de origen, y guarda las miniaturas en
   `scripts/fotos/.cache/candidatas/<consulta>/` para poder verlas (R7, FR-021)
-- [ ] T023 [P] [US1] Crear `scripts/fotos/preparar.ts` (solo desarrollo): lee `GALLERY`; para cada foto con
+- [X] T023 [P] [US1] Crear `scripts/fotos/preparar.ts` (solo desarrollo): lee `GALLERY`; para cada foto con
   `source` de Commons descarga la miniatura de 1 200 px (verifica que autor y licencia coincidan con el
   manifiesto y avisa si no); para cada foto del proyecto lee el archivo original de `public/img/productos/`
   sin modificarlo; abre Chromium con Playwright, la dibuja en un `canvas` a 1 200 px de lado mayor como
   máximo y la exporta con `toBlob("image/webp", calidad)` bajando la calidad de 0,86 a 0,5 y luego el tamaño
   hasta pesar 204 800 bytes o menos; escribe `public/img/productos/galeria/<slug>-<n>.webp` y falla con un
   mensaje claro si no logra el peso (R6, R8, FR-030, FR-031)
-- [ ] T024 [P] [US1] Crear `scripts/fotos/tarjetas.ts` (solo desarrollo): para cada producto de `PRODUCTS` y de
+- [X] T024 [P] [US1] Crear `scripts/fotos/tarjetas.ts` (solo desarrollo): para cada producto de `PRODUCTS` y de
   `GALLERY` renderiza con Playwright **tres tarjetas** de 1 000 × 1 000 px con un acabado de ficha profesional
   (R9): fondo oscuro con degradado suave a `#0b0b0f`/`#17171c`, acento `#3b93ff`, texto `#f5f5f7`, el logo de
   `public/img/logo.png`, tipografía sans de sistema con jerarquía clara (título grande, datos medianos,
@@ -211,7 +211,7 @@ flecha, con una miniatura, con el teclado y deslizando, y comprobar contador y m
   rutina que `preparar.ts`, en el archivo que indica el manifiesto, con el `alt` «Tarjeta de características
   de <nombre>: <etiqueta valor, …>», «Tarjeta de destacados de <nombre>: <frase y destacados>» y «Tarjeta de
   compra segura de <nombre>: …» (R9, FR-027, FR-028)
-- [ ] T025 [US1] Crear `src/web/components/PhotoCarousel.tsx`: pista horizontal con `overflow-x: auto`,
+- [X] T025 [US1] Crear `src/web/components/PhotoCarousel.tsx`: pista horizontal con `overflow-x: auto`,
   `scroll-snap-type: x mandatory` y una foto por pantalla; props `photos: { url, alt }[]`, `index`,
   `onIndexChange` y `fit` (`cover` o `contain`); foto activa calculada con `IntersectionObserver`; `goTo(i)`
   circular con `scrollTo` (`behavior: "auto"` si `prefers-reduced-motion: reduce`); `role="region"` con
@@ -220,7 +220,7 @@ flecha, con una miniatura, con el teclado y deslizando, y comprobar contador y m
   `aria-live="polite"` («Foto 2 de 5»); flechas izquierda y derecha del teclado solo con el foco dentro;
   primera foto con `fetchpriority="high"` y las demás `loading="lazy"`; sin `touch-action: none` (R1, R3, R12,
   FR-002 a FR-004, FR-008, FR-013)
-- [ ] T026 [US1] Crear `src/web/components/ProductGallery.tsx`: usa `PhotoCarousel` en un contenedor de
+- [X] T026 [US1] Crear `src/web/components/ProductGallery.tsx`: usa `PhotoCarousel` en un contenedor de
   proporción fija (`aspect-square`) con un acabado cuidado (esquinas redondeadas, fondo `bg-surface`, foto con
   `object-contain`) y muestra, solo con 2 o más fotos, el contador «N de M», los botones «Foto anterior» y
   «Foto siguiente» (áreas de 44 px, foco visible) y una franja desplazable de miniaturas (botones con nombre
@@ -228,11 +228,11 @@ flecha, con una miniatura, con el teclado y deslizando, y comprobar contador y m
   con una foto muestra solo la foto y sin ninguna, la imagen genérica; una foto que falla se sustituye por
   `/img/generico.svg` sin romper la navegación; sin desborde horizontal desde 320 px (FR-001, FR-005, FR-008,
   FR-009)
-- [ ] T027 [US1] Actualizar `src/web/pages/Product.tsx`: reemplazar la sección de fotos por
+- [X] T027 [US1] Actualizar `src/web/pages/Product.tsx`: reemplazar la sección de fotos por
   `ProductGallery` con el índice controlado; al elegir una variante con foto propia el índice salta a esa
   foto y una navegación manual posterior prevalece; reiniciar la galería con `key={slug}` al cambiar de
   producto (FR-006, FR-007)
-- [ ] T028 [US1] Fotos de **celulares** (13 productos activos: iPhone 15 Pro 256 GB, iPhone 13 Pro 128 GB,
+- [X] T028 [US1] Fotos de **celulares** (13 productos activos: iPhone 15 Pro 256 GB, iPhone 13 Pro 128 GB,
   iPhone SE 64 GB, Samsung Galaxy S23 256 GB, Samsung Galaxy S22 Ultra 256 GB, Xiaomi Redmi Note 12 128 GB,
   Xiaomi 13T Pro 512 GB, Motorola Edge 60 Pro, Google Pixel 8 128 GB, Huawei P60, Sony Xperia Z5, OnePlus 13R
   y Nothing Phone (2)): por cada uno usar `npm run fotos:buscar`, mirar las candidatas con la herramienta de
@@ -243,31 +243,31 @@ flecha, con una miniatura, con el teclado y deslizando, y comprobar contador y m
   y hasta 2 fotos reales más de otros ángulos (de 1 a 3 reales o del proyecto), dejando los 3 lugares
   finales para las tarjetas; ejecutar `npm run fotos:preparar` y mirar los `.webp` resultantes (HU-54,
   FR-025, FR-026, FR-031)
-- [ ] T029 [US1] Fotos de **laptops** (12 productos activos: MacBook Air M1 256 GB, MacBook Pro 16 M3 Pro,
+- [X] T029 [US1] Fotos de **laptops** (12 productos activos: MacBook Air M1 256 GB, MacBook Pro 16 M3 Pro,
   Dell XPS 13, Dell Inspiron 15, HP Pavilion 15, HP Spectre x360, Lenovo ThinkPad X1 Carbon, Asus Vivobook
   15, Asus Zenbook 14 OLED, Acer Swift Go 14, MSI Katana 15 Gaming y Microsoft Surface Laptop 5): mismo
   procedimiento que T028; la foto original de la MSI muestra la parte inferior, así que otra foto pasa a ser
   la principal y esa original se retira de su galería (HU-54, FR-025, FR-026, FR-031)
-- [ ] T030 [US1] Fotos de **tablets** (4 productos activos: iPad 10.ª generación 64 GB, Samsung Galaxy Tab S9
+- [X] T030 [US1] Fotos de **tablets** (4 productos activos: iPad 10.ª generación 64 GB, Samsung Galaxy Tab S9
   128 GB, Xiaomi Pad 6 128 GB y Lenovo Tab M10; hoy solo tienen la imagen genérica y no hay foto original):
   buscar y aceptar una foto principal de un solo equipo y, si las hay, hasta 2 adicionales del mismo modelo;
   si no hay una foto libre buena del modelo exacto, usar una del mismo tipo de producto y dejarlo anotado en
   el `alt`; mismo procedimiento que T028 (HU-54, FR-025, FR-026)
-- [ ] T031 [US1] Fotos de **accesorios y repuestos** (8 productos activos: batería para celular, batería para
+- [X] T031 [US1] Fotos de **accesorios y repuestos** (8 productos activos: batería para celular, batería para
   laptop de 6 celdas, cooler y disipador, Fairphone módulo de cámara, kit de herramientas de 32 en 1, pasta
   térmica de 4 g, memoria RAM DDR4 de 16 GB y SSD NVMe de 1 TB): mismo procedimiento que T028 con fotos del
   mismo tipo de producto cuando no exista una del modelo exacto, sin marcas de otro modelo a la vista como
   principal (HU-54, FR-025, FR-026)
-- [ ] T032 [US1] Completar los manifiestos con las 3 tarjetas de cada uno de los 37 productos activos
+- [X] T032 [US1] Completar los manifiestos con las 3 tarjetas de cada uno de los 37 productos activos
   (`card` y `alt`), ejecutar `npm run fotos:tarjetas` y mirar con la herramienta de lectura de imágenes al
   menos 12 tarjetas (las tres plantillas y las cuatro categorías): texto legible a tamaño de móvil, sin
   cortes, jerarquía clara y aspecto de ficha profesional; pulir la plantilla hasta lograrlo y volver a
   generar todo; confirmar que cada producto queda con de 4 a 6 fotos y listar cualquiera que no llegue
   para resolverlo caso por caso con otra foto libre del mismo tipo (HU-54, FR-025, FR-027)
-- [ ] T033 [US1] En `src/db/seed-data.ts` hacer que `var-edge-256-azul` apunte a la foto de la galería del
+- [X] T033 [US1] En `src/db/seed-data.ts` hacer que `var-edge-256-azul` apunte a la foto de la galería del
   Edge que mejor muestre el color azul (o, si ninguna lo hace, a una foto distinta de la principal) y
-  confirmar que T020 pasa (HU-44, FR-006, FR-032)
-- [ ] T034 [US1] Pasar T019, T020 y T021 en verde, volver a cargar los datos con `npm run db:seed`, abrir 6
+  confirmar que T020 pasa; como Commons no tiene una foto libre del Edge en azul, la variante usa la foto principal (HU-44, FR-006, FR-032)
+- [X] T034 [US1] Pasar T019, T020 y T021 en verde, volver a cargar los datos con `npm run db:seed`, abrir 6
   productos (uno por categoría, el iPhone 15 Pro y la MSI) en tema claro y oscuro y a 320 px, y confirmar que
   la galería se ve bien; commit por categoría de fotos y uno de cierre de fase (HU-54, SC-001, SC-002)
 

@@ -24,8 +24,10 @@ export async function quoteCart(db: Db, requested: RequestedItem[], opts: { coup
   const ids = [...new Set([...merged.values()].map((i) => i.productId))];
   const variantIds = [...new Set([...merged.values()].map((i) => i.variantId).filter((v): v is string => Boolean(v)))];
   const { product, productImage, productVariant } = schema;
+  // `product.id` va calificado a mano: en un SELECT de una sola tabla Drizzle lo escribe sin tabla («id») y dentro de la
+  // subconsulta se confundiría con `product_image.id`, dejando todas las líneas con la imagen genérica (FR-034).
   const mainImage = sql<string | null>`(select ${productImage.url} from ${productImage}
-    where ${productImage.productId} = ${product.id} order by ${productImage.position} limit 1)`;
+    where ${productImage.productId} = "product"."id" order by ${productImage.position} limit 1)`;
   const rows = ids.length
     ? await db
         .select({

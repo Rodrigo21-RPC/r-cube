@@ -154,6 +154,17 @@ describe("FR-036, SC-009: fotos de demostración de la feature 004", () => {
     ).toEqual([]);
   });
 
+  it("HU-54, FR-025, FR-026: los 37 productos activos tienen de 4 a 6 fotos, con exactamente 3 tarjetas", async () => {
+    await withDb((db) => runSeed(db, passwords));
+    expect(
+      await rows(sql`select p.slug from product p join product_image i on i.product_id = p.id where p.active
+        group by p.id, p.slug
+        having count(i.id) < 4 or count(i.id) > 6 or count(*) filter (where i.origin = 'tarjeta') <> 3
+          or count(*) filter (where i.origin <> 'tarjeta') not between 1 and 3`),
+    ).toEqual([]);
+    expect(Number((await rows(sql`select count(*) n from product where active`))[0]!.n)).toBe(37);
+  });
+
   it("FR-021: ninguna foto externa de la demostración queda sin autor, licencia y enlace", async () => {
     expect(
       await rows(sql`select id from product_image where origin = 'externa' and (credit_author = '' or credit_license = '' or credit_url = '')`),
