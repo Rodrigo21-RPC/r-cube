@@ -16,6 +16,7 @@ const Register = page(() => import("./pages/Register"));
 const Account = page(() => import("./pages/Account"));
 const Orders = page(() => import("./pages/Orders"));
 const OrderDetail = page(() => import("./pages/OrderDetail"));
+const Favorites = page(() => import("./pages/Favorites"));
 const NotFound = page(() => import("./pages/NotFound"));
 
 export const router = createBrowserRouter([
@@ -32,6 +33,7 @@ export const router = createBrowserRouter([
       { path: "/ingresar", element: <Login /> },
       { path: "/registro", element: <Register /> },
       { path: "/cuenta", element: <Account /> },
+      { path: "/favoritos", element: <Favorites /> },
       { path: "/pedidos", element: <Orders /> },
       { path: "/pedidos/:number", element: <OrderDetail /> },
       { path: "*", element: <NotFound /> },

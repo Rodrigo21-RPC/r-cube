@@ -259,23 +259,23 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 **Independent Test**: marcar 3 productos, abrir «Mis favoritos», pasar uno al carrito y recargar.
 
-- [ ] T031 [US5] Escribir `tests/api/favorites.test.ts` (HU-45, FR-009, FR-010): `PUT /favorites/:productId`
+- [X] T031 [US5] Escribir `tests/api/favorites.test.ts` (HU-45, FR-009, FR-010): `PUT /favorites/:productId`
   idempotente (204 dos veces, una sola fila) y `DELETE` idempotente; `GET /favorites/ids`; `GET
   /favorites` devuelve tarjetas con `available` (inactivo y sin stock → `false`, incluidos); cada cliente
   ve solo los suyos; producto inexistente → 404; sin sesión → 401; la lista persiste entre sesiones; debe fallar
-- [ ] T032 [US5] Crear `src/worker/routes/favorites.ts` y montarlo en `src/worker/index.ts` bajo `/favorites`
+- [X] T032 [US5] Crear `src/worker/routes/favorites.ts` y montarlo en `src/worker/index.ts` bajo `/favorites`
   con `requireCustomer` hasta pasar T031 (HU-45, FR-009)
-- [ ] T033 [US5] Crear `src/web/components/FavoriteButton.tsx` (botón con `aria-pressed` y nombre «Agregar a
+- [X] T033 [US5] Crear `src/web/components/FavoriteButton.tsx` (botón con `aria-pressed` y nombre «Agregar a
   favoritos» o «Quitar de favoritos», estado optimista con TanStack Query y `GET /favorites/ids`; el visitante
   va a `/ingresar?volver=<ruta>&favorito=<id>`), integrarlo en `src/web/components/ProductCard.tsx` y
   `src/web/pages/Product.tsx`, y hacer que `src/web/pages/Login.tsx` y `src/web/pages/Register.tsx` guarden
   el favorito pendiente tras iniciar sesión antes de volver (HU-45, FR-011, RNF-03)
-- [ ] T034 [US5] Crear `src/web/pages/Favorites.tsx` (tarjetas con foto, precio y disponibilidad; «Agregar al
+- [X] T034 [US5] Crear `src/web/pages/Favorites.tsx` (tarjetas con foto, precio y disponibilidad; «Agregar al
   carrito» o «Elegir variante» si `hasVariants`; «Quitar»; «No disponible» o «Agotado» sin botón; estados de
   carga, vacío «Aún no tienes favoritos» y error), la ruta `/favoritos` en `src/web/router.tsx` el
   icono de corazón «Mis favoritos» en `src/web/components/Header.tsx` junto al carrito (solo clientes) y el
   enlace «Mis favoritos» en `src/web/pages/Account.tsx` (HU-45, FR-010)
-- [ ] T035 [US5] Ampliar `src/db/seed-data.ts` con 2 a 3 favoritos por cliente de demostración, incluido un
+- [X] T035 [US5] Ampliar `src/db/seed-data.ts` con 2 a 3 favoritos por cliente de demostración, incluido un
   producto agotado o inactivo (FR-036, HU-45)
 
 **Checkpoint**: HU-45 completa.

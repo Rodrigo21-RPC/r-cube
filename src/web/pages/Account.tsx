@@ -121,6 +121,7 @@ export default function Account() {
         <h1 className="text-[28px] font-semibold tracking-tight">Hola, {session.data.name.split(" ")[0]}</h1>
         <div className="flex gap-2">
           <Button asChild variant="secondary"><Link to="/pedidos">Mis pedidos</Link></Button>
+          <Button asChild variant="secondary"><Link to="/favoritos">Mis favoritos</Link></Button>
           <Button variant="ghost" onClick={logout}>Cerrar sesión</Button>
         </div>
       </div>

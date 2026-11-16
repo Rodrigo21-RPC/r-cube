@@ -13,6 +13,7 @@ import { EmptyState, ErrorState, LoadingBlock } from "@web/components/States";
 import { Button } from "@web/components/ui/button";
 import { AddToCart } from "@web/cart/AddToCart";
 import { Reviews } from "@web/components/Reviews";
+import { FavoriteButton } from "@web/components/FavoriteButton";
 
 /** Detalle de producto con galería, precio con IGV, specs y disponibilidad (HU-05). */
 export default function Product() {
@@ -74,7 +75,10 @@ export default function Product() {
             <p className="text-sm font-medium text-accent">
               <Link to={`/catalogo?category=${p.category.slug}`} className="underline underline-offset-2">{p.category.name}</Link> · {p.brand}
             </p>
-            <h1 className="mt-1 text-[28px] font-semibold leading-tight tracking-tight">{p.name}</h1>
+            <div className="mt-1 flex items-start justify-between gap-2">
+              <h1 className="text-[28px] font-semibold leading-tight tracking-tight">{p.name}</h1>
+              <FavoriteButton productId={p.id} name={p.name} className="shrink-0" />
+            </div>
           </div>
           <div>
             {hasVariants && !selected ? (

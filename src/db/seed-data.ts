@@ -221,6 +221,14 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
     { id: "rev-demo-1", productId: byName("iPhone 15 Pro").id, userId: "user-cliente-1", rating: 5, comment: "Titanio ligero y una cámara espectacular. Llegó bien embalado.", createdAt: new Date(now - 12 * 86_400_000) },
     { id: "rev-demo-2", productId: byName("SSD NVMe").id, userId: "user-cliente-2", rating: 1, comment: "Este comentario no habla del producto (ejemplo de reseña ocultada).", hidden: true, createdAt: new Date(now - 9 * 86_400_000) },
   ]);
+  // Favoritos (HU-45): incluye un producto agotado, uno inactivo y uno con variantes para mostrar sus estados.
+  const favs: [number, string[]][] = [
+    [1, ["iPhone 13 Pro", "MacBook Pro 16", "Lenovo Tab M10"]],
+    [2, ["Samsung Galaxy S22 Ultra", "Xiaomi 13T Pro", "Dell XPS 13"]],
+    [3, ["Samsung Galaxy S10", "Huawei P60"]],
+    [4, ["Motorola Edge 60 Pro", "Google Pixel 8"]],
+  ];
+  await db.insert(s.favorite).values(favs.flatMap(([user, names]) => names.map((n) => ({ userId: `user-cliente-${user}`, productId: byName(n).id }))));
   await db.execute(sql`SELECT setval('order_number_seq', ${ORDERS.length})`);
   await seedStockHistory(db);
 }

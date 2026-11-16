@@ -2,12 +2,14 @@ import { Link } from "react-router";
 import type { ProductCard as Card } from "@shared/types";
 import { Price } from "./Price";
 import { PriceRange } from "./PriceRange";
+import { FavoriteButton } from "./FavoriteButton";
 import { Availability } from "./Availability";
 
 /** Tarjeta del catálogo: foto, nombre, precio y disponibilidad (HU-01, RNF-04). */
 export function ProductCard({ product, priority = false }: { product: Card; priority?: boolean }) {
   return (
     <article className="group relative flex h-full flex-col gap-3 rounded-[18px] bg-surface p-4">
+      <FavoriteButton productId={product.id} name={product.name} className="absolute right-3 top-3 bg-canvas/80" />
       <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-canvas">
         <img
           src={product.imageUrl}

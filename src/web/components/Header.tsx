@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { Search, ShoppingCart, User } from "lucide-react";
+import { Heart, Search, ShoppingCart, User } from "lucide-react";
 import { useSession } from "@web/auth";
 import { useCartCount } from "@web/cart/useCart";
 
@@ -41,6 +41,11 @@ export function Header({ themeToggle }: { themeToggle?: React.ReactNode }) {
             <span className="hidden text-sm sm:inline">{me ? me.name.split(" ")[0] : "Ingresar"}</span>
             <span className="sr-only sm:hidden">{me ? "Mi cuenta" : "Ingresar"}</span>
           </Link>
+          {me?.role === "cliente" && (
+            <Link to="/favoritos" className="inline-flex size-11 items-center justify-center rounded-full hover:bg-surface" aria-label="Mis favoritos">
+              <Heart aria-hidden className="size-5" />
+            </Link>
+          )}
           <Link
             to="/carrito"
             className="relative inline-flex size-11 items-center justify-center rounded-full hover:bg-surface"
