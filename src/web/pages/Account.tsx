@@ -120,7 +120,7 @@ export default function Account() {
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-[28px] font-semibold tracking-tight">Hola, {session.data.name.split(" ")[0]}</h1>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button asChild variant="secondary"><Link to="/pedidos">Mis pedidos</Link></Button>
           <Button asChild variant="secondary"><Link to="/favoritos">Mis favoritos</Link></Button>
           <Button asChild variant="secondary"><Link to="/cuenta/direcciones">Mis direcciones</Link></Button>

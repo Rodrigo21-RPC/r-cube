@@ -75,6 +75,7 @@ test.describe("RNF-03, SC-007: accesibilidad AA del panel en ambos temas", () =>
 });
 
 const CUSTOMER_PAGES = [
+  ["mi cuenta", "/cuenta"],
   ["mis favoritos", "/favoritos"],
   ["mis direcciones", "/cuenta/direcciones"],
   ["avisos", "/avisos"],
@@ -90,6 +91,8 @@ test.describe("RNF-03, SC-008: accesibilidad AA de las pantallas nuevas del clie
         await page.goto(path);
         await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
         await page.waitForLoadState("networkidle");
+        // RNF-02: móvil primero, sin desplazamiento horizontal de la página (en Linux la fuente es más ancha).
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
         const result = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
         expect(result.violations.map((v) => `${v.id}: ${v.nodes.length} nodo(s) — ${v.nodes[0]?.target.join(" ")}`)).toEqual([]);
       });
