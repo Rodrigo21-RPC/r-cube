@@ -40,10 +40,12 @@ copia de `origin`). Decisiones en [research.md](research.md) R4 y R10.
 
 ## Reglas e invariantes
 
-1. **Tope de fotos**: el máximo de 6 por producto de la feature 002 sigue valiendo para todas las
-   `origin`. La demostración usa de 3 a 5 por producto para dejar sitio al administrador.
-2. **Orden de la demostración**: la posición 0 es una foto que muestra un único equipo (FR-025) y, si hay
-   tarjeta, es la de mayor posición (FR-027, clarificación 3).
+1. **Tope de fotos**: el máximo por producto sube de 6 a 8 (constante `MAX_IMAGES`, sin cambio de esquema,
+   research R15) y vale para todas las `origin`. La demostración usa de 4 a 6 por producto para dejar sitio al
+   administrador.
+2. **Orden de la demostración**: la posición 0 es una foto real o del proyecto que muestra un único equipo
+   (FR-025); le siguen de 0 a 2 fotos reales más y, al final, las 3 tarjetas con `origin = 'tarjeta'` en el
+   orden características, destacados y compra segura (FR-026, FR-027).
 3. **Variantes**: la foto propia de una variante (`product_variant.image_id`) apunta a una de las fotos de
    la galería de su producto (FR-032); no se crea una fila aparte.
 4. **Fotos existentes**: los archivos de `public/img/productos/*.{jpg,png}` no se modifican ni se borran;
@@ -51,7 +53,7 @@ copia de `origin`). Decisiones en [research.md](research.md) R4 y R10.
    van en `public/img/productos/galeria/`.
 5. **Borrado**: eliminar una foto desde el panel borra su fila (y con ella su crédito); los archivos
    estáticos de demostración no se tocan, como en la feature 002.
-6. **Datos de demostración**: los 37 productos activos tienen de 3 a 5 fotos, `tagline` y de 3 a 5
+6. **Datos de demostración**: los 37 productos activos tienen de 4 a 6 fotos, `tagline` y de 3 a 5
    `highlights`; el producto inactivo conserva su foto única y sus campos vacíos (supuesto de la spec).
 
 ## Manifiesto de la demostración (`src/db/gallery-data.ts`)
@@ -62,8 +64,9 @@ Datos versionados, no una tabla. Por cada producto (clave: su `slug`):
 {
   tagline: string,                 // ≤ 90 caracteres
   highlights: string[],            // 3 a 5 textos de ≤ 60 caracteres
-  photos: [                        // 3 a 5, en el orden de la galería
-    { file: "galeria/<slug>-1.webp", alt: string, origin: "proyecto" | "externa" | "tarjeta",
+  photos: [                        // 4 a 6, en el orden de la galería
+    { url: "/img/productos/galeria/<slug>-1.webp", alt: string, origin: "proyecto" | "externa" | "tarjeta",
+      card?: "caracteristicas" | "destacados" | "compra",   // solo si origin = "tarjeta"
       source?: "<nombre del archivo original, en public/img/productos o en docs/fotos>",
       credit?: { author, license, url, title } }   // obligatorio si origin = "externa"
   ]
@@ -80,4 +83,5 @@ Datos versionados, no una tabla. Por cada producto (clave: su `slug`):
 | Foto de producto | `product_image` (existente) |
 | Crédito de foto | columnas `credit_*` y `origin` de `product_image` |
 | Destacados del producto | columnas `tagline` y `highlights` de `product` |
+| Contacto de WhatsApp de la tienda | `store_settings.whatsapp_number` (existente, HU-41), expuesto por `GET /catalog/contact` |
 | Entrada de auditoría | `audit_log` (existente), acción `producto_editado` con `before` y `after` |

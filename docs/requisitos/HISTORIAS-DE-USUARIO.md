@@ -78,7 +78,7 @@ Tienda en línea de dispositivos electrónicos (celulares, laptops, tablets y ac
 | HU-28 | Como administrador quiero crear y editar productos | Campos: nombre, marca, categoría, descripción, especificaciones, precio, precio anterior opcional y stock; validación en servidor; precio mayor que 0 | A |
 | HU-29 | Como administrador quiero activar o desactivar productos sin borrarlos | El producto desactivado desaparece de la tienda pero conserva su historial de pedidos | A |
 | HU-30 | Como administrador quiero buscar y filtrar la lista de productos | Por nombre, categoría, estado y stock bajo; paginada | A |
-| HU-31 | Como administrador quiero subir las fotos de un producto | Hasta 6 fotos por producto; JPG, PNG o WebP de hasta 2 MB; se elige la principal y se reordenan; se guardan en R2 | A |
+| HU-31 | Como administrador quiero subir las fotos de un producto | Hasta 8 fotos por producto (antes 6, ampliado en la feature 004); JPG, PNG o WebP de hasta 2 MB; se elige la principal y se reordenan; se guardan en R2 | A |
 | HU-32 | Como administrador quiero gestionar categorías y marcas | Crear, renombrar y desactivar; no se puede desactivar una con productos activos sin avisar | M |
 | HU-33 | Como administrador quiero ajustar el stock con historial | Cada ajuste pide cantidad y motivo; se guarda quién, cuándo y cuánto; el stock no puede quedar negativo | A |
 
@@ -130,3 +130,5 @@ Tienda en línea de dispositivos electrónicos (celulares, laptops, tablets y ac
 | HU-56 | Como cliente quiero ver una frase y destacados breves del producto | Bajo el nombre: una frase de hasta 90 caracteres y hasta 5 viñetas de hasta 60 caracteres cada una; si el producto no los tiene, no se muestra el bloque | A |
 | HU-57 | Como administrador quiero editar la frase y los destacados de un producto | Se editan en el formulario del producto; el servidor valida los límites; el cambio queda en la auditoría | M |
 | HU-58 | Como cliente quiero conocer el crédito de las fotos | Página «Créditos de las fotos» con autor, licencia y enlace de origen de cada foto tomada de una fuente libre; enlace en el pie de página | M |
+| HU-59 | Como cliente quiero contactar a la tienda por WhatsApp | Botón «Consultar por WhatsApp» en el detalle con un mensaje que nombra el producto, la variante elegida y el enlace; botón flotante «Escríbenos por WhatsApp» en la tienda (no en el checkout, el comprobante ni el panel); el número es el de la configuración de la tienda; sin número no se muestra | M |
+| HU-60 | Como administrador quiero escribir al cliente por WhatsApp desde el panel | Botón «Escribir por WhatsApp» en el detalle del pedido y en el del cliente, con su celular (51 más 9 dígitos) y un saludo con su nombre y, en el pedido, su número; sin celular válido el botón queda deshabilitado | M |

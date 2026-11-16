@@ -6,14 +6,15 @@
 
 **Status**: Draft
 
-**Input**: User description: "Feature 004, Galería y destacados del producto, de R Cube. Pedido de Rodrigo: que cada producto tenga más imágenes, que al abrir un equipo se vea una galería con varias fotos llamativas y que haya una descripción breve y atractiva al estilo de AliExpress. Hoy cada producto de demostración tiene una sola foto (algunas poco llamativas), la galería del detalle solo muestra miniaturas pequeñas y la descripción es una sola frase. Historias nuevas HU-54 a HU-58 en docs/requisitos/HISTORIAS-DE-USUARIO.md. Incluye: galería del detalle con foto grande, flechas, deslizar, contador y miniaturas; ampliar una foto a pantalla completa; frase corta y hasta 5 viñetas de destacados bajo el nombre; edición de esos textos desde el panel con auditoría; datos de demostración con 3 a 6 fotos por producto, frase y destacados para los 37 productos activos; fotos extra de Wikimedia Commons con licencia libre y créditos visibles, completadas con tarjetas gráficas de características. Se construye sobre las features 001 a 003. Fuera: video, vista 360, lupa que sigue al cursor, imágenes generadas con IA que simulen fotos reales y cambios en carrito, checkout o pedidos."
+**Input**: User description: "Feature 004, Galería y destacados del producto, de R Cube. Pedido de Rodrigo: que cada producto tenga más imágenes, que al abrir un equipo se vea una galería con varias fotos llamativas y que haya una descripción breve y atractiva al estilo de AliExpress. Hoy cada producto de demostración tiene una sola foto (algunas poco llamativas), la galería del detalle solo muestra miniaturas pequeñas y la descripción es una sola frase. Historias nuevas HU-54 a HU-58 en docs/requisitos/HISTORIAS-DE-USUARIO.md. Incluye: galería del detalle con foto grande, flechas, deslizar, contador y miniaturas; ampliar una foto a pantalla completa; frase corta y hasta 5 viñetas de destacados bajo el nombre; edición de esos textos desde el panel con auditoría; datos de demostración con 3 a 6 fotos por producto, frase y destacados para los 37 productos activos; fotos extra de Wikimedia Commons con licencia libre y créditos visibles, completadas con tarjetas gráficas de características. Se construye sobre las features 001 a 003. Fuera: video, vista 360, lupa que sigue al cursor, imágenes generadas con IA que simulen fotos reales y cambios en carrito, checkout o pedidos. Ampliación del 2026-11-16 pedida por Rodrigo: más fotos nuevas con nivel de ficha de AliExpress (tarjetas gráficas de características, de destacados y de compra segura), tope de 8 fotos por producto y contacto por WhatsApp (botón en el producto, botón flotante en la tienda y botón del administrador hacia el cliente), con las historias HU-59 y HU-60."
 
-**Fuentes**: `docs/requisitos/HISTORIAS-DE-USUARIO.md` (HU-54 a HU-58, agregadas en esta feature) y
+**Fuentes**: `docs/requisitos/HISTORIAS-DE-USUARIO.md` (HU-54 a HU-60, agregadas en esta feature; HU-31 actualizada) y
 `docs/requisitos/REQUISITOS.md` (RNF-01 a RNF-04, RNF-07, RNF-09, RN-06 y RN-07). Si esta spec y esas
 fuentes difieren, mandan las fuentes. Esta feature se construye sobre las features 001 a 003 ya fusionadas:
 reutiliza el catálogo y el detalle del producto, la foto propia de una variante (HU-44), las fotos que sube
-el administrador desde el panel, con su límite de 6, su foto principal y su orden (HU-31), y la auditoría (HU-42).
-No rehace nada de eso.
+el administrador desde el panel, con su límite (que esta feature sube de 6 a 8), su foto principal y su
+orden (HU-31), la auditoría (HU-42), el número de WhatsApp de la configuración de la tienda (HU-41) y el
+enlace `wa.me` del checkout (HU-20). No rehace nada de eso.
 
 **Referencia visual**: no hay pantallas de Stitch para esta feature. Se reutilizan los tokens, las
 tarjetas y los diálogos de las features anteriores, en tema claro y oscuro (`docs/diseno/`). La idea de la
@@ -31,13 +32,25 @@ no se copian textos, imágenes ni marca de ningún sitio.
   sola foto, el MSI visto por debajo)? → A: Una foto mejor pasa a ser la principal; la original queda como
   foto posterior solo si muestra el equipo correcto, y se retira de la galería de ese producto si induce a
   error (varios equipos, parte inferior u otro modelo). El archivo siempre se conserva.
-- Q: ¿En qué posición va la tarjeta gráfica de características dentro de la galería? → A: Siempre es la
-  última foto: las fotos reales abren la galería y la tarjeta cierra con la información de un vistazo.
+- Q: ¿En qué posición van las tarjetas gráficas dentro de la galería? → A: Siempre al final: las fotos
+  reales abren la galería y las tarjetas cierran con la información de un vistazo (son tres, ver abajo).
 - Q: ¿La vista ampliada permite acercar más la foto con gestos propios? → A: No: muestra la foto al mayor
   tamaño que quepa y no bloquea el pellizco nativo del navegador; el zoom propio queda fuera de alcance.
 - Q: ¿La búsqueda del catálogo debe encontrar productos también por la frase y los destacados? → A: No: la
   búsqueda del catálogo y la del panel siguen igual (nombre, marca y descripción), porque los destacados
   resumen lo que ya dicen la descripción y las especificaciones.
+
+### Session 2026-11-16 (ampliación pedida por Rodrigo)
+
+- Q: ¿Cuántas fotos admite un producto y cuántas lleva la demostración? → A: El tope sube de 6 a 8 (HU-31
+  actualizada) para dejar espacio a fotos nuevas; la demostración lleva de 4 a 6: de 1 a 3 fotos reales o
+  del proyecto y exactamente 3 tarjetas gráficas al final, en este orden: características, destacados y
+  compra segura.
+- Q: ¿Qué incluye «contactar por WhatsApp»? → A: Para el cliente, un botón «Consultar por WhatsApp» en el
+  detalle con un mensaje que nombra el producto, la variante elegida y el enlace, y un botón flotante
+  «Escríbenos por WhatsApp» en la tienda (salvo checkout, comprobante y panel). Para el administrador, un
+  botón «Escribir por WhatsApp» al cliente en el detalle del pedido y en el del cliente. El número de la
+  tienda sale de la configuración (HU-41); no hay chat integrado ni API de WhatsApp Business.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -46,12 +59,13 @@ no se copian textos, imágenes ni marca de ningún sitio.
 Un cliente o visitante abre un producto y ve su foto principal en grande. Debajo o al costado ve miniaturas
 de las demás fotos y un contador («2 de 5»). Puede pasar de una foto a otra con flechas, con las miniaturas,
 con el teclado o deslizando con el dedo. Los datos de demostración dejan de tener una sola foto por
-producto: cada producto activo tiene entre 3 y 6, y la primera es la más llamativa.
+producto: cada producto activo tiene entre 4 y 6 (de 1 a 3 fotos reales y 3 tarjetas gráficas), y la
+primera es la más llamativa.
 
 **Why this priority**: Es el pedido principal. Sin una galería cómoda las fotos adicionales no se aprovechan,
 y sin fotos adicionales la galería no tiene qué mostrar. Es una historia imprescindible (A, HU-54).
 
-**Independent Test**: Con los datos de demostración, abrir el «Samsung Galaxy S23», ver que tiene entre 3 y
+**Independent Test**: Con los datos de demostración, abrir el «Samsung Galaxy S23», ver que tiene entre 4 y
 6 fotos, pasar de una a otra con la flecha, con una miniatura, con las flechas del teclado y (en un teléfono)
 deslizando, y comprobar que el contador cambia a «2 de N» y que la miniatura activa queda marcada.
 
@@ -75,7 +89,7 @@ deslizando, y comprobar que el contador cambia a «2 de N» y que la miniatura a
 7. **Given** una foto que no carga, **When** se muestra, **Then** aparece la imagen genérica con el texto
    alternativo del producto y la galería sigue siendo navegable.
 8. **Given** los datos de demostración, **When** se abre cualquiera de los 37 productos activos, **Then** ve
-   entre 3 y 6 fotos y la primera muestra un solo equipo completo y reconocible (no una foto con varios
+   entre 4 y 6 fotos y la primera muestra un solo equipo completo y reconocible (no una foto con varios
    equipos, ni de la parte inferior, ni de un componente interno).
 
 ---
@@ -198,10 +212,70 @@ la página de origen.
 
 ---
 
+### User Story 6 - Contactar a la tienda por WhatsApp (Priority: P2)
+
+Un cliente o visitante con una duda sobre un producto pulsa «Consultar por WhatsApp» en el detalle y se abre
+WhatsApp con un mensaje listo que nombra el producto (con la variante elegida y el enlace). Además, un botón
+flotante «Escríbenos por WhatsApp» queda disponible en la tienda para consultas generales. El número es el
+de la tienda, configurado en el panel.
+
+**Why this priority**: Una consulta rápida convierte dudas en compras y la tienda ya coordina pedidos por
+WhatsApp (HU-20). Es una historia importante (M, HU-59).
+
+**Independent Test**: Abrir el «Samsung Galaxy S23 256 GB», pulsar «Consultar por WhatsApp» y ver que se abre
+`wa.me` con el número de la tienda y un mensaje con el nombre del producto y su enlace; abrir el catálogo y
+ver el botón flotante.
+
+**Acceptance Scenarios**:
+
+1. **Given** un producto sin variantes y un número de WhatsApp configurado, **When** el cliente pulsa
+   «Consultar por WhatsApp», **Then** se abre en una pestaña nueva el enlace de WhatsApp con el número de la
+   tienda y el mensaje «Hola R Cube, quiero información de <nombre del producto>. <enlace al producto>».
+2. **Given** un producto con variantes y una variante elegida, **When** pulsa el botón, **Then** el mensaje
+   incluye el nombre de la variante (por ejemplo «… Motorola Edge 60 Pro (256 GB · Azul)…»).
+3. **Given** cualquier pantalla de la tienda salvo el checkout, el comprobante y el panel, **When** se
+   muestra, **Then** aparece el botón flotante «Escríbenos por WhatsApp», que abre WhatsApp con el mensaje
+   «Hola R Cube, tengo una consulta.», y el pie de página trae el enlace «WhatsApp».
+4. **Given** una tienda sin número de WhatsApp configurado, **When** se abre cualquier pantalla, **Then** no
+   se muestra ningún botón ni enlace de WhatsApp y no hay errores.
+5. **Given** que el administrador cambia el número en la configuración, **When** el cliente recarga la
+   tienda, **Then** los botones usan el número nuevo sin publicar de nuevo.
+6. **Given** un producto cuyo nombre lleva tildes, comillas o el símbolo &, **When** se abre WhatsApp,
+   **Then** el mensaje llega completo y sin caracteres rotos.
+
+---
+
+### User Story 7 - Escribir al cliente por WhatsApp desde el panel (Priority: P3)
+
+El administrador, desde el detalle de un pedido o de un cliente, pulsa «Escribir por WhatsApp» y se abre
+WhatsApp con el celular del cliente y un saludo listo (con el número de pedido si lo hace desde el pedido).
+
+**Why this priority**: La tienda confirma pagos de Yape, Plin y transferencia y coordina por WhatsApp
+(HU-36); escribir al cliente desde el mismo panel ahorra copiar números (M, HU-60).
+
+**Independent Test**: Como administrador abrir el pedido de un cliente con celular y pulsar el botón: se
+abre `wa.me` con 51 más el celular y el saludo con el número del pedido; en un cliente sin celular el botón
+aparece deshabilitado con el aviso «Sin celular válido».
+
+**Acceptance Scenarios**:
+
+1. **Given** un pedido de un cliente con celular de 9 dígitos, **When** el administrador pulsa «Escribir por
+   WhatsApp», **Then** se abre WhatsApp con el número 51 más el celular y el mensaje «Hola <nombre>, te
+   escribimos de R Cube por tu pedido RC-000001.».
+2. **Given** el detalle de un cliente, **When** el administrador pulsa el botón, **Then** el mensaje es «Hola
+   <nombre>, te escribimos de R Cube.».
+3. **Given** un cliente sin celular o con un celular que no es peruano de 9 dígitos que empiece con 9,
+   **When** el administrador abre su pedido o su ficha, **Then** el botón aparece deshabilitado con «Sin
+   celular válido» y no abre nada.
+4. **Given** un celular escrito con espacios, guiones o el prefijo +51 (por ejemplo «+51 987-654 321»),
+   **When** se pulsa el botón, **Then** se usa el número normalizado 51987654321.
+
+---
+
 ### Edge Cases
 
-- **Producto con 6 fotos y variantes con foto propia**: las fotos de las variantes forman parte de las 6 del
-  producto (límite de la feature 002); no hay un conjunto aparte.
+- **Producto con el máximo de 8 fotos y variantes con foto propia**: las fotos de las variantes forman
+  parte de las 8 del producto (límite que esta feature sube de 6 a 8); no hay un conjunto aparte.
 - **Pantalla de 320 px de ancho**: la galería, las miniaturas, la vista ampliada, el bloque de destacados y
   la página de créditos no producen desplazamiento horizontal de la página; las miniaturas se desplazan
   dentro de su propia franja.
@@ -214,7 +288,7 @@ la página de origen.
 - **Conexión lenta**: la primera foto se pide con prioridad y las demás se cargan cuando se necesitan; el
   espacio de la foto grande está reservado, así que el diseño no salta al cargarla.
 - **El administrador deja un producto con 0 fotos**: se muestra la imagen genérica; con 1 foto no hay
-  controles; el mínimo de 3 fotos solo se exige a los datos de demostración, no a los productos que crea el
+  controles; el mínimo de 4 fotos solo se exige a los datos de demostración, no a los productos que crea el
   administrador.
 - **El administrador sube una foto nueva** (feature 002): aparece al final de la galería y pasa a ser la
   principal solo si él la marca.
@@ -225,9 +299,16 @@ la página de origen.
   ajustan a la línea siguiente sin desbordar.
 - **La fuente externa deja de estar disponible**: la tienda no se ve afectada, porque las fotos se sirven
   desde la propia tienda; el enlace de origen puede dejar de abrir, pero el crédito sigue visible.
-- **Una tarjeta gráfica de características y el administrador cambia las especificaciones del producto**:
-  la tarjeta no se vuelve a generar sola; sigue mostrando los datos con que se creó (limitación declarada
-  en Assumptions).
+- **Las tarjetas gráficas y el administrador cambia las especificaciones, la frase o los destacados del
+  producto**: las tarjetas no se vuelven a generar solas; siguen mostrando los datos con que se crearon
+  (limitación declarada en Assumptions).
+- **WhatsApp sin número configurado o con un número vacío**: la tienda no muestra botones ni enlaces de
+  WhatsApp y no falla; el panel no se ve afectado.
+- **El botón flotante de WhatsApp en pantallas pequeñas**: no tapa «Agregar al carrito», los totales ni los
+  botones de pago; deja margen a los bordes, no aparece al imprimir y la vista ampliada de fotos queda por
+  encima de él.
+- **Celular del cliente con otro formato** (fijo, con menos de 9 dígitos, o de otro país): el botón del
+  panel aparece deshabilitado; nunca se abre WhatsApp con un número inventado.
 
 ## Requirements *(mandatory)*
 
@@ -308,17 +389,20 @@ la página de origen.
 
 **Datos de demostración**
 
-- **FR-025**: Cada uno de los 37 productos activos de demostración MUST tener entre 3 y 6 fotos. La primera
+- **FR-025**: Cada uno de los 37 productos activos de demostración MUST tener entre 4 y 6 fotos. La primera
   MUST mostrar un único equipo, completo y reconocible; MUST NOT ser una foto con varios equipos, de la
   parte inferior del equipo, de un componente interno ni de otro modelo.
-- **FR-026**: Las fotos adicionales MUST ser, siempre que exista una buena foto con licencia libre, fotos
-  reales del mismo modelo o del mismo tipo de producto desde otros ángulos (frente, parte trasera, lateral,
-  en uso). Cuando no la haya, MUST completarse con una tarjeta gráfica de características.
-- **FR-027**: La tarjeta gráfica de características MUST generarse con el estilo de R Cube (colores y
-  tipografía de la tienda) y mostrar solo datos que el producto ya tiene (nombre, marca y especificaciones);
-  MUST NOT inventar características ni imitar una foto real, y su texto alternativo MUST listar los datos
-  que muestra. Cada producto tiene como máximo una y MUST ser la última foto de su galería en los datos de
-  demostración.
+- **FR-026**: Cada producto activo de demostración MUST tener de 1 a 3 fotos reales o del proyecto (la
+  primera es la principal) y MUST completarse con exactamente 3 tarjetas gráficas al final. Las fotos reales
+  adicionales MUST ser, siempre que exista una buena foto con licencia libre, fotos del mismo modelo o del
+  mismo tipo de producto desde otros ángulos (frente, parte trasera, lateral, en uso).
+- **FR-027**: Las tarjetas gráficas MUST ser tres por producto y ocupar las últimas posiciones de su galería
+  en este orden: **características** (marca, nombre y hasta 4 especificaciones del producto),
+  **destacados** (la frase y los destacados del producto) y **compra segura** (las 4 formas de pago, la
+  entrega por zona o el recojo en tienda, el IGV incluido y la atención por WhatsApp). MUST generarse con
+  el estilo de R Cube (colores y tipografía de la tienda, con un diseño cuidado de ficha de producto),
+  mostrar solo datos que el producto o la tienda ya tienen (sin precios, plazos ni garantías inventados),
+  MUST NOT imitar una foto real, y su texto alternativo MUST listar los datos que muestran.
 - **FR-028**: Cada foto de demostración MUST tener un texto alternativo en español que describa lo que se
   ve, distinto de las demás fotos del mismo producto.
 - **FR-029**: Cada producto activo de demostración MUST tener una frase y entre 3 y 5 destacados en español
@@ -332,17 +416,39 @@ la página de origen.
   muestra el equipo correcto, y MUST retirarse de la galería de ese producto (sin borrar su archivo) si
   induce a error: varios equipos, parte inferior o interna, u otro modelo.
 - **FR-032**: En los productos con variantes, las fotos propias de las variantes MUST contarse dentro del
-  rango de 3 a 6 fotos.
+  rango de 4 a 6 fotos.
+
+**Contacto por WhatsApp (HU-59, HU-60)**
+
+- **FR-037**: El detalle del producto MUST mostrar el botón «Consultar por WhatsApp», que abre `wa.me` en una
+  pestaña nueva (sin dar acceso a la página de la tienda) con el número de la tienda y un mensaje que
+  nombra el producto, la variante elegida si la hay y el enlace al producto, correctamente codificado.
+- **FR-038**: Todas las pantallas de la tienda, salvo el checkout, el comprobante y el panel, MUST mostrar un
+  botón flotante «Escríbenos por WhatsApp» con el mensaje «Hola R Cube, tengo una consulta.»; el pie de
+  página MUST incluir el enlace «WhatsApp». El botón flotante MUST NOT aparecer al imprimir, MUST NOT tapar
+  los controles principales de las pantallas de la tienda y MUST quedar por debajo de la vista ampliada de
+  fotos.
+- **FR-039**: El número MUST salir de la configuración de la tienda (HU-41) mediante una consulta pública que
+  devuelve solo el nombre y el número de WhatsApp de la tienda; si no hay número configurado, la tienda MUST
+  NOT mostrar ningún botón ni enlace de WhatsApp. Un cambio del número MUST reflejarse sin publicar de nuevo.
+- **FR-040**: El detalle de un pedido y el de un cliente en el panel MUST ofrecer el botón «Escribir por
+  WhatsApp», que abre `wa.me` con el celular del cliente (51 más 9 dígitos que empiezan con 9) y un saludo
+  con su nombre, y con el número de pedido cuando se usa desde el pedido. Los celulares se normalizan
+  (espacios, guiones y prefijo +51). Si no hay un celular válido, el botón MUST aparecer deshabilitado con
+  «Sin celular válido» y MUST NOT abrir nada.
+- **FR-041**: Los botones de WhatsApp MUST NOT registrar nada en el servidor ni integrar un chat: solo abren
+  el enlace `wa.me`.
 
 **Compatibilidad y calidad**
 
 - **FR-033**: Las fotos que el administrador sube desde el panel MUST seguir funcionando como en la feature
-  002 (hasta 6, JPG, PNG o WebP de hasta 2 MB, foto principal, orden y borrado) y aparecer en la galería;
-  el mínimo de 3 fotos MUST NOT exigirse a los productos que crea el administrador.
+  002 pero con un tope de 8 fotos por producto (antes 6; el mensaje al superarlo es «Máximo 8 fotos por
+  producto»), JPG, PNG o WebP de hasta 2 MB, foto principal, orden y borrado, y aparecer en la galería; el
+  mínimo de 4 fotos MUST NOT exigirse a los productos que crea el administrador.
 - **FR-034**: El carrito, el checkout, los pedidos y los favoritos MUST seguir usando la foto principal del
   producto (o la foto propia de la variante elegida, como en la feature 003) sin cambios de comportamiento.
-- **FR-035**: La galería, la vista ampliada, el bloque de destacados, el formulario de destacados y la
-  página de créditos MUST cumplir WCAG 2.2 AA en tema claro y oscuro, con foco visible y uso completo con
+- **FR-035**: La galería, la vista ampliada, el bloque de destacados, el formulario de destacados, la
+  página de créditos y los botones de WhatsApp MUST cumplir WCAG 2.2 AA en tema claro y oscuro, con foco visible y uso completo con
   teclado (RNF-03).
 - **FR-036**: Todo texto nuevo MUST estar en español de Perú (RNF-01).
 
@@ -350,11 +456,14 @@ la página de origen.
 
 - **Foto de producto** (existente): imagen de un producto con dirección, texto alternativo y posición; la
   primera es la principal. Ahora puede llevar un **crédito** opcional (autor, licencia y enlace de origen).
-  Una foto puede ser una fotografía o una tarjeta gráfica de características.
+  Una foto puede ser una fotografía o una de las tres tarjetas gráficas (características, destacados y
+  compra segura).
 - **Crédito de foto**: autor, nombre de la licencia y enlace de origen de una foto tomada de una fuente
   libre. Se muestra en la página de créditos.
 - **Destacados del producto**: frase corta opcional y lista ordenada de 0 a 5 viñetas de un producto, en
   texto plano.
+- **Contacto de WhatsApp de la tienda** (existente en la configuración, HU-41): nombre y número de la tienda,
+  ahora consultables de forma pública (solo esos dos datos) para armar los botones de WhatsApp.
 - **Entrada de auditoría** (existente): ahora también registra los cambios de frase y destacados.
 
 ## Success Criteria *(mandatory)*
@@ -364,8 +473,8 @@ la página de origen.
 - **SC-001**: En un producto de 5 fotos, un cliente llega a cualquiera de ellas en 4 gestos o menos (tocar
   una miniatura, o tocar o deslizar una vez por foto) y en todo momento sabe en cuál está gracias al
   contador.
-- **SC-002**: El 100 % de los 37 productos activos de demostración tiene de 3 a 6 fotos, una frase y de 3 a
-  5 destacados.
+- **SC-002**: El 100 % de los 37 productos activos de demostración tiene de 4 a 6 fotos (con sus 3
+  tarjetas), una frase y de 3 a 5 destacados.
 - **SC-003**: Una persona no técnica que revisa los 37 productos de demostración confirma que la primera
   foto de cada uno muestra un único equipo reconocible (revisión guiada con la lista de `quickstart.md`).
 - **SC-004**: El 100 % de las fotos de demostración tomadas de una fuente externa aparece en la página de
@@ -378,15 +487,19 @@ la página de origen.
   todas pasan la revisión automática de accesibilidad AA en tema claro y oscuro.
 - **SC-008**: Un producto de demostración con 6 fotos descarga como máximo 1.2 MB de fotos en total aunque
   el cliente las vea todas, y su primera foto aparece sin que el diseño se mueva.
-- **SC-009**: Todas las pruebas de las features 001 a 003 siguen pasando, y cada historia HU-54 a HU-58
+- **SC-009**: Todas las pruebas de las features 001 a 003 siguen pasando, y cada historia HU-54 a HU-60
   tiene al menos una prueba automática que la nombra.
+- **SC-010**: Un visitante abre una consulta por WhatsApp sobre el producto que está viendo en 2 acciones
+  o menos (ver el producto y pulsar el botón), y el mensaje nombra ese producto y su variante.
+- **SC-011**: Un administrador abre WhatsApp con el cliente de un pedido en 2 acciones o menos (abrir el
+  pedido y pulsar el botón), con el número de pedido en el saludo.
 
 ## Assumptions
 
-- El tope de 6 fotos por producto, los formatos (JPG, PNG o WebP), el peso máximo de 2 MB al subir y la
-  foto principal con orden son los de la feature 002 y no cambian.
-- Los datos de demostración usan de 3 a 5 fotos por producto (dentro del rango de 3 a 6 de FR-025 y SC-002)
-  para dejar al menos un lugar libre del tope de 6 a las fotos que suba el administrador.
+- Los formatos (JPG, PNG o WebP), el peso máximo de 2 MB al subir y la foto principal con orden son los de
+  la feature 002 y no cambian; el tope de fotos por producto sube de 6 a 8 (HU-31 actualizada).
+- Los datos de demostración usan de 4 a 6 fotos por producto (1 a 3 reales o del proyecto y 3 tarjetas), lo
+  que deja al menos 2 lugares libres del tope de 8 a las fotos que suba el administrador.
 - La frase y los destacados son texto plano en un solo idioma (español de Perú); no admiten formato, enlaces
   ni emojis obligatorios. No se reordenan: el orden es el que escribe el administrador.
 - La navegación de la galería es circular (FR-003); es una decisión de diseño por defecto, no una
@@ -394,7 +507,9 @@ la página de origen.
 - Las fotos adicionales de demostración se descargan una sola vez de Wikimedia Commons al preparar los datos
   de demostración y se guardan junto a la tienda; la tienda no depende de ese sitio mientras funciona.
 - Las tarjetas gráficas se generan una vez como parte de los datos de demostración, con los datos del
-  producto en ese momento; no se regeneran solas si el administrador cambia las especificaciones después.
+  producto y de la tienda en ese momento (por ejemplo, las formas de pago activas de la configuración
+  inicial); no se regeneran solas si el administrador cambia las especificaciones, la frase, los destacados
+  o los métodos de pago después. Las fotos de Commons nunca se mezclan dentro de las tarjetas.
 - Las fotos originales de `docs/fotos` las aportó el equipo del proyecto y su autor y licencia no están
   registrados (clarificación 2026-11-16): la página de créditos las agrupa como «Fotos aportadas por el
   proyecto» y queda como riesgo declarado confirmar su origen antes de publicar la tienda.
@@ -404,7 +519,10 @@ la página de origen.
   cursor ni se agrega la calificación (decisión de alcance).
 - La frase y los destacados se escriben una vez por producto y no por variante.
 - Los pedidos creados antes de esta feature no cambian.
+- El contacto por WhatsApp usa solo enlaces `wa.me` (sin API de WhatsApp Business, sin chat integrado y sin
+  mensajes automáticos); el número de la tienda es el de la configuración (HU-41) y el celular del cliente
+  es el de su cuenta (cliente peruano: 51 más 9 dígitos que empiezan con 9).
 - Fuera de alcance (REQUISITOS §1 o pedido del cliente): video, vista 360, lupa que sigue al cursor,
   imágenes generadas con IA que simulen fotos reales de un equipo, cambios en carrito, checkout o pedidos,
-  correos, facturación electrónica real, varios vendedores, pasarelas de pago reales, aplicación móvil
+  chat integrado o WhatsApp Business API, correos, facturación electrónica real, varios vendedores, pasarelas de pago reales, aplicación móvil
   nativa, varios idiomas y varias monedas.

@@ -6,7 +6,7 @@ Todas las rutas son JSON bajo `/api`. Errores con la forma de las features anter
 datos escribe la auditoría en la misma transacción. Esta feature no cambia las rutas de carrito, checkout,
 pedidos, favoritos ni las de fotos del panel (`/admin/products/:id/images…`).
 
-## Catálogo (HU-54, HU-56, HU-58)
+## Catálogo (HU-54, HU-56, HU-58, HU-59)
 
 - **P** `GET /catalog/products/:slug` → `ProductDetail` agrega:
   - `tagline: string` (frase corta; `""` si no tiene).
@@ -29,6 +29,9 @@ pedidos, favoritos ni las de fotos del panel (`/admin/products/:id/images…`).
     ordenados por nombre (se muestran juntos como «Fotos aportadas por el proyecto»).
   - Las fotos con `origin = 'subida'` o `'tarjeta'` no aparecen. Sin créditos devuelve
     `{ external: [], project: [] }` con 200.
+- **P** `GET /catalog/contact` → `{ name: string, whatsappNumber: string }` (HU-59, FR-039): el nombre y el
+  número de WhatsApp de la tienda tomados de `store_settings`, el número solo con dígitos y `""` si no está
+  configurado. No devuelve ningún otro dato de la configuración (ni métodos de pago ni cuentas).
 - Sin cambios en `GET /catalog/products`, `/catalog/home` ni `/catalog/products/:slug/related`: las tarjetas
   siguen mostrando solo la foto principal (`imageUrl`).
 
@@ -47,8 +50,11 @@ pedidos, favoritos ni las de fotos del panel (`/admin/products/:id/images…`).
     «Frase y destacados de X actualizados» con `before` y `after` (`{ tagline, highlights }`). Si ese es el
     único cambio reemplaza a la entrada genérica «Datos de X actualizados»; si cambió también el precio se
     registran las dos entradas (`precio_cambiado` y `producto_editado`).
-- Sin cambios en `POST /products/:id/images` y demás rutas de fotos: una foto subida entra con
-  `origin = 'subida'` y sin crédito; el tope de 6 fotos y la validación de tipo y peso son los de la 002.
+- `POST /products/:id/images` (HU-31, FR-033): el tope pasa de 6 a 8 fotos por producto; al superarlo
+  responde 409 `MAX_IMAGES` «Máximo 8 fotos por producto». Una foto subida entra con `origin = 'subida'` y
+  sin crédito; la validación de tipo y peso y las demás rutas de fotos son las de la 002.
+- Sin cambios de ruta para HU-60: `GET /orders/:number` del panel ya devuelve `customer.phone` y `GET
+  /customers/:id` devuelve `phone`; el enlace `wa.me` se arma en el navegador.
 
 ## Errores de validación (400 `VALIDATION`, `fields` por campo)
 

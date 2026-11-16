@@ -92,7 +92,8 @@ punto por aclarar. Formato: decisión, razón, alternativas descartadas.
   candidatas con licencia admitida (CC0, dominio público, CC BY y CC BY-SA, nunca NC ni ND); cada foto
   elegida se mira a mano (herramienta de lectura de imágenes) y se acepta solo si muestra el equipo correcto.
   Se usa un `User-Agent` genérico de proyecto educativo, sin datos personales. En la demostración cada
-  producto lleva como máximo 5 fotos (queda un lugar libre del tope de 6 para las fotos del panel).
+  producto lleva de 4 a 6 fotos (de 1 a 3 reales y 3 tarjetas), lo que deja 2 lugares libres del tope de 8 para
+  las fotos del panel.
 - **Razón**: es la fuente que ya usan las fotos originales del proyecto y expone licencia y autor como
   datos, lo que permite cumplir FR-021 de forma comprobable.
 - **Alternativas**: sitios de fotos de stock (descartadas: licencias propias y sin API uniforme de
@@ -115,17 +116,28 @@ punto por aclarar. Formato: decisión, razón, alternativas descartadas.
 - **Alternativas**: `sharp` (descartada: módulo nativo y dependencia nueva); reducir con miniaturas de
   Commons (descartada: los PNG siguen pesando más de 200 KB).
 
-## R9. Tarjetas gráficas de características
+## R9. Tres tarjetas gráficas por producto
 
-- **Decisión**: `tarjetas.ts` renderiza con Playwright una plantilla HTML de 1 000 × 1 000 px con el logo de
-  R Cube, la marca, el nombre del producto y hasta 4 especificaciones del propio producto (etiqueta y valor
-  tal como están en el seed), con los colores del tema (`--accent`, fondo oscuro con degradado). La imagen es
-  fija y de buen contraste en ambos temas. Su texto alternativo lista los datos que muestra (FR-027). Es la
-  última foto de la galería (clarificación 3) y `origin = tarjeta`. Las tarjetas no incluyen fotos de
-  Commons: así ninguna foto con licencia de compartir igual queda mezclada dentro de otra imagen.
-- **Razón**: da una imagen llamativa y verídica cuando no hay buena foto libre y no inventa nada.
-- **Alternativas**: imágenes generadas con IA (fuera de alcance); composiciones con la foto del producto
-  sobre un degradado (descartada: tocaría las fotos de Commons y complica la licencia).
+- **Decisión**: `tarjetas.ts` renderiza con Playwright, a partir de plantillas HTML de 1 000 × 1 000 px con
+  los tokens de R Cube (fondo oscuro con degradado, acento `#3b93ff`, texto `#f5f5f7`, el logo de
+  `public/img/logo.png` y una tipografía sans de sistema), **tres tarjetas por producto**, siempre al final de
+  su galería y en este orden: (1) **características**: marca, nombre y hasta 4 especificaciones del propio
+  producto, cada una con un icono vectorial según su etiqueta (pantalla, almacenamiento, cámara, batería,
+  RAM, procesador, y una marca de verificación por defecto); (2) **destacados**: la frase en grande y los
+  destacados con marcas de verificación; (3) **compra segura**: las 4 formas de pago (tarjeta, Yape o Plin,
+  transferencia y WhatsApp), la entrega por zona o el recojo en tienda, el IGV incluido y la atención por
+  WhatsApp. Ningún texto afirma precios, plazos ni garantías que el sistema no tenga. Todas son imágenes
+  fijas con buen contraste propio; sus textos alternativos listan lo que muestran (FR-027, FR-028). Las
+  tarjetas **no** incluyen fotos de Commons: así ninguna foto con licencia de compartir igual queda mezclada
+  dentro de otra imagen. Cada una es una fila de `product_image` con `origin = 'tarjeta'`; el manifiesto las
+  distingue con `card: "caracteristicas" | "destacados" | "compra"`.
+- **Razón**: replica lo que hacen las fichas de AliExpress (varias imágenes de información además de las
+  fotos) con contenido verídico y propio; y no depende de la calidad de las fotos libres, que varía.
+- **Alternativas**: imágenes generadas con IA (fuera de alcance); composiciones con la foto del producto sobre
+  un degradado (descartada: modificaría las fotos de Commons y complica la licencia); una sola tarjeta
+  (descartada: no alcanza el nivel de detalle que se pidió).
+- **Limitación declarada**: las tarjetas se generan una vez; si el administrador cambia especificaciones,
+  frase, destacados o métodos de pago, hay que volver a ejecutar `npm run fotos:tarjetas` y el seed.
 
 ## R10. Crédito en `product_image`
 
@@ -165,14 +177,52 @@ punto por aclarar. Formato: decisión, razón, alternativas descartadas.
 
 ## R13. Estrategia de pruebas
 
-- **Decisión**: unitarias (`highlights`, `photo-credit` y la integridad del manifiesto: cada producto activo
-  con 3 a 5 fotos, textos alternativos distintos, frase ≤ 90, de 3 a 5 destacados ≤ 60, cada archivo existe,
-  pesa ≤ 200 KB y mide ≤ 1 200 px, la tarjeta es la última, cada foto externa trae autor, licencia admitida
-  y enlace); de API (editar frase y destacados con límites, normalización, auditoría, permisos 401 y 403,
+- **Decisión**: unitarias (`highlights`, `photo-credit`, `whatsapp` y la integridad del manifiesto: cada
+  producto activo con 4 a 6 fotos, de 1 a 3 reales y 3 tarjetas al final en orden, textos alternativos
+  distintos, frase ≤ 90, de 3 a 5 destacados ≤ 60, cada archivo existe, pesa ≤ 200 KB y mide ≤ 1 200 px,
+  cada foto externa trae autor, licencia admitida y enlace); de API (editar frase y destacados con límites, normalización, auditoría, permisos 401 y 403,
   detalle con los campos nuevos, `photo-credits`, copia de `origin` y la restricción del crédito); e2e
   (galería con flechas, miniaturas, teclado y desplazamiento de la pista; vista ampliada con Escape y retorno
-  del foco; edición en el panel; créditos desde el pie) y accesibilidad ampliada (detalle con galería, vista
+  del foco; edición en el panel; créditos desde el pie; WhatsApp en el producto, flotante y en el panel con el
+  enlace `wa.me` esperado) y accesibilidad ampliada (detalle con galería, vista
   abierta y créditos, ambos temas, sin desborde a 320 px). El deslizar con el dedo se prueba desplazando la
   pista (`scrollLeft`), porque Playwright no tiene un gesto de deslizar.
 - **Razón**: una prueba por regla (principio VI) y la revisión humana de la calidad visual en el
   quickstart.
+
+## R14. Contacto por WhatsApp con enlaces `wa.me`
+
+- **Decisión**: todo es del lado del navegador, sin chat ni API de WhatsApp Business. `GET
+  /api/catalog/contact` (pública) devuelve `{ name, whatsappNumber }` leídos de `store_settings`, con el número
+  solo en dígitos (`""` si no hay). El hook `useStoreContact` (TanStack Query, `staleTime` de 5 minutos) lo
+  pide una sola vez para toda la tienda. `src/shared/whatsapp.ts` suma funciones puras y con prueba
+  unitaria: `productInquiryUrl(number, { name, variantLabel?, url })` (mensaje «Hola R Cube, quiero
+  información de <nombre> (<variante>). <enlace>»), `generalInquiryUrl(number)` («Hola R Cube, tengo una
+  consulta.»), `peruvianWhatsappNumber(phone)` (quita espacios, guiones y paréntesis; acepta `987654321`,
+  `51987654321` y `+51 987 654 321`; devuelve `51` más 9 dígitos que empiezan con 9, o `null`) y
+  `customerWhatsappUrl(phone, { name, orderNumber? })` (saludo «Hola <nombre>, te escribimos de R Cube por tu
+  pedido RC-000001.»). Todo texto va con `encodeURIComponent`. Componentes: `WhatsAppButton` (detalle del
+  producto, con la variante elegida), `WhatsAppFloat` (botón flotante dentro de `Layout`, oculto en
+  `/checkout`, en el comprobante y al imprimir, y con `z-index` por debajo del `Dialog` de fotos) y un enlace
+  «WhatsApp» en el pie. En el panel, `OrderDetail` y `CustomerDetail` reutilizan `customerWhatsappUrl` con el
+  celular que esas pantallas ya reciben (`customer.phone`); sin celular válido el botón queda deshabilitado
+  con «Sin celular válido». Los enlaces abren en pestaña nueva con `rel="noopener noreferrer"`.
+- **Razón**: la tienda ya usa `wa.me` en el checkout (HU-20); un enlace no requiere servidor, ni cuentas, ni
+  costos, ni guarda datos (principio I, V).
+- **Alternativas**: WhatsApp Business API o un chat integrado (fuera de alcance: costo, cuentas y
+  verificación); leer el número desde `checkout/options` (descartada: exige sesión y trae datos de pago);
+  incluir el número en el HTML al compilar (descartada: no reflejaría el cambio del panel sin publicar).
+- **Riesgo**: un botón flotante puede tapar contenido en móvil. Mitigación: tamaño de 56 px con margen de
+  16 px, oculto en checkout y comprobante, sin tapar «Agregar al carrito» (que no es fijo) y comprobado en
+  las e2e a 320 px.
+
+## R15. Tope de 8 fotos por producto
+
+- **Decisión**: `MAX_IMAGES` de `src/worker/services/images.ts` pasa de 6 a 8 y el mensaje a «Máximo 8 fotos
+  por producto». No cambia el esquema. Se actualizan las pruebas de la feature 002 que esperan 6 y el
+  criterio de HU-31 en `docs/requisitos/` (la spec de la 002 queda como registro histórico y esta spec lo
+  declara en FR-033).
+- **Razón**: la demostración usa hasta 6 fotos y debe quedar espacio para las que suba el administrador; 8 es
+  un valor habitual en las fichas de este tipo de tiendas.
+- **Alternativas**: mantener 6 (descartada: una demostración con 6 deja al administrador sin espacio);
+  sin tope (descartada: sin límite de almacenamiento en R2 ni de carga de la galería).
