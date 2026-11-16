@@ -488,7 +488,7 @@ tienda, con el número de la configuración (HU-59).
 
 ### Tests for User Story 7 (escribir primero, deben fallar)
 
-- [ ] T060 [P] [US7] Prueba e2e `e2e/admin-whatsapp.spec.ts` (HU-60, FR-040, SC-011): como administrador, en el
+- [X] T060 [P] [US7] Prueba e2e `e2e/admin-whatsapp.spec.ts` (HU-60, FR-040, SC-011): como administrador, en el
   detalle de un pedido de `mateo@demo.pe` el botón «Escribir por WhatsApp» tiene `href` `https://wa.me/51<celular>?text=` (51 más el celular de la demostración, `987654321`) con el saludo «Hola Mateo Quispe, te escribimos de R Cube por
   tu pedido RC-…», y en su ficha de cliente el saludo sin número de pedido; con la respuesta del detalle
   interceptada con `phone: ""` o `phone: "12345"` el botón aparece deshabilitado con «Sin celular válido» y no
@@ -497,11 +497,11 @@ tienda, con el número de la configuración (HU-59).
 
 ### Implementation for User Story 7
 
-- [ ] T061 [US7] Crear `src/web/admin/components/WhatsAppLink.tsx` (botón «Escribir por WhatsApp» que usa
+- [X] T061 [US7] Crear `src/web/admin/components/WhatsAppLink.tsx` (botón «Escribir por WhatsApp» que usa
   `customerWhatsappUrl`; sin celular válido es un botón deshabilitado con el texto «Sin celular válido» y
   `aria-disabled`) y usarlo en `src/web/admin/pages/OrderDetail.tsx` (con el número de pedido) y en
   `src/web/admin/pages/CustomerDetail.tsx`; pasar T060 (HU-60, FR-040)
-- [ ] T062 [US7] Commit de cierre de fase tras confirmar que `e2e/admin.spec.ts` sigue en verde (HU-60,
+- [X] T062 [US7] Commit de cierre de fase tras confirmar que `e2e/admin.spec.ts` sigue en verde (HU-60,
   SC-011)
 
 **Checkpoint**: las siete historias completas.

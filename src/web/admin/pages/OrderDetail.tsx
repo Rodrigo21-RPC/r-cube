@@ -16,6 +16,7 @@ import { Button } from "@web/components/ui/button";
 import { Select } from "@web/components/ui/form";
 import { Card } from "@web/components/ui/misc";
 import { ConfirmDialog } from "../components/ConfirmDialog";
+import { WhatsAppLink } from "../components/WhatsAppLink";
 import { PaymentActions } from "./Payments";
 
 const ACTOR = { cliente: "Cliente", administrador: "R Cube", sistema: "Sistema" } as const;
@@ -58,6 +59,7 @@ export default function OrderDetail() {
           <StatusBadge status={o.status} />
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <WhatsAppLink phone={o.customer.phone} name={o.customer.name} orderNumber={o.number} />
           {o.status === "pending_payment" && <PaymentActions number={o.number} onDone={refresh} />}
           {next.length > 0 && (
             <form className="flex items-center gap-2" onSubmit={(e) => { e.preventDefault(); if (to) void change(to).catch((x: Error) => toast.error(x.message)); }}>
