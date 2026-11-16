@@ -36,6 +36,7 @@
   productos activos) quedan cubiertos por FR-025 a FR-032 y por el escenario 8 de US1.
 - Las HU-54 a HU-58 se agregaron a `docs/requisitos/HISTORIAS-DE-USUARIO.md` y el párrafo de datos de
   demostración a `docs/requisitos/REQUISITOS.md` (la copia de la carpeta superior se sincronizó).
-- Decisiones por defecto a confirmar en `/speckit-clarify`: navegación circular, tope de peso de las fotos,
-  qué hacer con las fotos originales de `docs/fotos` sin autor registrado y cuándo se regeneran las tarjetas.
+- Las decisiones de detalle (crédito de las fotos originales, qué hacer con una original poco útil, posición
+  de la tarjeta de características, sin zoom propio y búsqueda sin cambios) se confirmaron en
+  `/speckit-clarify` (sesión 2026-11-16, 5 preguntas). La navegación circular es una decisión de diseño.
 - Riesgo declarado: el autor y la licencia de las fotos originales de `docs/fotos` no están registrados.

@@ -20,6 +20,25 @@ tarjetas y los diálogos de las features anteriores, en tema claro y oscuro (`do
 frase llamativa y las viñetas de destacados se inspira en la forma de presentar un producto de AliExpress;
 no se copian textos, imágenes ni marca de ningún sitio.
 
+## Clarifications
+
+### Session 2026-11-16
+
+- Q: ¿Cómo se acreditan las fotos originales de `docs/fotos`, cuyo autor y licencia no están registrados?
+  → A: Se agrupan en la página de créditos como «Fotos aportadas por el proyecto», sin autor individual, y
+  el riesgo queda declarado en Assumptions; las fotos de Commons llevan crédito completo.
+- Q: ¿Qué pasa con la foto original de un producto cuando no sirve como foto principal (cuatro iPhone en una
+  sola foto, el MSI visto por debajo)? → A: Una foto mejor pasa a ser la principal; la original queda como
+  foto posterior solo si muestra el equipo correcto, y se retira de la galería de ese producto si induce a
+  error (varios equipos, parte inferior u otro modelo). El archivo siempre se conserva.
+- Q: ¿En qué posición va la tarjeta gráfica de características dentro de la galería? → A: Siempre es la
+  última foto: las fotos reales abren la galería y la tarjeta cierra con la información de un vistazo.
+- Q: ¿La vista ampliada permite acercar más la foto con gestos propios? → A: No: muestra la foto al mayor
+  tamaño que quepa y no bloquea el pellizco nativo del navegador; el zoom propio queda fuera de alcance.
+- Q: ¿La búsqueda del catálogo debe encontrar productos también por la frase y los destacados? → A: No: la
+  búsqueda del catálogo y la del panel siguen igual (nombre, marca y descripción), porque los destacados
+  resumen lo que ya dicen la descripción y las especificaciones.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Ver varias fotos del producto en una galería (Priority: P1)
@@ -247,7 +266,8 @@ la página de origen.
   control que la abrió y la galería MUST quedar en la foto en que se quedó la vista. Mientras está abierta,
   el foco MUST permanecer dentro de ella y la página de fondo MUST NOT desplazarse. Tiene nombre accesible.
 - **FR-012**: Dentro de la vista ampliada el cliente MUST poder cambiar de foto con las flechas del teclado,
-  los botones y, en pantallas táctiles, deslizando.
+  los botones y, en pantallas táctiles, deslizando. La vista MUST NOT ofrecer zoom propio (doble toque o
+  arrastre) ni bloquear el pellizco nativo del navegador.
 - **FR-013**: Las aperturas, cierres y cambios de foto MUST respetar la preferencia de reducir el movimiento
   (sin animaciones).
 
@@ -259,7 +279,8 @@ la página de origen.
   antes de las opciones de compra; si no hay ninguno MUST NOT mostrar el bloque ni dejar espacio vacío.
 - **FR-016**: La frase y los destacados MUST mostrarse siempre como texto, aunque contengan símbolos de HTML.
 - **FR-017**: La descripción larga y las especificaciones del producto MUST NOT cambiar: los destacados las
-  complementan y no las reemplazan.
+  complementan y no las reemplazan. La búsqueda del catálogo y la del panel MUST seguir igual (nombre, marca
+  y descripción) y MUST NOT considerar la frase ni los destacados.
 - **FR-018**: El administrador MUST poder escribir, editar y quitar la frase y los destacados en el
   formulario del producto, al crear y al editar. El servidor MUST validar los límites del FR-014, recortar
   espacios, descartar los destacados vacíos y responder con mensajes por campo: «La frase no puede pasar de
@@ -277,7 +298,9 @@ la página de origen.
   incluirse en los datos de demostración.
 - **FR-022**: La tienda MUST ofrecer una página pública «Créditos de las fotos», enlazada desde el pie de
   página, que liste cada foto con crédito: producto (con enlace a su detalle), autor, licencia y enlace al
-  origen, con un estado vacío cuando no haya ninguna.
+  origen, con un estado vacío cuando no haya ninguna. Las fotos originales aportadas por el proyecto, que no
+  tienen autor registrado, MUST aparecer juntas en un grupo «Fotos aportadas por el proyecto» con los
+  productos a los que pertenecen, sin autor ni licencia individual.
 - **FR-023**: Las fotos subidas por el administrador y las tarjetas gráficas MUST NOT aparecer en la lista
   de créditos; la página MUST aclarar que las tarjetas de características son de R Cube.
 - **FR-024**: Los enlaces de origen MUST abrirse en una pestaña nueva sin dar acceso a la página de la
@@ -294,7 +317,8 @@ la página de origen.
 - **FR-027**: La tarjeta gráfica de características MUST generarse con el estilo de R Cube (colores y
   tipografía de la tienda) y mostrar solo datos que el producto ya tiene (nombre, marca y especificaciones);
   MUST NOT inventar características ni imitar una foto real, y su texto alternativo MUST listar los datos
-  que muestra. Cada producto tiene como máximo una.
+  que muestra. Cada producto tiene como máximo una y MUST ser la última foto de su galería en los datos de
+  demostración.
 - **FR-028**: Cada foto de demostración MUST tener un texto alternativo en español que describa lo que se
   ve, distinto de las demás fotos del mismo producto.
 - **FR-029**: Cada producto activo de demostración MUST tener una frase y entre 3 y 5 destacados en español
@@ -303,7 +327,10 @@ la página de origen.
 - **FR-030**: Cada foto de demostración que se muestre en la galería MUST pesar como máximo 200 KB y medir
   como máximo 1,200 px de lado mayor, y MUST servirse desde la propia tienda (no desde un sitio externo).
 - **FR-031**: Los archivos de las fotos de demostración que ya existen MUST conservarse (los pedidos
-  anteriores los referencian); pueden optimizarse sin cambiar su dirección.
+  anteriores los referencian); pueden optimizarse sin cambiar su dirección. Una foto original que no sirve
+  como principal MUST ceder el primer lugar a una foto mejor; MUST quedar como foto posterior solo si
+  muestra el equipo correcto, y MUST retirarse de la galería de ese producto (sin borrar su archivo) si
+  induce a error: varios equipos, parte inferior o interna, u otro modelo.
 - **FR-032**: En los productos con variantes, las fotos propias de las variantes MUST contarse dentro del
   rango de 3 a 6 fotos.
 
@@ -360,14 +387,15 @@ la página de origen.
   foto principal con orden son los de la feature 002 y no cambian.
 - La frase y los destacados son texto plano en un solo idioma (español de Perú); no admiten formato, enlaces
   ni emojis obligatorios. No se reordenan: el orden es el que escribe el administrador.
-- La navegación de la galería es circular (decisión por defecto, confirmable en `/speckit-clarify`).
+- La navegación de la galería es circular (FR-003); es una decisión de diseño por defecto, no una
+  clarificación pendiente.
 - Las fotos adicionales de demostración se descargan una sola vez de Wikimedia Commons al preparar los datos
   de demostración y se guardan junto a la tienda; la tienda no depende de ese sitio mientras funciona.
 - Las tarjetas gráficas se generan una vez como parte de los datos de demostración, con los datos del
   producto en ese momento; no se regeneran solas si el administrador cambia las especificaciones después.
 - Las fotos originales de `docs/fotos` las aportó el equipo del proyecto y su autor y licencia no están
-  registrados; la página de créditos las agrupa como «Fotos aportadas por el proyecto» y queda como riesgo
-  declarado confirmar su origen antes de publicar la tienda.
+  registrados (clarificación 2026-11-16): la página de créditos las agrupa como «Fotos aportadas por el
+  proyecto» y queda como riesgo declarado confirmar su origen antes de publicar la tienda.
 - Los 37 productos activos son los de los datos de demostración (3 de ellos tienen variantes, de la
   feature 003); el producto inactivo de demostración no necesita fotos nuevas, frase ni destacados.
 - Las tarjetas del catálogo siguen mostrando solo la foto principal; no hay cambio de foto al pasar el
