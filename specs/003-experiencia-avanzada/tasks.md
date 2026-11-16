@@ -504,7 +504,7 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   `variantId`, `addressId` y `couponCode` en el servidor con mensajes por campo y montos en céntimos (FR-033); el cupón solo se consulta con sesión (sin enumeración
   anónima); ninguna acción de variantes, cupones o reseñas sin auditoría; ningún dato sensible en los avisos
   ni en el comprobante (solo últimos 4 de la tarjeta) (RNF-05, RNF-06, RN-08)
-- [ ] T066 Verificar la migración aplicando `0003` sobre una base con la dirección única de la 001, ejecutar
+- [X] T066 Verificar la migración aplicando `0003` sobre una base con la dirección única de la 001, ejecutar
   `npm run check` y `npm run test:e2e`, recorrer quickstart.md en tema claro y oscuro y corregir contra la
   spec (SC-001 a SC-009, FR-037)
 
