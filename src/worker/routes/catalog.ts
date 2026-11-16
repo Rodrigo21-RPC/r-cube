@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import { and, asc, count, desc, eq, gte, ilike, inArray, lte, max, min, gt, sql, type SQL } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, ilike, inArray, lte, max, min, gt, ne, sql, type SQL } from "drizzle-orm";
 import { schema } from "@db/client";
 import type { Db } from "@db/client";
 import { normalizeSearch } from "@shared/search";
@@ -208,6 +208,29 @@ export const catalogRoutes = new Hono<AppEnv>()
       })),
     };
     return c.json(body);
+  })
+  /** Hasta 4 productos de la misma categoría, disponibles, la misma marca primero y luego los más vendidos (HU-51). */
+  .get("/products/:slug/related", async (c) => {
+    const db = c.get("db");
+    const [current] = await db
+      .select({ id: product.id, brandId: product.brandId, categoryId: product.categoryId })
+      .from(product)
+      .where(and(eq(product.slug, c.req.param("slug")), eq(product.active, true)));
+    if (!current) throw new AppError(404, "NOT_FOUND", "Este producto no existe o ya no está disponible.");
+    const rows = await cardsQuery(db)
+      .where(
+        and(
+          eq(product.categoryId, current.categoryId),
+          ne(product.id, current.id),
+          eq(product.active, true),
+          eq(brand.active, true),
+          eq(category.active, true),
+          gt(product.stock, 0),
+        ),
+      )
+      .orderBy(sql`case when ${product.brandId} = ${current.brandId} then 0 else 1 end`, desc(soldUnits), asc(product.id))
+      .limit(4);
+    return c.json(rows.map(toCard));
   })
   .get("/facets", async (c) => {
     const db = c.get("db");

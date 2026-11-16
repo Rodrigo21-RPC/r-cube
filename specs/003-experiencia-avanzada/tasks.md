@@ -397,13 +397,13 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 **Independent Test**: abrir un celular y ver 4 celulares disponibles distintos de él.
 
-- [ ] T048 [US9] Escribir `tests/api/related.test.ts` (HU-51, FR-026): `GET /catalog/products/:slug/related`
+- [X] T048 [US9] Escribir `tests/api/related.test.ts` (HU-51, FR-026): `GET /catalog/products/:slug/related`
   devuelve hasta 4 de la misma categoría, activos, con stock, con marca y categoría activas y distintos del
   actual; prioriza la misma marca y luego los más vendidos con orden estable entre llamadas; menos de 4
   cuando hay pocos; `[]` si no hay ninguno; slug inexistente → 404; debe fallar
-- [ ] T049 [US9] Agregar `GET /products/:slug/related` a `src/worker/routes/catalog.ts` con `cardsQuery` y
+- [X] T049 [US9] Agregar `GET /products/:slug/related` a `src/worker/routes/catalog.ts` con `cardsQuery` y
   `soldUnits` hasta pasar T048 (HU-51, FR-026)
-- [ ] T050 [US9] Crear `src/web/components/RelatedProducts.tsx` (rejilla de `ProductCard`, oculta si no hay)
+- [X] T050 [US9] Crear `src/web/components/RelatedProducts.tsx` (rejilla de `ProductCard`, oculta si no hay)
   e integrarlo en `src/web/pages/Product.tsx` (HU-51, FR-026)
 
 **Checkpoint**: HU-51 completa.

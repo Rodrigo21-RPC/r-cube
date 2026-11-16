@@ -12,6 +12,7 @@ import { Availability } from "@web/components/Availability";
 import { EmptyState, ErrorState, LoadingBlock } from "@web/components/States";
 import { Button } from "@web/components/ui/button";
 import { AddToCart } from "@web/cart/AddToCart";
+import { RelatedProducts } from "@web/components/RelatedProducts";
 import { Reviews } from "@web/components/Reviews";
 import { FavoriteButton } from "@web/components/FavoriteButton";
 
@@ -126,6 +127,7 @@ export default function Product() {
         </section>
       </div>
       <Reviews slug={p.slug} />
+      <RelatedProducts slug={p.slug} />
     </div>
   );
 }
