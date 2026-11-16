@@ -41,3 +41,10 @@ jobs:
           printf 'BETTER_AUTH_SECRET=%s\nPUBLIC_URL=%s\n' "$BETTER_AUTH_SECRET" "$PUBLIC_URL" > .dev.vars
       - run: npm run db:seed
       - run: npm run test:e2e
+      # Si un e2e falla, se sube su traza y la instantánea de la página para poder diagnosticarlo.
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: resultados-e2e
+          path: test-results/
+          retention-days: 7
