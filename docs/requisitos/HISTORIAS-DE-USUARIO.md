@@ -4,7 +4,7 @@ Tienda en línea de dispositivos electrónicos (celulares, laptops, tablets y ac
 
 **Actores:** Visitante (sin sesión), Cliente (con sesión) y Administrador.
 **Prioridad:** A = imprescindible, M = importante.
-**Feature:** 001 Tienda y compra, 002 Administración, 003 Experiencia avanzada. Cada feature recorre todo el flujo SDD (specify, clarify, plan, tasks, analyze, implement) y se cierra antes de la siguiente.
+**Feature:** 001 Tienda y compra, 002 Administración, 003 Experiencia avanzada, 004 Galería y destacados del producto. Cada feature recorre todo el flujo SDD (specify, clarify, plan, tasks, analyze, implement) y se cierra antes de la siguiente.
 
 ---
 
@@ -118,3 +118,15 @@ Tienda en línea de dispositivos electrónicos (celulares, laptops, tablets y ac
 | HU-51 | Como cliente quiero ver productos relacionados | En el detalle, hasta 4 productos de la misma categoría | M |
 | HU-52 | Como cliente quiero un comprobante imprimible de mi pedido | Vista de impresión con datos de la tienda, cliente, productos y desglose de IGV | M |
 | HU-53 | Como cliente quiero avisos dentro de la app cuando cambia mi pedido | Campana con contador; cada aviso lleva al pedido; se puede marcar como leído | M |
+
+---
+
+## Feature 004: Galería y destacados del producto
+
+| ID | Historia | Criterios de aceptación | P |
+|---|---|---|---|
+| HU-54 | Como cliente quiero ver varias fotos de un producto en una galería | Foto grande con flechas anterior y siguiente, deslizar con el dedo, contador («2 de 5») y miniaturas; todo se maneja con teclado y lector de pantalla; la primera foto es la principal; al elegir una variante con foto propia, la galería muestra esa foto | A |
+| HU-55 | Como cliente quiero ampliar una foto del producto | Vista a pantalla completa con flechas y teclado; se cierra con Escape o con un botón y el foco vuelve al lugar de donde salió | M |
+| HU-56 | Como cliente quiero ver una frase y destacados breves del producto | Bajo el nombre: una frase de hasta 90 caracteres y hasta 5 viñetas de hasta 60 caracteres cada una; si el producto no los tiene, no se muestra el bloque | A |
+| HU-57 | Como administrador quiero editar la frase y los destacados de un producto | Se editan en el formulario del producto; el servidor valida los límites; el cambio queda en la auditoría | M |
+| HU-58 | Como cliente quiero conocer el crédito de las fotos | Página «Créditos de las fotos» con autor, licencia y enlace de origen de cada foto tomada de una fuente libre; enlace en el pie de página | M |
