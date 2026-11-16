@@ -367,7 +367,7 @@ cambio en la tienda y en la auditoría; probar los rechazos (91 caracteres, sext
   caracteres»; con cualquier error no cambia nada; un texto con `<b>` se guarda tal cual; la columna
   `search_text` del producto no cambia al editar la frase o los destacados (FR-017); 401 sin sesión y 403 con
   cliente sin cambiar datos
-- [ ] T045 [P] [US4] Prueba e2e `e2e/admin-destacados.spec.ts` (HU-57, SC-005): en el panel abrir un producto,
+- [X] T045 [P] [US4] Prueba e2e `e2e/admin-destacados.spec.ts` (HU-57, SC-005): en el panel abrir un producto,
   escribir una frase y 3 destacados, guardar y ver el cambio en la tienda al recargar; ver la entrada en
   Auditoría; una frase de 91 caracteres muestra «La frase no puede pasar de 90 caracteres» junto al campo; un
   sexto destacado y uno de 61 caracteres muestran su mensaje; quitar un destacado con el botón «Quitar»
@@ -381,12 +381,12 @@ cambio en la tienda y en la auditoría; probar los rechazos (91 caracteres, sext
   hasta 60 caracteres")).max(5, "Máximo 5 destacados")).optional()`; `POST` los guarda (vacíos por defecto),
   `PATCH` solo los actualiza si vienen en el cuerpo; `loadAdminProduct` los devuelve; auditoría según R5
   dentro de la misma transacción; pasar T044 (HU-57, FR-014, FR-018 a FR-020)
-- [ ] T047 [US4] En `src/web/admin/pages/ProductForm.tsx` agregar el campo «Frase destacada» con contador de
+- [X] T047 [US4] En `src/web/admin/pages/ProductForm.tsx` agregar el campo «Frase destacada» con contador de
   hasta 90 caracteres y una lista de hasta 5 «Destacado N» con `useFieldArray`, botones «Agregar destacado»
   (deshabilitado al llegar a 5) y «Quitar destacado N», contador de hasta 60 caracteres por fila y errores
   por campo (`tagline`, `highlights` y `highlights.N`) con el mismo manejo que `specs`; el formulario envía
   siempre ambos campos; pasar T045 (HU-57, FR-018)
-- [ ] T048 [US4] Commit de cierre de fase tras confirmar que las pruebas de producto de la feature 002
+- [X] T048 [US4] Commit de cierre de fase tras confirmar que las pruebas de producto de la feature 002
   (`tests/api/admin/products.test.ts` y `e2e/admin.spec.ts`) siguen en verde (HU-57, SC-009)
 
 **Checkpoint**: US1 a US4 completas.
