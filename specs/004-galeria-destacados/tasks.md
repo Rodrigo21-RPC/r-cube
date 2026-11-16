@@ -559,7 +559,7 @@ tienda, con el número de la configuración (HU-59).
   unitarias, API y e2e de las features 001 a 004 en verde, con cada historia HU-54 a HU-60 nombrada en al
   menos una prueba, y comprobar con `git diff --stat main -- public/img/productos docs/fotos
   ':!public/img/productos/galeria'` que los archivos actuales no cambiaron (SC-009, RNF-08, RNF-09, FR-031)
-- [ ] T073 Marcar las tareas, publicar todo en GitHub con la convención de `CLAUDE.md` (subir la rama, commit
+- [X] T073 Marcar las tareas, publicar todo en GitHub con la convención de `CLAUDE.md` (subir la rama, commit
   de lo pendiente, pruebas, `merge --no-ff` a `main` con el mensaje «Merge feature 004: Galería y destacados
   del producto», borrar la rama local y la remota, subir `main` y mostrar `git log --oneline --graph -10`),
   comprobar que el CI de `main` queda en verde y que en GitHub (`gh repo view`) el README, `specs/` y

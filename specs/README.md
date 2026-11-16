@@ -5,7 +5,7 @@
 | 001 Tienda y compra | HU-01 a HU-25 (HU-19 retirada) | Cerrada: fusionada en `main` |
 | 002 Administración | HU-26 a HU-42 | Cerrada: fusionada en `main` |
 | 003 Experiencia avanzada | HU-43 a HU-53 | Cerrada: fusionada en `main` |
-| 004 Galería y destacados | HU-54 a HU-60 | En implementación (rama `004-galeria-destacados`) |
+| 004 Galería y destacados | HU-54 a HU-60 | Cerrada: fusionada en `main` |
 
 ## Feature 001
 
