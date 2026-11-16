@@ -1,5 +1,5 @@
-import { expect, test, type Browser, type Page } from "@playwright/test";
-import { adminCookies } from "./admin-session";
+import { expect, test, type Page } from "@playwright/test";
+import { createProduct, deactivateProducts } from "./productos-prueba";
 
 const S23 = "/producto/samsung-galaxy-s23-256-gb";
 
@@ -18,23 +18,12 @@ async function photoCount(page: Page) {
 
 const pick = (page: Page, value: string) => page.locator("label").filter({ hasText: new RegExp(`^${value}(Agotado)?$`) }).click();
 
-/** Crea por la API del panel un producto sin fotos y devuelve su ruta. */
-async function productWithoutPhotos(browser: Browser) {
-  const context = await browser.newContext({ baseURL: "http://localhost:4173" });
-  await context.addCookies(await adminCookies(browser));
-  const list = (await (await context.request.get("/api/admin/products")).json()) as { items: { id: string }[] };
-  const base = (await (await context.request.get(`/api/admin/products/${list.items[0]!.id}`)).json()) as { brandId: string; categoryId: string };
-  const name = `Producto sin fotos ${Date.now()}`;
-  const res = await context.request.post("/api/admin/products", {
-    data: { name, brandId: base.brandId, categoryId: base.categoryId, description: "Sin fotos", priceCents: 12900, stock: 3, active: true },
-  });
-  expect(res.status(), await res.text()).toBe(201);
-  const created = (await res.json()) as { slug: string };
-  await context.close();
-  return { name, path: `/producto/${created.slug}` };
-}
-
 test.describe("HU-54: galería de fotos del producto", () => {
+  const created: string[] = [];
+  test.afterEach(async ({ browser }) => {
+    await deactivateProducts(browser, created.splice(0));
+  });
+
   test("HU-54: muestra de 4 a 6 fotos con contador, miniaturas y botones, y «Foto siguiente» avanza", async ({ page }) => {
     await page.goto(S23);
     await expect(gallery(page)).toBeVisible();
@@ -126,7 +115,8 @@ test.describe("HU-54: galería de fotos del producto", () => {
   });
 
   test("HU-54, FR-005: un producto sin fotos muestra la imagen genérica y ningún control de galería", async ({ page, browser }) => {
-    const { name, path } = await productWithoutPhotos(browser);
+    const { id, name, path } = await createProduct(browser, {}, "Producto sin fotos");
+    created.push(id);
     await page.goto(path);
     await expect(page.getByRole("heading", { name, level: 1 })).toBeVisible();
     await expect(page.locator("main img[src$='/img/generico.svg']").first()).toBeVisible();
@@ -162,7 +152,7 @@ test.describe("HU-54: galería de fotos del producto", () => {
     await page.goto(S23);
     await next(page).click();
     await next(page).click();
-    const related = page.locator("section", { has: page.getByRole("heading", { name: "Productos relacionados" }) }).getByRole("link").filter({ hasNotText: "Producto sin fotos" }).first();
+    const related = page.locator("section", { has: page.getByRole("heading", { name: "Productos relacionados" }) }).getByRole("link").first();
     await related.click();
     await expect(page).not.toHaveURL(new RegExp(`${S23}$`));
     await expect(counter(page)).toHaveText(/^1 de \d+$/);

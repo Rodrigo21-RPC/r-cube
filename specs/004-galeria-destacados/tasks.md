@@ -321,7 +321,7 @@ Escape y comprobar que el foco vuelve al control de origen y la galería queda e
 
 ### Tests for User Story 3 (escribir primero, deben fallar)
 
-- [ ] T040 [P] [US3] Prueba e2e `e2e/galeria-ampliada.spec.ts` (HU-55, FR-010 a FR-013): tocar la foto grande
+- [X] T040 [P] [US3] Prueba e2e `e2e/galeria-ampliada.spec.ts` (HU-55, FR-010 a FR-013): tocar la foto grande
   o «Ampliar foto» abre un diálogo con nombre «Fotos de <producto>», contador, flechas y «Cerrar»; las
   flechas del teclado y los botones cambian de foto dentro de la vista; Tab 12 veces nunca saca el foco del
   diálogo; la página de fondo no se desplaza mientras está abierta; Escape y «Cerrar» la cierran, el foco
@@ -331,15 +331,15 @@ Escape y comprobar que el foco vuelve al control de origen y la galería queda e
 
 ### Implementation for User Story 3
 
-- [ ] T041 [US3] Crear `src/web/components/PhotoViewer.tsx` con el `Dialog` de radix-ui a pantalla completa:
+- [X] T041 [US3] Crear `src/web/components/PhotoViewer.tsx` con el `Dialog` de radix-ui a pantalla completa:
   título visible solo para lectores «Fotos de <producto>», botón «Cerrar» de 44 px, `PhotoCarousel` con
   `fit="contain"` abierto en la foto activa, contador y flechas; al cerrar entrega el índice final por
   `onIndexChange`; sin zoom propio ni `touch-action: none`; sin animaciones con reducir movimiento (R2, FR-010
   a FR-013)
-- [ ] T042 [US3] En `src/web/components/ProductGallery.tsx` agregar el botón «Ampliar foto» sobre la foto y
+- [X] T042 [US3] En `src/web/components/ProductGallery.tsx` agregar el botón «Ampliar foto» sobre la foto y
   hacer que tocar la foto abra `PhotoViewer`; el foco vuelve al control que lo abrió y la foto activa se
   sincroniza al cerrar; pasar T040 (HU-55, FR-010, FR-011)
-- [ ] T043 [US3] Commit de cierre de fase tras confirmar que T021 y T040 pasan juntas (HU-55)
+- [X] T043 [US3] Commit de cierre de fase tras confirmar que T021 y T040 pasan juntas (HU-55)
 
 **Checkpoint**: US1 a US3 completas para el cliente.
 

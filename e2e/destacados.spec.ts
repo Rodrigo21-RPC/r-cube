@@ -1,23 +1,12 @@
-import { expect, test, type Browser } from "@playwright/test";
-import { adminCookies } from "./admin-session";
-
-/** Crea por la API del panel un producto con la frase y los destacados dados y devuelve su ruta (HU-56, HU-57). */
-async function productWith(browser: Browser, extra: { tagline?: string; highlights?: string[] }) {
-  const context = await browser.newContext({ baseURL: "http://localhost:4173" });
-  await context.addCookies(await adminCookies(browser));
-  const list = (await (await context.request.get("/api/admin/products")).json()) as { items: { id: string }[] };
-  const base = (await (await context.request.get(`/api/admin/products/${list.items[0]!.id}`)).json()) as { brandId: string; categoryId: string };
-  const name = `Producto destacados ${Date.now()}${Math.floor(Math.random() * 1000)}`;
-  const res = await context.request.post("/api/admin/products", {
-    data: { name, brandId: base.brandId, categoryId: base.categoryId, description: "Para probar los destacados", priceCents: 15900, stock: 4, active: true, ...extra },
-  });
-  expect(res.status(), await res.text()).toBe(201);
-  const created = (await res.json()) as { slug: string };
-  await context.close();
-  return { name, path: `/producto/${created.slug}` };
-}
+import { expect, test } from "@playwright/test";
+import { createProduct, deactivateProducts } from "./productos-prueba";
 
 test.describe("HU-56: frase y destacados del producto", () => {
+  const created: string[] = [];
+  test.afterEach(async ({ browser }) => {
+    await deactivateProducts(browser, created.splice(0));
+  });
+
   test("HU-56, FR-015: el iPhone 13 Pro muestra una frase y de 3 a 5 viñetas bajo el título y antes del precio", async ({ page }) => {
     await page.goto("/producto/iphone-13-pro-128-gb");
     const title = page.getByRole("heading", { name: "iPhone 13 Pro 128 GB", level: 1 });
@@ -45,26 +34,30 @@ test.describe("HU-56: frase y destacados del producto", () => {
   });
 
   test("HU-56, FR-015: un producto sin frase ni destacados no muestra el bloque", async ({ page, browser }) => {
-    const { name, path } = await productWith(browser, {});
+    const { id, name, path } = await createProduct(browser, {}, "Producto destacados");
+    created.push(id);
     await page.goto(path);
     await expect(page.getByRole("heading", { name, level: 1 })).toBeVisible();
     await expect(page.getByTestId("destacados")).toHaveCount(0);
   });
 
   test("HU-56, FR-015: con solo la frase o solo las viñetas se ve lo que existe", async ({ page, browser }) => {
-    const soloFrase = await productWith(browser, { tagline: "Solo una frase llamativa" });
+    const soloFrase = await createProduct(browser, { tagline: "Solo una frase llamativa" }, "Producto destacados");
+    created.push(soloFrase.id);
     await page.goto(soloFrase.path);
     await expect(page.getByTestId("frase")).toHaveText("Solo una frase llamativa");
     await expect(page.getByTestId("destacados").getByRole("listitem")).toHaveCount(0);
 
-    const soloVinetas = await productWith(browser, { highlights: ["Primera viñeta", "Segunda viñeta"] });
+    const soloVinetas = await createProduct(browser, { highlights: ["Primera viñeta", "Segunda viñeta"] }, "Producto destacados");
+    created.push(soloVinetas.id);
     await page.goto(soloVinetas.path);
     await expect(page.getByTestId("frase")).toHaveCount(0);
     await expect(page.getByTestId("destacados").getByRole("listitem")).toHaveCount(2);
   });
 
   test("HU-56, FR-016: los símbolos de HTML se ven como texto, sin interpretarse", async ({ page, browser }) => {
-    const { path } = await productWith(browser, { tagline: "<b>hola</b> mundo", highlights: ["<i>cursiva</i>"] });
+    const { id, path } = await createProduct(browser, { tagline: "<b>hola</b> mundo", highlights: ["<i>cursiva</i>"] }, "Producto destacados");
+    created.push(id);
     await page.goto(path);
     await expect(page.getByTestId("frase")).toHaveText("<b>hola</b> mundo");
     await expect(page.getByTestId("destacados").getByRole("listitem").first()).toHaveText("<i>cursiva</i>");
