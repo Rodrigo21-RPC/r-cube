@@ -469,11 +469,11 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 ## Phase 14: Polish & Cross-Cutting Concerns
 
-- [ ] T058 Ampliar `tests/api/admin/access.test.ts` con todas las rutas de administración nuevas (variantes,
+- [X] T058 Ampliar `tests/api/admin/access.test.ts` con todas las rutas de administración nuevas (variantes,
   cupones, reseñas): sin sesión 401 y con cliente 403 sin datos; y agregar una prueba equivalente para las
   rutas de cliente nuevas (favoritos, direcciones, avisos, comprobante, reseñas `POST`) que exige sesión y
   rechaza a un cliente bloqueado (FR-032, RN-08)
-- [ ] T059 Ampliar `tests/api/seed.test.ts` (FR-036, SC-009): variantes en 3 productos, 2 reseñas (una
+- [X] T059 Ampliar `tests/api/seed.test.ts` (FR-036, SC-009): variantes en 3 productos, 2 reseñas (una
   oculta), favoritos, direcciones, los 3 cupones en sus estados y avisos; invariantes 1, 5 y 8: `product.stock`
   = suma de variantes activas, `used_count` = pedidos no cancelados con cupón y la suma de movimientos de
   cada producto y variante = su stock actual

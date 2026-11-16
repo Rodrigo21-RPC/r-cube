@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { api, resetDb, signInAdmin, signUp } from "../helpers";
+import { sql } from "drizzle-orm";
+import { api, resetDb, signInAdmin, signUp, withDb } from "../helpers";
 
 beforeEach(resetDb);
 
@@ -36,6 +37,10 @@ describe("HU-26, FR-002, RNF-05: ninguna ruta del panel responde sin rol de admi
     ["GET", "/admin/settings"], ["PATCH", "/admin/settings"], ["POST", "/admin/zones"], ["PATCH", "/admin/zones/x"],
     ["GET", "/admin/customers"], ["GET", "/admin/customers/x"], ["POST", "/admin/customers/x/block"],
     ["POST", "/admin/customers/x/unblock"], ["GET", "/admin/audit"],
+    // Feature 003: variantes, cupones y moderación de reseñas.
+    ["GET", "/admin/products/x/variants"], ["POST", "/admin/products/x/variants"], ["PATCH", "/admin/variants/x"], ["DELETE", "/admin/variants/x"],
+    ["GET", "/admin/coupons"], ["POST", "/admin/coupons"], ["PATCH", "/admin/coupons/x"], ["DELETE", "/admin/coupons/x"],
+    ["GET", "/admin/reviews"], ["POST", "/admin/reviews/x/hide"], ["POST", "/admin/reviews/x/show"],
   ];
 
   it("RNF-05: sin sesión 401 y con sesión de cliente 403, sin tocar datos", async () => {
@@ -55,3 +60,28 @@ describe("HU-26, FR-002, RNF-05: ninguna ruta del panel responde sin rol de admi
   });
 });
 
+describe("FR-032, RN-08: las rutas de cliente nuevas exigen sesión de un cliente no bloqueado", () => {
+  const CUSTOMER_ROUTES: [string, string][] = [
+    ["GET", "/favorites"], ["GET", "/favorites/ids"], ["PUT", "/favorites/x"], ["DELETE", "/favorites/x"],
+    ["GET", "/account/addresses"], ["POST", "/account/addresses"], ["PATCH", "/account/addresses/x"], ["POST", "/account/addresses/x/default"], ["DELETE", "/account/addresses/x"],
+    ["GET", "/notifications/summary"], ["GET", "/notifications"], ["POST", "/notifications/read-all"], ["POST", "/notifications/x/read"],
+    ["GET", "/orders/RC-000001/receipt"], ["POST", "/catalog/products/x/reviews"],
+  ];
+  const call = (method: string, path: string, cookie?: string) => api(path, { method, cookie, json: method === "GET" || method === "DELETE" ? undefined : {} });
+
+  it("sin sesión responden 401 sin datos", async () => {
+    for (const [method, path] of CUSTOMER_ROUTES) expect((await call(method, path)).status, `${method} ${path}`).toBe(401);
+  });
+
+  it("un cliente bloqueado queda como sin sesión (401) en todas", async () => {
+    const u = await signUp();
+    await withDb((db) => db.execute(sql`update "user" set blocked = true where id = ${u.user.id}`));
+    for (const [method, path] of CUSTOMER_ROUTES) expect((await call(method, path, u.cookie)).status, `${method} ${path}`).toBe(401);
+  });
+
+  it("favoritos, avisos y comprobante no los usa una cuenta de administrador (403)", async () => {
+    const a = await signInAdmin();
+    for (const [method, path] of [["GET", "/favorites"], ["GET", "/notifications/summary"], ["POST", "/catalog/products/x/reviews"]] as const)
+      expect((await call(method, path, a.cookie)).status, `${method} ${path}`).toBe(403);
+  });
+});

@@ -226,13 +226,13 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
         reason: to === "cancelled" ? (o.reason ?? null) : null,
         createdAt: new Date(created.getTime() + k * 6 * 3_600_000),
       });
-      // Aviso al cliente por cada cambio del administrador o del sistema (HU-53); los de más de 3 días ya están leídos.
+      // Aviso al cliente por cada cambio del administrador o del sistema (HU-53); los de más de 5 días ya están leídos.
       if (actor !== "cliente") {
         const at = new Date(created.getTime() + k * 6 * 3_600_000);
         const number = `RC-${String(i + 1).padStart(6, "0")}`;
         notifications.push({
           id: `${id}-notif-${k + 1}`, userId, orderId: id, orderNumber: number, message: orderStatusMessage(number, to, o.reason),
-          readAt: now - at.getTime() > 3 * 86_400_000 ? new Date(at.getTime() + 3_600_000) : null, createdAt: at,
+          readAt: now - at.getTime() > 5 * 86_400_000 ? new Date(at.getTime() + 3_600_000) : null, createdAt: at,
         });
       }
       from = to;
