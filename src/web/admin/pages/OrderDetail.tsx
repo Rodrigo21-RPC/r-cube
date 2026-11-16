@@ -98,8 +98,11 @@ export default function OrderDetail() {
             <thead className="text-left text-xs uppercase tracking-wide text-muted"><tr><th scope="col" className="pb-2">Producto</th><th scope="col" className="pb-2 text-right">Cant.</th><th scope="col" className="pb-2 text-right">Precio</th><th scope="col" className="pb-2 text-right">Subtotal</th></tr></thead>
             <tbody>
               {o.items.map((i) => (
-                <tr key={i.productId} className="border-t border-border">
-                  <td className="py-2">{i.name}</td>
+                <tr key={`${i.productId}-${i.sku ?? ""}`} className="border-t border-border">
+                  <td className="py-2">
+                    {i.name}
+                    {i.variantLabel && <span className="block text-sm text-muted">{i.variantLabel}{i.sku ? ` · SKU ${i.sku}` : ""}</span>}
+                  </td>
                   <td className="tabular py-2 text-right">{i.quantity}</td>
                   <td className="tabular py-2 text-right">{formatPEN(i.unitPriceCents)}</td>
                   <td className="tabular py-2 text-right">{formatPEN(i.lineTotalCents)}</td>
@@ -109,7 +112,7 @@ export default function OrderDetail() {
           </table>
         </Card>
         <div className="flex flex-col gap-5">
-          <Card><TotalsBox totals={o.totals} showShipping /></Card>
+          <Card><TotalsBox totals={o.totals} showShipping couponCode={o.couponCode} /></Card>
           <Card>
             <p className="text-xs uppercase tracking-wide text-muted">Pago</p>
             <p>{PAYMENT_LABEL[o.payment.method]}{o.payment.cardLast4 ? ` terminada en ${o.payment.cardLast4}` : ""}</p>

@@ -11,6 +11,7 @@ import { useSession } from "@web/auth";
 import { useCart } from "@web/cart/useCart";
 import { useTitle } from "@web/hooks/useTitle";
 import { EmptyState, ErrorState, LoadingBlock } from "@web/components/States";
+import { CouponBox } from "@web/components/CouponBox";
 import { TotalsBox } from "@web/components/TotalsBox";
 import { Button } from "@web/components/ui/button";
 import { Field, Input, Select } from "@web/components/ui/form";
@@ -61,6 +62,9 @@ function CheckoutForm({
 }) {
   const [method, setMethod] = useState<"pickup" | "delivery">("delivery");
   const [addr, setAddr] = useState({ ...o.address, zoneId: o.zones[0]?.id ?? "" });
+  // Dirección guardada elegida (la predeterminada viene elegida) o «otra» para escribirla a mano (HU-48).
+  const [addressChoice, setAddressChoice] = useState(o.addresses.find((a) => a.isDefault)?.id ?? "otra");
+  const manual = addressChoice === "otra";
   const [pay, setPay] = useState<PaymentMethodCode | null>(o.methods[0] ?? null);
   const [card, setCard] = useState({ number: "", expiry: "", cvv: "" });
   const [operationCode, setOperationCode] = useState("");
@@ -72,17 +76,20 @@ function CheckoutForm({
 
   const zone = o.zones.find((z) => z.id === addr.zoneId);
   const shipping = method === "delivery" ? (zone?.costCents ?? 0) : 0;
-  const totals = orderTotals(available, shipping, 0);
+  const quote = cart.quote.data!;
+  const totals = orderTotals(available, shipping, quote.coupon?.discountCents ?? 0);
   const err = (k: string) => errors[k];
 
   function validate(): Errors {
     const e: Errors = {};
     if (method === "delivery") {
       if (!addr.zoneId) e["delivery.zoneId"] = "Elige una zona de delivery.";
-      if (addr.name.trim().length < 2) e["delivery.name"] = "Escribe el nombre de quien recibe.";
-      if (!/^9\d{8}$/.test(addr.phone.trim())) e["delivery.phone"] = "Escribe un celular de 9 dígitos que empiece con 9.";
-      if (addr.address.trim().length < 5) e["delivery.address"] = "Escribe la dirección de entrega.";
-      if (addr.district.trim().length < 2) e["delivery.district"] = "Escribe el distrito.";
+      if (manual) {
+        if (addr.name.trim().length < 2) e["delivery.name"] = "Escribe el nombre de quien recibe.";
+        if (!/^9\d{8}$/.test(addr.phone.trim())) e["delivery.phone"] = "Escribe un celular de 9 dígitos que empiece con 9.";
+        if (addr.address.trim().length < 5) e["delivery.address"] = "Escribe la dirección de entrega.";
+        if (addr.district.trim().length < 2) e["delivery.district"] = "Escribe el distrito.";
+      }
     }
     if (!pay) e["payment.method"] = "Elige un método de pago.";
     if (pay === "card") {
@@ -118,12 +125,13 @@ function CheckoutForm({
           : pay === "transfer"
             ? { method: pay, operationCode: operationCode.trim() || undefined }
             : { method: pay };
-    const delivery = method === "pickup" ? { method } : { method, ...addr };
+    const delivery =
+      method === "pickup" ? { method } : manual ? { method, ...addr } : { method, zoneId: addr.zoneId, addressId: addressChoice };
     setSending(true);
     try {
       const res = await apiFetch<{ order: OrderDetail; whatsappUrl?: string }>("/checkout/orders", {
         method: "POST",
-        json: { delivery, payment, expectedTotalCents: totals.totalCents },
+        json: { delivery, payment, expectedTotalCents: totals.totalCents, ...(quote.coupon ? { couponCode: quote.coupon.code } : {}) },
       });
       await queryClient.invalidateQueries({ queryKey: ["cart"] });
       if (res.whatsappUrl) {
@@ -143,6 +151,12 @@ function CheckoutForm({
           return;
         }
         if (x.code === "PRICE_CHANGED") await cart.quote.refetch();
+        // El cupón dejó de valer entre el carrito y el pago: se explica y se puede continuar sin cupón (HU-49).
+        if (x.code.startsWith("COUPON_")) {
+          setFormError(`${x.message}. Puedes quitar el cupón y continuar con tu pedido.`);
+          await cart.quote.refetch();
+          return;
+        }
         setErrors(x.fields);
         setFormError(x.message);
       } else setFormError("No pudimos completar el pedido. Intenta de nuevo.");
@@ -183,6 +197,27 @@ function CheckoutForm({
               {method === "pickup" ? (
                 <p className="text-[15px] text-muted">Recoges en: {o.pickupAddress}</p>
               ) : (
+                <div className="flex flex-col gap-4">
+                {o.addresses.length > 0 && (
+                  <fieldset className="flex flex-col gap-2">
+                    <legend className="mb-1 text-sm font-medium">Dirección de entrega</legend>
+                    {o.addresses.map((a) => (
+                      <label key={a.id} className={`flex cursor-pointer items-start gap-3 rounded-2xl border-2 p-3 ${addressChoice === a.id ? "border-accent" : "border-border"}`}>
+                        <input type="radio" name="direccion" className="mt-1 size-4 accent-[var(--accent)]" checked={addressChoice === a.id} onChange={() => setAddressChoice(a.id)} />
+                        <span className="flex flex-col">
+                          <span className="font-medium">{a.label}{a.isDefault ? " (predeterminada)" : ""}</span>
+                          <span className="text-sm text-muted">{a.recipientName} · {a.phone}</span>
+                          <span className="text-sm text-muted">{a.line}, {a.district}{a.reference ? ` (${a.reference})` : ""}</span>
+                        </span>
+                      </label>
+                    ))}
+                    <label className={`flex cursor-pointer items-center gap-3 rounded-2xl border-2 p-3 ${manual ? "border-accent" : "border-border"}`}>
+                      <input type="radio" name="direccion" className="size-4 accent-[var(--accent)]" checked={manual} onChange={() => setAddressChoice("otra")} />
+                      <span className="font-medium">Otra dirección</span>
+                    </label>
+                    {err("delivery.addressId") && <p role="alert" className="text-sm text-danger">{err("delivery.addressId")}</p>}
+                  </fieldset>
+                )}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="Zona de delivery" error={err("delivery.zoneId")}>
                     {(p) => (
@@ -193,6 +228,8 @@ function CheckoutForm({
                       </Select>
                     )}
                   </Field>
+                  {manual && (
+                  <>
                   {(
                     [
                       ["name", "Nombre de quien recibe", "name"],
@@ -208,6 +245,9 @@ function CheckoutForm({
                   <Field label="Referencia (opcional)" error={err("delivery.reference")}>
                     {(p) => <Input {...p} value={addr.reference} onChange={(e) => setAddr({ ...addr, reference: e.target.value })} />}
                   </Field>
+                  </>
+                  )}
+                </div>
                 </div>
               )}
             </fieldset>
@@ -218,7 +258,7 @@ function CheckoutForm({
               <legend className="mb-3 flex items-center gap-2 text-[17px] font-semibold">
                 <ShieldCheck aria-hidden className="size-5 text-accent" /> Método de pago
               </legend>
-              <p className="rounded-2xl bg-accent/10 p-3 text-sm font-medium text-accent">Pago simulado, no se cobra dinero real.</p>
+              <p className="rounded-2xl border border-accent/40 bg-canvas p-3 text-sm font-medium text-accent">Pago simulado, no se cobra dinero real.</p>
               <div className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Método de pago">
                 {o.methods.map((m) => {
                   const Icon = ICON[m];
@@ -294,13 +334,14 @@ function CheckoutForm({
           <h2 className="text-[17px] font-semibold">Resumen</h2>
           <ul className="flex flex-col gap-2 text-[15px]">
             {available.map((l) => (
-              <li key={l.productId} className="flex justify-between gap-3">
-                <span>{l.quantity} × {l.name}</span>
+              <li key={`${l.productId}-${l.variantId ?? ""}`} className="flex justify-between gap-3">
+                <span>{l.quantity} × {l.name}{l.variantLabel ? ` (${l.variantLabel})` : ""}</span>
                 <span className="tabular shrink-0">{formatPEN(l.lineTotalCents)}</span>
               </li>
             ))}
           </ul>
-          <TotalsBox totals={totals} showShipping />
+          <CouponBox quote={quote} signedIn busy={sending} />
+          <TotalsBox totals={totals} showShipping couponCode={quote.coupon?.code} />
           <Button type="submit" size="lg" disabled={sending || !pay}>
             {sending ? "Procesando…" : pay === "whatsapp" ? "Coordinar por WhatsApp" : `Confirmar pedido por ${formatPEN(totals.totalCents)}`}
           </Button>

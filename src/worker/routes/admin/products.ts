@@ -1,19 +1,21 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import { and, asc, count, desc, eq, ilike, lte, sql, type SQL } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, sql, type SQL } from "drizzle-orm";
 import { schema, type Db } from "@db/client";
 import { formatPEN } from "@shared/money";
 import { buildSearchText, normalizeSearch } from "@shared/search";
 import { slugify } from "@shared/slug";
 import type { AdminProduct, AdminProductRow, Page } from "@shared/admin-types";
+import { variantLabel } from "@shared/variant";
 import { AppError, validationHook, type AppEnv } from "../../middleware";
 import { audit } from "../../services/audit";
 import { recordMovement, type Tx } from "../../services/stock";
 import { GENERIC_IMAGE } from "../catalog";
+import { loadVariants } from "./variants";
 import { deleteImage, makeMainImage, moveImage, updateImageAlt, uploadImage } from "../../services/images";
 
-const { product, brand, category, productImage } = schema;
+const { product, brand, category, productImage, productVariant } = schema;
 const PAGE = 20;
 
 const productBody = z
@@ -73,6 +75,9 @@ export async function loadAdminProduct(db: Db | Tx, id: string): Promise<AdminPr
     priceCents: p.priceCents,
     compareAtCents: p.compareAtCents,
     stock: p.stock,
+    maxPriceCents: p.maxPriceCents,
+    hasVariants: p.hasVariants,
+    variants: await loadVariants(db, id),
     active: p.active,
     images: images.map((i) => ({ id: i.id, url: i.url, alt: i.alt, position: i.position, uploaded: i.r2Key !== null })),
   };
@@ -95,7 +100,11 @@ export const productRoutes = new Hono<AppEnv>()
     if (f.q) where.push(ilike(product.searchText, `%${normalizeSearch(f.q).replace(/[%_\\]/g, "\\$&")}%`));
     if (f.category) where.push(eq(category.slug, f.category));
     if (f.status) where.push(eq(product.active, f.status === "active"));
-    if (f.lowStock) where.push(lte(product.stock, 5));
+    // Stock bajo (clarificación 3): un producto simple con 5 o menos, o uno con alguna variante activa con 5 o menos.
+    if (f.lowStock)
+      where.push(
+        sql`((not ${product.hasVariants} and ${product.stock} <= 5) or exists(select 1 from product_variant v where v.product_id = ${product.id} and v.active and v.stock <= 5))`,
+      );
     const cond = where.length ? and(...where) : undefined;
     const [{ total } = { total: 0 }] = await db
       .select({ total: count() })
@@ -105,7 +114,8 @@ export const productRoutes = new Hono<AppEnv>()
     const rows = await db
       .select({
         id: product.id, slug: product.slug, name: product.name, brand: brand.name, category: category.name,
-        priceCents: product.priceCents, stock: product.stock, active: product.active,
+        priceCents: product.priceCents, maxPriceCents: product.maxPriceCents, stock: product.stock, hasVariants: product.hasVariants,
+        active: product.active,
         imageUrl: sql<string | null>`(select ${productImage.url} from ${productImage} where ${productImage.productId} = ${product.id} order by ${productImage.position} limit 1)`,
       })
       .from(product)
@@ -115,8 +125,19 @@ export const productRoutes = new Hono<AppEnv>()
       .orderBy(desc(product.createdAt), asc(product.id))
       .limit(PAGE)
       .offset((f.page - 1) * PAGE);
+    const vrows = rows.length
+      ? await db.select().from(productVariant).where(inArray(productVariant.productId, rows.map((r) => r.id))).orderBy(asc(productVariant.priceCents), asc(productVariant.sku))
+      : [];
     const body: Page<AdminProductRow> = {
-      items: rows.map((r) => ({ ...r, imageUrl: r.imageUrl ?? GENERIC_IMAGE })),
+      items: rows.map((r) => {
+        const mine = vrows.filter((v) => v.productId === r.id);
+        return {
+          ...r,
+          variantCount: mine.length,
+          lowVariants: mine.filter((v) => v.active && v.stock <= 5).map((v) => ({ label: variantLabel(v), stock: v.stock })),
+          imageUrl: r.imageUrl ?? GENERIC_IMAGE,
+        };
+      }),
       total,
       page: f.page,
       pageSize: PAGE,
@@ -175,12 +196,12 @@ export const productRoutes = new Hono<AppEnv>()
           categoryId: body.categoryId,
           description: body.description,
           specs: body.specs,
-          priceCents: body.priceCents,
-          compareAtCents: body.compareAtCents,
+          // Con variantes, el precio sale de ellas (research R1).
+          ...(current.hasVariants ? {} : { priceCents: body.priceCents, compareAtCents: body.compareAtCents }),
           searchText: buildSearchText(body.name, brandName, body.description),
         })
         .where(eq(product.id, id));
-      if (current.priceCents !== body.priceCents) {
+      if (!current.hasVariants && current.priceCents !== body.priceCents) {
         await audit(tx, adminId, {
           action: "precio_cambiado", entityType: "producto", entityId: id, entityLabel: body.name,
           detail: `Precio de ${body.name}: ${formatPEN(current.priceCents)} → ${formatPEN(body.priceCents)}`,

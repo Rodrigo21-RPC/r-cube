@@ -4,20 +4,41 @@ import { toast } from "sonner";
 import { Button } from "@web/components/ui/button";
 import { useCart } from "./useCart";
 
-/** Selector de cantidad limitado al stock y botón «Agregar al carrito» (HU-11, RN-01). */
-export function AddToCart({ productId, stock, name }: { productId: string; stock: number; name: string }) {
+/**
+ * Selector de cantidad limitado al stock y botón «Agregar al carrito» (HU-11, RN-01).
+ * Con variantes (HU-44) exige haber elegido una: `needsVariant` y `variantId`.
+ */
+export function AddToCart({
+  productId,
+  stock,
+  name,
+  variantId,
+  needsVariant = false,
+  onMissingVariant,
+}: {
+  productId: string;
+  stock: number;
+  name: string;
+  variantId?: string | null;
+  needsVariant?: boolean;
+  onMissingVariant?: () => void;
+}) {
   const [qty, setQty] = useState(1);
   const cart = useCart();
-  const inCart = cart.quantityOf(productId);
+  const inCart = cart.quantityOf(productId, variantId);
   const room = Math.max(0, stock - inCart);
 
   async function add() {
+    if (needsVariant && !variantId) {
+      onMissingVariant?.();
+      return;
+    }
     if (room === 0) {
       toast.error(`Ya tienes en tu carrito todas las unidades disponibles de ${name}.`);
       return;
     }
     const n = Math.min(qty, room);
-    await cart.add(productId, n, stock);
+    await cart.add(productId, variantId, n, stock);
     toast.success(n < qty ? `Agregamos ${n}: es todo el stock disponible.` : `${name} se agregó al carrito.`);
     setQty(1);
   }

@@ -5,6 +5,7 @@ import type { z } from "zod";
 import { signUpSchema } from "@shared/schemas";
 import { signUp } from "@web/auth";
 import { mergeCartAfterSignIn } from "@web/cart/useCart";
+import { saveFavoriteAfterSignIn } from "@web/components/FavoriteButton";
 import { useServerErrors } from "@web/hooks/useServerErrors";
 import { useTitle } from "@web/hooks/useTitle";
 import { Button } from "@web/components/ui/button";
@@ -31,6 +32,7 @@ export default function Register() {
     try {
       await signUp({ name: v.name, email: v.email, phone: v.phone, password: v.password });
       await mergeCartAfterSignIn();
+      await saveFavoriteAfterSignIn(params.get("favorito"));
       navigate(back, { replace: true });
     } catch (e) {
       server.handle(e);

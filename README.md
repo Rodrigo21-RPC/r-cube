@@ -9,6 +9,10 @@ Software, desarrollado con Spec-Driven Development y GitHub Spec Kit.
 - **Panel de administración** en `/admin` (solo rol administrador): resumen de ventas, productos con
   fotos, categorías y marcas, stock con historial, pedidos con estados válidos, confirmación o rechazo
   de pagos, clientes, configuración de la tienda, exportación a CSV y registro de auditoría.
+- **Experiencia avanzada:** variantes de producto (color, almacenamiento y RAM) con su SKU, precio y stock;
+  favoritos; reseñas de productos entregados con promedio y moderación en el panel; varias direcciones con
+  una predeterminada; cupones de descuento y su administración; productos relacionados; comprobante
+  imprimible con desglose de IGV; avisos dentro de la app con campana.
 - **Tema claro y oscuro** en toda la app.
 - Precios en soles con IGV incluido. Pagos simulados: no se cobra dinero real.
 
@@ -33,6 +37,7 @@ npm run dev                   # http://localhost:5173
 ```
 npm run check                 # tipos, lint, contraste AA, pruebas unitarias y de API
 npm run test:e2e              # compra, panel de administración, accesibilidad y tema en el navegador
+                              # (tras test:api hay que volver a sembrar con npm run db:seed: las pruebas de API vacían la base)
 ```
 
 ## Documentación

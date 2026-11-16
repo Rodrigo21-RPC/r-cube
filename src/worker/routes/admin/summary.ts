@@ -22,7 +22,8 @@ export const summaryRoutes = new Hono<AppEnv>().get("/summary", async (c) => {
         (select count(*) from orders where status in ('paid','preparing')) as to_prepare,
         (select count(*) from orders where status = 'pending_payment') as to_confirm,
         (select count(*) from "user" where role = 'cliente') as customers,
-        (select count(*) from product where active and stock <= 5) as low_stock`),
+        ((select count(*) from product where active and not has_variants and stock <= 5)
+         + (select count(*) from product_variant v join product p on p.id = v.product_id where p.active and v.active and v.stock <= 5)) as low_stock`),
     q(sql`select to_char(d, 'YYYY-MM-DD') as date, coalesce(sum(o.total_cents),0) as total
         from generate_series((now() at time zone ${LIMA})::date - 29, (now() at time zone ${LIMA})::date, interval '1 day') d
         left join orders o on (o.created_at at time zone ${LIMA})::date = d::date and o.status in ${SOLD}

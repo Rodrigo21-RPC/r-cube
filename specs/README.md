@@ -3,8 +3,8 @@
 | Feature | Historias | Estado |
 |---|---|---|
 | 001 Tienda y compra | HU-01 a HU-25 (HU-19 retirada) | Cerrada: fusionada en `main` |
-| 002 Administración | HU-26 a HU-42 | En implementación (rama `002-administracion`) |
-| 003 Experiencia avanzada | HU-43 a HU-53 | Pendiente |
+| 002 Administración | HU-26 a HU-42 | Cerrada: fusionada en `main` |
+| 003 Experiencia avanzada | HU-43 a HU-53 | En implementación (rama `003-experiencia-avanzada`) |
 
 ## Feature 001
 
@@ -23,3 +23,16 @@
 - Pruebas: `tests/api/admin/` (API) y `e2e/admin.spec.ts` (recorrido del panel); las páginas del panel
   también pasan accesibilidad AA en tema claro y oscuro (`e2e/accesibilidad.spec.ts`).
 - Las pruebas e2e del panel leen `SEED_ADMIN_PASSWORD` de `.env` (en CI, del entorno).
+
+## Feature 003
+
+- Artefactos: `specs/003-experiencia-avanzada/` (spec con 5 clarificaciones, plan, research R1 a R14,
+  data-model, contrato de la API, quickstart y tasks de 66 tareas).
+- Variantes (HU-43, HU-44), favoritos (HU-45), reseñas y su moderación (HU-46, HU-47), varias direcciones
+  (HU-48), cupones del cliente y su administración (HU-49, HU-50), productos relacionados (HU-51),
+  comprobante imprimible (HU-52) y avisos dentro de la app (HU-53).
+- Decisión de diseño: el producto conserva su precio y stock como resumen derivado de las variantes
+  (`research.md` R1); el canje de cupones y el descuento de stock son `UPDATE` condicionales dentro de la
+  transacción del pedido.
+- Los datos de demostración incluyen 2 reseñas (una oculta): los 8 pedidos de la 001 son fijos y solo hay 3
+  productos entregados.

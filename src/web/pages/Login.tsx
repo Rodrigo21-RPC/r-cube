@@ -5,6 +5,7 @@ import type { z } from "zod";
 import { signInSchema } from "@shared/schemas";
 import { signIn } from "@web/auth";
 import { mergeCartAfterSignIn } from "@web/cart/useCart";
+import { saveFavoriteAfterSignIn } from "@web/components/FavoriteButton";
 import { useServerErrors } from "@web/hooks/useServerErrors";
 import { useTitle } from "@web/hooks/useTitle";
 import { Button } from "@web/components/ui/button";
@@ -31,6 +32,7 @@ export default function Login() {
     try {
       await signIn(v.email, v.password);
       await mergeCartAfterSignIn();
+      await saveFavoriteAfterSignIn(params.get("favorito"));
       navigate(back, { replace: true });
     } catch (e) {
       server.handle(e);
@@ -61,7 +63,7 @@ export default function Login() {
       </Card>
       <p className="text-center text-muted">
         ¿No tienes cuenta?{" "}
-        <Link to={`/registro?volver=${encodeURIComponent(back)}`} className="text-accent underline underline-offset-2">
+        <Link to={`/registro?volver=${encodeURIComponent(back)}${params.get("favorito") ? `&favorito=${encodeURIComponent(params.get("favorito")!)}` : ""}`} className="text-accent underline underline-offset-2">
           Regístrate
         </Link>
       </p>

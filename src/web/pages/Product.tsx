@@ -6,16 +6,23 @@ import type { ProductDetail } from "@shared/types";
 import { apiFetch, ApiError } from "@web/api";
 import { useTitle } from "@web/hooks/useTitle";
 import { Price } from "@web/components/Price";
+import { PriceRange } from "@web/components/PriceRange";
+import { VariantPicker, variantFor, type VariantChoice } from "@web/components/VariantPicker";
 import { Availability } from "@web/components/Availability";
 import { EmptyState, ErrorState, LoadingBlock } from "@web/components/States";
 import { Button } from "@web/components/ui/button";
 import { AddToCart } from "@web/cart/AddToCart";
+import { RelatedProducts } from "@web/components/RelatedProducts";
+import { Reviews } from "@web/components/Reviews";
+import { FavoriteButton } from "@web/components/FavoriteButton";
 
 /** Detalle de producto con galería, precio con IGV, specs y disponibilidad (HU-05). */
 export default function Product() {
   const { slug = "" } = useParams();
   const q = useQuery({ queryKey: ["product", slug], queryFn: () => apiFetch<ProductDetail>(`/catalog/products/${slug}`) });
   const [active, setActive] = useState(0);
+  const [choice, setChoice] = useState<VariantChoice>({});
+  const [missing, setMissing] = useState(false);
   useTitle(q.data?.name ?? "Producto");
 
   if (q.isPending) return <LoadingBlock label="Cargando producto…" />;
@@ -33,6 +40,16 @@ export default function Product() {
 
   const p = q.data;
   const image = p.images[active] ?? p.images[0]!;
+  const hasVariants = p.variants.length > 0;
+  const selected = hasVariants ? variantFor(p.variants, choice) : null;
+
+  function pick(next: VariantChoice) {
+    setChoice(next);
+    setMissing(false);
+    const v = variantFor(p.variants, next);
+    const idx = v?.imageUrl ? p.images.findIndex((i) => i.url === v.imageUrl) : -1;
+    if (idx >= 0) setActive(idx);
+  }
   return (
     <div className="flex flex-col gap-6">
       <Link to="/catalogo" className="inline-flex w-fit items-center gap-1 rounded-full text-sm text-accent hover:underline">
@@ -44,9 +61,9 @@ export default function Product() {
             <img src={image.url} alt={image.alt} width={600} height={600} className="h-full w-full object-contain" onError={(e) => { e.currentTarget.src = "/img/generico.svg"; }} />
           </div>
           {p.images.length > 1 && (
-            <div className="flex gap-2" role="list">
+            <div className="flex gap-2">
               {p.images.map((img, i) => (
-                <button key={img.url} type="button" role="listitem" onClick={() => setActive(i)} aria-label={`Ver foto ${i + 1} de ${p.images.length}`} aria-pressed={i === active} className={`size-16 overflow-hidden rounded-xl border-2 bg-surface ${i === active ? "border-accent" : "border-transparent"}`}>
+                <button key={img.url} type="button" onClick={() => setActive(i)} aria-label={`Ver foto ${i + 1} de ${p.images.length}`} aria-pressed={i === active} className={`size-16 overflow-hidden rounded-xl border-2 bg-surface ${i === active ? "border-accent" : "border-transparent"}`}>
                   <img src={img.url} alt="" width={64} height={64} loading="lazy" className="h-full w-full object-contain" />
                 </button>
               ))}
@@ -59,19 +76,37 @@ export default function Product() {
             <p className="text-sm font-medium text-accent">
               <Link to={`/catalogo?category=${p.category.slug}`} className="underline underline-offset-2">{p.category.name}</Link> · {p.brand}
             </p>
-            <h1 className="mt-1 text-[28px] font-semibold leading-tight tracking-tight">{p.name}</h1>
+            <div className="mt-1 flex items-start justify-between gap-2">
+              <h1 className="text-[28px] font-semibold leading-tight tracking-tight">{p.name}</h1>
+              <FavoriteButton productId={p.id} name={p.name} className="shrink-0" />
+            </div>
           </div>
           <div>
-            <Price cents={p.priceCents} compareAtCents={p.compareAtCents} size="lg" />
+            {hasVariants && !selected ? (
+              <PriceRange minCents={p.priceCents} maxCents={p.maxPriceCents} size="lg" />
+            ) : (
+              <Price cents={selected?.priceCents ?? p.priceCents} compareAtCents={hasVariants ? null : p.compareAtCents} size="lg" />
+            )}
             <p className="text-sm text-muted">Precio con IGV incluido</p>
           </div>
-          <Availability availability={p.availability} stock={p.stock} />
+          {hasVariants && <VariantPicker variants={p.variants} choice={choice} onChange={pick} invalid={missing} />}
+          <Availability availability={selected?.availability ?? p.availability} stock={selected?.stock ?? p.stock} />
+          {missing && !selected && (
+            <p role="alert" className="text-sm font-medium text-danger">Elige color, almacenamiento o RAM</p>
+          )}
           {p.availability === "out" ? (
             <Button size="lg" disabled className="w-full md:w-auto">
               <ShoppingCart aria-hidden className="size-5" /> Agregar al carrito
             </Button>
           ) : (
-            <AddToCart productId={p.id} stock={p.stock} name={p.name} />
+            <AddToCart
+              productId={p.id}
+              stock={selected?.stock ?? p.stock}
+              name={selected ? `${p.name} (${selected.label})` : p.name}
+              variantId={selected?.id ?? null}
+              needsVariant={hasVariants}
+              onMissingVariant={() => setMissing(true)}
+            />
           )}
           <p className="leading-relaxed text-muted">{p.description}</p>
           {p.specs.length > 0 && (
@@ -91,6 +126,8 @@ export default function Product() {
           )}
         </section>
       </div>
+      <Reviews slug={p.slug} />
+      <RelatedProducts slug={p.slug} />
     </div>
   );
 }

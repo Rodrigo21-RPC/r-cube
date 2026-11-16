@@ -10,7 +10,7 @@ export function Layout() {
     <div className="flex min-h-dvh flex-col">
       <a
         href="#contenido"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-on-accent"
+        className="print:hidden sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-on-accent"
       >
         Saltar al contenido
       </a>
@@ -20,7 +20,7 @@ export function Layout() {
           <Outlet />
         </Suspense>
       </main>
-      <footer className="border-t border-border">
+      <footer className="border-t border-border print:hidden">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-6 text-sm text-muted md:flex-row md:justify-between md:px-6">
           <p>© {new Date().getFullYear()} R Cube. Precios en soles con IGV incluido.</p>
           <p>

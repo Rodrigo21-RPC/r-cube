@@ -1,12 +1,15 @@
 import { Link } from "react-router";
 import type { ProductCard as Card } from "@shared/types";
 import { Price } from "./Price";
+import { PriceRange } from "./PriceRange";
+import { FavoriteButton } from "./FavoriteButton";
 import { Availability } from "./Availability";
 
 /** Tarjeta del catálogo: foto, nombre, precio y disponibilidad (HU-01, RNF-04). */
 export function ProductCard({ product, priority = false }: { product: Card; priority?: boolean }) {
   return (
     <article className="group relative flex h-full flex-col gap-3 rounded-[18px] bg-surface p-4">
+      <FavoriteButton productId={product.id} name={product.name} className="absolute right-3 top-3 bg-canvas/80" />
       <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-canvas">
         <img
           src={product.imageUrl}
@@ -28,7 +31,11 @@ export function ProductCard({ product, priority = false }: { product: Card; prio
             {product.name}
           </Link>
         </h3>
-        <Price cents={product.priceCents} compareAtCents={product.compareAtCents} className="mt-auto pt-2" />
+        {product.hasVariants && product.maxPriceCents ? (
+          <PriceRange minCents={product.priceCents} maxCents={product.maxPriceCents} className="mt-auto pt-2" />
+        ) : (
+          <Price cents={product.priceCents} compareAtCents={product.hasVariants ? null : product.compareAtCents} className="mt-auto pt-2" />
+        )}
         <Availability availability={product.availability} stock={product.stock} />
       </div>
     </article>

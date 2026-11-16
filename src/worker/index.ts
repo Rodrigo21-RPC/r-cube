@@ -9,6 +9,9 @@ import { accountRoutes } from "./routes/account";
 import { cartRoutes } from "./routes/cart";
 import { checkoutRoutes } from "./routes/checkout";
 import { orderRoutes } from "./routes/orders";
+import { reviewRoutes } from "./routes/reviews";
+import { favoriteRoutes } from "./routes/favorites";
+import { notificationRoutes } from "./routes/notifications";
 import { adminRoutes } from "./routes/admin";
 import { mediaRoutes } from "./routes/media";
 import { expirePendingOrders } from "./cron";
@@ -28,6 +31,9 @@ app
   .route("/auth", authRoutes)
   .route("/account", accountRoutes)
   .route("/catalog", catalogRoutes)
+  .route("/catalog", reviewRoutes)
+  .route("/favorites", favoriteRoutes)
+  .route("/notifications", notificationRoutes)
   .route("/cart", cartRoutes)
   .route("/checkout", checkoutRoutes)
   .route("/orders", orderRoutes)

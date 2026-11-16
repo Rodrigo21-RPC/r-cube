@@ -30,6 +30,7 @@ function ProfileForm({ me }: { me: Me }) {
   async function onSubmit(v: Profile) {
     try {
       const updated = await apiFetch<Me>("/account/me", { method: "PATCH", json: v });
+      await queryClient.invalidateQueries({ queryKey: ["addresses"] });
       queryClient.setQueryData(["me"], updated);
       toast.success("Tus datos se guardaron.");
     } catch (e) {
@@ -121,6 +122,8 @@ export default function Account() {
         <h1 className="text-[28px] font-semibold tracking-tight">Hola, {session.data.name.split(" ")[0]}</h1>
         <div className="flex gap-2">
           <Button asChild variant="secondary"><Link to="/pedidos">Mis pedidos</Link></Button>
+          <Button asChild variant="secondary"><Link to="/favoritos">Mis favoritos</Link></Button>
+          <Button asChild variant="secondary"><Link to="/cuenta/direcciones">Mis direcciones</Link></Button>
           <Button variant="ghost" onClick={logout}>Cerrar sesión</Button>
         </div>
       </div>

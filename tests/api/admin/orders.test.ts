@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { sql } from "drizzle-orm";
 import type { AdminOrderDetail, AdminOrderRow, Page } from "@shared/admin-types";
+import { limaToday } from "@shared/coupon";
 import { api, ids, resetDb, rowsOf, signInAdmin, signUp, withDb } from "../helpers";
 
 let admin: Awaited<ReturnType<typeof signInAdmin>>;
@@ -41,7 +42,7 @@ describe("HU-34: lista y filtros de pedidos", () => {
     expect((await list("q=luis")).items.map((o) => o.number)).toEqual([numbers.delivery]);
     expect((await list(`q=${numbers.pickup}`)).total).toBe(1);
     expect((await list("q=ana%40prueba")).total).toBe(2);
-    const today = new Date().toISOString().slice(0, 10);
+    const today = limaToday(); // el panel filtra por día de Lima, no de UTC
     expect((await list(`from=${today}&to=${today}`)).total).toBe(3);
     expect((await list("from=2020-01-01&to=2020-01-02")).total).toBe(0);
     expect((await list("")).pageSize).toBe(20);

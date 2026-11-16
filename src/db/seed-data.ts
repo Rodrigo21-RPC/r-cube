@@ -2,8 +2,11 @@ import { sql } from "drizzle-orm";
 import type { Db } from "./client";
 import * as s from "./schema";
 import { buildSearchText } from "../shared/search";
+import { couponDiscount, limaToday } from "../shared/coupon";
 import { orderTotals } from "../shared/money";
+import { orderStatusMessage } from "../shared/order-status";
 import { hashPassword } from "../worker/password";
+import { syncProductFromVariants } from "../worker/services/variants";
 
 /** Datos de demostración de REQUISITOS §6 (FR-035, FR-036). Repetible: borra y vuelve a crear. */
 
@@ -84,6 +87,7 @@ const ZONES = [
 
 export async function runSeed(db: Db, passwords: { admin: string; customer: string }) {
   await db.execute(sql`TRUNCATE TABLE audit_log, stock_movement, order_event, payment, order_item, orders, cart_item, product_image,
+    notification, review, favorite, address, coupon, product_variant,
     product, brand, category, delivery_zone, store_settings, session, account, verification,
     rate_limit, "user" RESTART IDENTITY CASCADE`);
 
@@ -117,6 +121,8 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
     })),
   );
 
+  await seedVariants(db);
+
   await db.insert(s.deliveryZone).values(ZONES);
   await db.insert(s.storeSettings).values({
     id: 1,
@@ -149,16 +155,25 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
     })),
   );
 
+  // Cupones de demostración (HU-49, HU-50): uno vigente, uno vencido y uno agotado por el pedido de demostración que lo usa.
+  const dayOf = (days: number) => new Date(new Date(`${limaToday()}T12:00:00Z`).getTime() + days * 86_400_000).toISOString().slice(0, 10);
+  const COUPONS = [
+    { id: "cup-bienvenido10", code: "BIENVENIDO10", kind: "percent" as const, value: 10, startsOn: dayOf(-30), endsOn: dayOf(60), maxUses: 50, usedCount: 0 },
+    { id: "cup-verano5", code: "VERANO5", kind: "fixed" as const, value: 500, startsOn: dayOf(-90), endsOn: dayOf(-10), maxUses: 100, usedCount: 0 },
+    { id: "cup-ultimo", code: "ULTIMO", kind: "percent" as const, value: 10, startsOn: dayOf(-30), endsOn: dayOf(60), maxUses: 1, usedCount: 1 },
+  ];
+  await db.insert(s.coupon).values(COUPONS);
+
   // 8 pedidos en distintos estados, coherentes con el stock y la línea de tiempo.
   const byName = (n: string) => products.find((p) => p.name.startsWith(n))!;
   const ORDERS: {
     user: number; status: s.OrderStatusDb; method: s.PaymentMethod; delivery: "pickup" | "delivery";
-    zone?: string; items: [string, number][]; daysAgo: number; path: s.OrderStatusDb[]; reason?: string; code?: string;
+    zone?: string; items: [string, number][]; daysAgo: number; path: s.OrderStatusDb[]; reason?: string; code?: string; coupon?: string;
   }[] = [
     { user: 1, status: "delivered", method: "card", delivery: "delivery", zone: "zona-lima-centro", items: [["iPhone 15 Pro", 1]], daysAgo: 20, path: ["paid", "preparing", "shipped", "delivered"] },
     { user: 2, status: "shipped", method: "yape_plin", delivery: "delivery", zone: "zona-lima-periferia", items: [["Xiaomi Redmi Note 12", 2]], daysAgo: 6, path: ["pending_payment", "paid", "preparing", "shipped"], code: "40028871" },
     { user: 3, status: "preparing", method: "transfer", delivery: "pickup", items: [["MacBook Air M1", 1], ["Pasta térmica", 2]], daysAgo: 4, path: ["pending_payment", "paid", "preparing"] },
-    { user: 4, status: "paid", method: "card", delivery: "delivery", zone: "zona-callao", items: [["Samsung Galaxy S23", 1]], daysAgo: 2, path: ["paid"] },
+    { user: 4, status: "paid", method: "card", delivery: "delivery", zone: "zona-callao", items: [["Samsung Galaxy S23", 1]], daysAgo: 2, path: ["paid"], coupon: "ULTIMO" },
     { user: 5, status: "pending_payment", method: "whatsapp", delivery: "delivery", zone: "zona-callao", items: [["Asus Vivobook 15", 1]], daysAgo: 0, path: ["pending_payment"] },
     { user: 1, status: "cancelled", method: "yape_plin", delivery: "pickup", items: [["Google Pixel 8", 1]], daysAgo: 10, path: ["pending_payment", "cancelled"], reason: "Pago no recibido en 24 h", code: "11223344" },
     { user: 2, status: "delivered", method: "card", delivery: "pickup", items: [["Kit de herramientas", 1], ["SSD NVMe", 1]], daysAgo: 15, path: ["paid", "preparing", "delivered"] },
@@ -166,6 +181,7 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
   ];
 
   const now = Date.now();
+  const notifications: (typeof s.notification.$inferInsert)[] = [];
   for (const [i, o] of ORDERS.entries()) {
     const customer = CUSTOMERS[o.user - 1]!;
     const userId = `user-cliente-${o.user}`;
@@ -174,7 +190,9 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
       return { p, quantity, unitPriceCents: p.priceCents };
     });
     const zone = ZONES.find((z) => z.id === o.zone);
-    const totals = orderTotals(lines, zone?.costCents ?? 0, 0);
+    const cp = COUPONS.find((c) => c.code === o.coupon);
+    const subtotal = lines.reduce((sum, l) => sum + l.unitPriceCents * l.quantity, 0);
+    const totals = orderTotals(lines, zone?.costCents ?? 0, cp ? couponDiscount(cp.kind, cp.value, subtotal) : 0);
     const id = `order-demo-${i + 1}`;
     const created = new Date(now - o.daysAgo * 86_400_000 - (8 - i) * 3_600_000);
     await db.insert(s.orders).values({
@@ -184,7 +202,7 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
       shipPhone: o.delivery === "delivery" ? customer.phone : null,
       shipAddress: o.delivery === "delivery" ? customer.address : null,
       shipDistrict: o.delivery === "delivery" ? customer.district : null,
-      ...totals, paymentMethod: o.method, createdAt: created,
+      ...totals, couponId: cp?.id ?? null, couponCode: cp?.code ?? null, paymentMethod: o.method, createdAt: created,
     });
     await db.insert(s.orderItem).values(
       lines.map((l, j) => ({
@@ -208,9 +226,39 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
         reason: to === "cancelled" ? (o.reason ?? null) : null,
         createdAt: new Date(created.getTime() + k * 6 * 3_600_000),
       });
+      // Aviso al cliente por cada cambio del administrador o del sistema (HU-53); los de más de 5 días ya están leídos.
+      if (actor !== "cliente") {
+        const at = new Date(created.getTime() + k * 6 * 3_600_000);
+        const number = `RC-${String(i + 1).padStart(6, "0")}`;
+        notifications.push({
+          id: `${id}-notif-${k + 1}`, userId, orderId: id, orderNumber: number, message: orderStatusMessage(number, to, o.reason),
+          readAt: now - at.getTime() > 5 * 86_400_000 ? new Date(at.getTime() + 3_600_000) : null, createdAt: at,
+        });
+      }
       from = to;
     }
   }
+  // Reseñas (HU-46, HU-47, RN-09): solo de productos de pedidos Entregados. Mateo reseña su iPhone; la de Lucía
+  // está oculta para demostrar la moderación; el kit de herramientas de Lucía queda sin reseñar para probar el formulario.
+  await db.insert(s.review).values([
+    { id: "rev-demo-1", productId: byName("iPhone 15 Pro").id, userId: "user-cliente-1", rating: 5, comment: "Titanio ligero y una cámara espectacular. Llegó bien embalado.", createdAt: new Date(now - 12 * 86_400_000) },
+    { id: "rev-demo-2", productId: byName("SSD NVMe").id, userId: "user-cliente-2", rating: 1, comment: "Este comentario no habla del producto (ejemplo de reseña ocultada).", hidden: true, createdAt: new Date(now - 9 * 86_400_000) },
+  ]);
+  // Direcciones guardadas (HU-48): la dirección del perfil de cada cliente es la predeterminada y dos clientes tienen una segunda.
+  await db.insert(s.address).values([
+    ...CUSTOMERS.map((c, i) => ({ id: `addr-demo-${i + 1}`, userId: `user-cliente-${i + 1}`, label: "Casa", recipientName: c.name, phone: c.phone, line: c.address, district: c.district, isDefault: true })),
+    { id: "addr-demo-6", userId: "user-cliente-1", label: "Trabajo", recipientName: "Mateo Quispe", phone: "987654321", line: "Av. Javier Prado Este 4200", district: "Santiago de Surco", reference: "Torre B, piso 5", isDefault: false },
+    { id: "addr-demo-7", userId: "user-cliente-3", label: "Casa de mis padres", recipientName: "Rosa Mamani", phone: "955112233", line: "Av. Grau 310", district: "Barranco", isDefault: false },
+  ]);
+  // Favoritos (HU-45): incluye un producto agotado, uno inactivo y uno con variantes para mostrar sus estados.
+  const favs: [number, string[]][] = [
+    [1, ["iPhone 13 Pro", "MacBook Pro 16", "Lenovo Tab M10"]],
+    [2, ["Samsung Galaxy S22 Ultra", "Xiaomi 13T Pro", "Dell XPS 13"]],
+    [3, ["Samsung Galaxy S10", "Huawei P60"]],
+    [4, ["Motorola Edge 60 Pro", "Google Pixel 8"]],
+  ];
+  await db.insert(s.favorite).values(favs.flatMap(([user, names]) => names.map((n) => ({ userId: `user-cliente-${user}`, productId: byName(n).id }))));
+  if (notifications.length) await db.insert(s.notification).values(notifications);
   await db.execute(sql`SELECT setval('order_number_seq', ${ORDERS.length})`);
   await seedStockHistory(db);
 }
@@ -225,10 +273,17 @@ async function seedStockHistory(db: Db) {
     from order_item oi join orders o on o.id = oi.order_id order by o.created_at`)) as unknown as {
     product_id: string; quantity: number; order_id: string; status: string; created_at: Date; cancelled_at: Date | null;
   }[];
-  const products = (await db.execute(sql`select id, stock, created_at from product`)) as unknown as {
+  // Los productos con variantes llevan su historial por variante (HU-43); el resto, por producto.
+  const products = (await db.execute(sql`select id, stock, created_at from product where not has_variants`)) as unknown as {
     id: string; stock: number; created_at: Date;
   }[];
   const rows: (typeof s.stockMovement.$inferInsert)[] = [];
+  const variants = (await db.execute(sql`select v.id, v.product_id, v.stock, p.created_at from product_variant v
+    join product p on p.id = v.product_id`)) as unknown as { id: string; product_id: string; stock: number; created_at: Date }[];
+  for (const v of variants)
+    if (v.stock > 0)
+      rows.push({ id: `mov-${v.id}-0`, productId: v.product_id, variantId: v.id, delta: v.stock, stockBefore: 0, stockAfter: v.stock,
+        source: "inicial", reason: "Stock inicial de demostración", actorType: "sistema", createdAt: new Date(v.created_at) });
   for (const p of products) {
     const own = lines.filter((l) => l.product_id === p.id);
     let running = p.stock + own.filter((l) => l.status !== "cancelled").reduce((sum, l) => sum + l.quantity, 0);
@@ -248,4 +303,34 @@ async function seedStockHistory(db: Db) {
     });
   }
   if (rows.length) await db.insert(s.stockMovement).values(rows);
+}
+
+/**
+ * Variantes de demostración (HU-43, FR-036): tres productos que ningún pedido de demostración usa, con SKU,
+ * precios y stock distintos, una variante agotada y una con foto propia. El resumen del producto lo deja el
+ * mismo servicio que usa el panel.
+ */
+async function seedVariants(db: Db) {
+  const idOf = (name: string) => `prod-${slugify(name)}`;
+  const edge = idOf("Motorola Edge 60 Pro");
+  const xps = idOf("Dell XPS 13");
+  const tab = idOf("Lenovo Tab M10");
+  await db.insert(s.productImage).values({
+    id: "img-edge-azul", productId: edge, url: "/img/productos/celular-motorola-edge-60-pro.jpg", alt: "Motorola Edge 60 Pro en azul", position: 1,
+  });
+  const v = (id: string, productId: string, sku: string, attrs: { storage?: string; color?: string; ram?: string }, price: number, stock: number, imageId?: string) => ({
+    id, productId, sku, storage: attrs.storage ?? "", color: attrs.color ?? "", ram: attrs.ram ?? "", priceCents: price * 100, stock, imageId: imageId ?? null,
+  });
+  await db.insert(s.productVariant).values([
+    v("var-edge-256-negro", edge, "MOTO-EDGE-256-NG", { storage: "256 GB", color: "Negro" }, 2199, 5),
+    v("var-edge-256-azul", edge, "MOTO-EDGE-256-AZ", { storage: "256 GB", color: "Azul" }, 2199, 3, "img-edge-azul"),
+    v("var-edge-512-negro", edge, "MOTO-EDGE-512-NG", { storage: "512 GB", color: "Negro" }, 2499, 4),
+    v("var-xps-16-512", xps, "XPS13-16-512", { ram: "16 GB", storage: "512 GB" }, 5799, 3),
+    v("var-xps-16-1t", xps, "XPS13-16-1T", { ram: "16 GB", storage: "1 TB" }, 6299, 1),
+    v("var-xps-32-1t", xps, "XPS13-32-1T", { ram: "32 GB", storage: "1 TB" }, 6799, 0),
+    v("var-tab-64-gris", tab, "LEN-M10-64-GR", { storage: "64 GB", color: "Gris" }, 699, 12),
+    v("var-tab-128-gris", tab, "LEN-M10-128-GR", { storage: "128 GB", color: "Gris" }, 799, 8),
+    v("var-tab-128-azul", tab, "LEN-M10-128-AZ", { storage: "128 GB", color: "Azul" }, 799, 5),
+  ]);
+  for (const id of [edge, xps, tab]) await syncProductFromVariants(db, id);
 }

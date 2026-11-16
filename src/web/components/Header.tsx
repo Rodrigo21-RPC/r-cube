@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { Search, ShoppingCart, User } from "lucide-react";
+import { Heart, Search, ShoppingCart, User } from "lucide-react";
 import { useSession } from "@web/auth";
 import { useCartCount } from "@web/cart/useCart";
+import { NotificationBell } from "./NotificationBell";
 
 /** Encabezado con logo, buscador, cuenta, carrito y lugar para el interruptor de tema (RNF-03). */
 export function Header({ themeToggle }: { themeToggle?: React.ReactNode }) {
@@ -19,7 +20,7 @@ export function Header({ themeToggle }: { themeToggle?: React.ReactNode }) {
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-canvas/85 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 border-b border-border bg-canvas/85 backdrop-blur-xl print:hidden">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-3 md:flex-nowrap md:px-6">
         <Link to="/" className="flex items-center gap-2 rounded-xl" aria-label="R Cube, ir al inicio">
           <img src="/img/logo.png" alt="" width={36} height={36} className="size-9 rounded-lg bg-black" />
@@ -41,6 +42,12 @@ export function Header({ themeToggle }: { themeToggle?: React.ReactNode }) {
             <span className="hidden text-sm sm:inline">{me ? me.name.split(" ")[0] : "Ingresar"}</span>
             <span className="sr-only sm:hidden">{me ? "Mi cuenta" : "Ingresar"}</span>
           </Link>
+          <NotificationBell />
+          {me?.role === "cliente" && (
+            <Link to="/favoritos" className="inline-flex size-11 items-center justify-center rounded-full hover:bg-surface" aria-label="Mis favoritos">
+              <Heart aria-hidden className="size-5" />
+            </Link>
+          )}
           <Link
             to="/carrito"
             className="relative inline-flex size-11 items-center justify-center rounded-full hover:bg-surface"
