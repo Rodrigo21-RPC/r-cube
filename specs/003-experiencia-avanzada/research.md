@@ -201,3 +201,29 @@ en `spec.md` (sección Clarifications).
   se reutilizan con `adminCookies` por el límite de ingresos. El tope de registros de Better Auth ya
   se subió a 30 por minuto.
 - **Regresión**: `npm run check` y `npm run test:e2e` completos al cerrar.
+
+## R15. Revisión de seguridad del diff de la 003 (T065, RNF-05, RNF-06, RN-08)
+
+Comprobado sobre el código y con pruebas:
+
+- **Autorización**: favoritos, avisos y reseñas (alta) usan `requireCustomer`; direcciones, `/account/me` y el
+  comprobante usan sesión; las rutas nuevas de administración cuelgan del único `requireAdmin` del
+  sub-router. `tests/api/admin/access.test.ts` recorre las 29 rutas anteriores y las 11 nuevas del panel
+  (401 sin sesión, 403 con cliente) y las 15 rutas de cliente nuevas (401 sin sesión y con cliente bloqueado).
+- **Propiedad de los datos (RN-08)**: toda consulta de favoritos, direcciones y avisos filtra por `user_id`;
+  el comprobante usa `loadOrderDetail(…, userId)`. Lo ajeno responde 404 sin datos (pruebas por área).
+- **Entradas**: `variantId`, `addressId` y `couponCode` se validan en el servidor (Zod y búsqueda con
+  dueño); montos en céntimos enteros; SKU y códigos con formato fijo; comentario de reseña de hasta 1000
+  caracteres.
+- **Salida**: los comentarios de reseñas viajan como JSON y se pintan como texto de React (sin
+  `dangerouslySetInnerHTML`); una prueba confirma que `<img onerror>` se devuelve literal.
+- **Datos sensibles**: el comprobante y los avisos solo llevan los 4 últimos dígitos de la tarjeta (una
+  prueba verifica que el número completo no aparece); la auditoría de cupones, variantes y reseñas guarda
+  antes y después sin datos personales más allá del nombre abreviado.
+- **SQL**: todo con parámetros de Drizzle; los únicos `sql.raw` son constantes literales de la 002.
+- **Concurrencia**: stock de variantes y usos de cupón con `UPDATE` condicional bajo bloqueo; direcciones
+  con bloqueo del cliente; pruebas de carrera de la última unidad y del último uso.
+
+Limitaciones aceptadas (alcance de la feature): un cliente con sesión puede probar códigos de cupón sin un
+límite propio de intentos (los códigos no son secretos y el descuento solo vale con usos disponibles); y
+el tope de registros de Better Auth se subió a 30 por minuto (research de la corrección de CI).

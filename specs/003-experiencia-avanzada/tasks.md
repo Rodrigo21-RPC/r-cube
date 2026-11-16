@@ -495,11 +495,11 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   detalle con variantes, reseñas y relacionados, Mis favoritos, Mis direcciones, Avisos, comprobante,
   checkout con cupón, y en el panel Cupones, Reseñas y el formulario de producto con variantes (RNF-03,
   FR-035, SC-008)
-- [ ] T064 [P] Actualizar `DESPLIEGUE.md` (aplicar la migración `0003` antes de publicar, que copia las
+- [X] T064 [P] Actualizar `DESPLIEGUE.md` (aplicar la migración `0003` antes de publicar, que copia las
   direcciones existentes; cupones de demostración; comprobación de la campana y del cupón), `README.md`
   (variantes, favoritos, reseñas, direcciones, cupones, comprobante y avisos) y `specs/README.md` (estado de
   la 003 y su sección) (RNF-09, RNF-10)
-- [ ] T065 Revisión de seguridad del diff de la 003: favoritos, direcciones, avisos y comprobante siempre
+- [X] T065 Revisión de seguridad del diff de la 003: favoritos, direcciones, avisos y comprobante siempre
   filtrados por `user_id` (404 si es ajeno); comentarios de reseñas mostrados como texto; validación de
   `variantId`, `addressId` y `couponCode` en el servidor con mensajes por campo y montos en céntimos (FR-033); el cupón solo se consulta con sesión (sin enumeración
   anónima); ninguna acción de variantes, cupones o reseñas sin auditoría; ningún dato sensible en los avisos

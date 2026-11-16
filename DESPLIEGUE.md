@@ -47,7 +47,10 @@ pedidos impagos con más de 24 horas (RN-12).
    npm run db:migrate
    npm run db:seed
    ```
-   El seed borra y vuelve a crear todos los datos. Solo debe correrse en una base nueva o de
+   La migración `0003_experiencia_avanzada` agrega variantes, favoritos, reseñas, direcciones, cupones y
+   avisos, y **copia la dirección única de cada cliente de la feature 001 como su primera dirección
+   guardada (predeterminada)**; hay que aplicarla antes de publicar la versión nueva del Worker. El seed
+   borra y vuelve a crear todos los datos. Solo debe correrse en una base nueva o de
    demostración. También crea el historial de stock: el saldo de cada producto coincide con la suma
    de sus movimientos (inicial, ventas y cancelaciones).
 6. **Publicar:**
@@ -67,6 +70,9 @@ pedidos impagos con más de 24 horas (RN-12).
 | Entrar a `<URL>/admin` con `admin@rcube.pe` | Resumen con ventas, pedidos pendientes y stock bajo |
 | Panel → Productos → un producto → subir una foto de 2 MB o menos | La foto aparece en el panel y en la tienda desde `/api/media/productos/…` |
 | Entrar a `<URL>/admin` con una cuenta de cliente | «No tienes permiso para entrar al panel» |
+| Carrito con un producto → escribir `BIENVENIDO10` (cupón de demostración) | Desglose con «Cupón BIENVENIDO10» y el total recalculado con su IGV |
+| Panel → Pedidos → pasar un pedido de un cliente a Enviado; como ese cliente, mirar la campana | El contador sube en un minuto como máximo y el aviso lleva al pedido |
+| Mis pedidos → un pedido → «Ver comprobante» → Imprimir | Vista previa de una hoja A4 sin encabezado ni botones |
 | Cabeceras de `<URL>/` | `Content-Security-Policy` y `X-Frame-Options: DENY` presentes |
 
 Cuentas de demostración: `admin@rcube.pe` (administrador) y `mateo@demo.pe`, `lucia@demo.pe`,
