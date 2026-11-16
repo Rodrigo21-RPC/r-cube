@@ -137,3 +137,26 @@ describe("FR-036, SC-009: datos de demostración de la feature 003", () => {
     expect(await one(sql`select count(*) n from notification where read_at is not null`)).toBeGreaterThanOrEqual(1);
   });
 });
+
+describe("FR-036, SC-009: fotos de demostración de la feature 004", () => {
+  const rows = (q: ReturnType<typeof sql>) => withDb(async (db) => (await db.execute(q)) as unknown as Record<string, unknown>[]);
+
+  it("HU-54, FR-032: toda foto de variante es de su mismo producto, y las fotos tienen origen y posiciones válidos", async () => {
+    await withDb((db) => runSeed(db, passwords));
+    expect(
+      await rows(sql`select v.id from product_variant v join product_image i on i.id = v.image_id where i.product_id <> v.product_id`),
+    ).toEqual([]);
+    expect(await rows(sql`select id from product_image where origin not in ('subida','proyecto','externa','tarjeta')`)).toEqual([]);
+    // posiciones 0..n-1 sin huecos y todo producto activo con al menos una foto
+    expect(
+      await rows(sql`select p.id from product p left join product_image i on i.product_id = p.id where p.active
+        group by p.id having count(i.id) = 0 or min(i.position) <> 0 or max(i.position) <> count(i.id) - 1`),
+    ).toEqual([]);
+  });
+
+  it("FR-021: ninguna foto externa de la demostración queda sin autor, licencia y enlace", async () => {
+    expect(
+      await rows(sql`select id from product_image where origin = 'externa' and (credit_author = '' or credit_license = '' or credit_url = '')`),
+    ).toEqual([]);
+  });
+});

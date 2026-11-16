@@ -138,6 +138,10 @@ export const product = pgTable(
     /** Resumen derivado de las variantes (feature 003, research R1): lo mantiene syncProductFromVariants. */
     hasVariants: boolean("has_variants").notNull().default(false),
     maxPriceCents: integer("max_price_cents"),
+    /** Frase corta y llamativa del producto (feature 004, HU-56); hasta 90 caracteres. */
+    tagline: text("tagline").notNull().default(""),
+    /** De 0 a 5 destacados breves en texto plano, de hasta 60 caracteres (feature 004, HU-56). */
+    highlights: jsonb("highlights").$type<string[]>().notNull().default([]),
     active: boolean("active").notNull().default(true),
     searchText: text("search_text").notNull().default(""),
     createdAt: createdAt(),
@@ -146,11 +150,17 @@ export const product = pgTable(
   (t) => [
     check("product_price_positive", sql`${t.priceCents} > 0`),
     check("product_stock_non_negative", sql`${t.stock} >= 0`),
+    check("product_tagline_max", sql`char_length(${t.tagline}) <= 90`),
+    check("product_highlights_valid", sql`jsonb_typeof(${t.highlights}) = 'array' and jsonb_array_length(${t.highlights}) <= 5`),
     index("product_active_category_idx").on(t.active, t.categoryId),
     index("product_active_created_idx").on(t.active, t.createdAt.desc()),
     index("product_active_price_idx").on(t.active, t.priceCents),
   ],
 );
+
+/** Origen de una foto (feature 004, HU-58): subida desde el panel, aportada por el proyecto, de una fuente libre o tarjeta de R Cube. */
+export const IMAGE_ORIGINS = ["subida", "proyecto", "externa", "tarjeta"] as const;
+export type ImageOrigin = (typeof IMAGE_ORIGINS)[number];
 
 export const productImage = pgTable(
   "product_image",
@@ -164,8 +174,20 @@ export const productImage = pgTable(
     position: integer("position").notNull().default(0),
     /** Clave del archivo en R2; null en las fotos estáticas de demostración (HU-31). */
     r2Key: text("r2_key"),
+    origin: text("origin", { enum: IMAGE_ORIGINS }).notNull().default("subida"),
+    /** Crédito de una foto externa: autor, licencia y enlace de origen (FR-021). */
+    creditAuthor: text("credit_author").notNull().default(""),
+    creditLicense: text("credit_license").notNull().default(""),
+    creditUrl: text("credit_url").notNull().default(""),
   },
-  (t) => [index("product_image_product_idx").on(t.productId, t.position)],
+  (t) => [
+    index("product_image_product_idx").on(t.productId, t.position),
+    check("product_image_origin_valid", sql`${t.origin} in ('subida','proyecto','externa','tarjeta')`),
+    check(
+      "product_image_credit_required",
+      sql`${t.origin} <> 'externa' or (${t.creditAuthor} <> '' and ${t.creditLicense} <> '' and ${t.creditUrl} <> '')`,
+    ),
+  ],
 );
 
 // ---------------------------------------------------------------- Variantes (003)

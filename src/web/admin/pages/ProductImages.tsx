@@ -8,7 +8,7 @@ import { Input } from "@web/components/ui/form";
 import { Badge, Card } from "@web/components/ui/misc";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 
-const MAX = 6;
+const MAX = 8;
 const MAX_BYTES = 2 * 1024 * 1024;
 const TYPES = ["image/jpeg", "image/png", "image/webp"];
 

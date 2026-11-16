@@ -45,17 +45,17 @@ activo queda con de 4 a 6 fotos: de 1 a 3 reales o del proyecto y, al final, exa
 **Propósito**: columnas, migración, reglas puras, manifiesto y textos de la demostración que necesitan todas las
 historias. Nada de la interfaz hasta terminar esta fase.
 
-- [ ] T003 [P] Prueba unitaria `tests/unit/highlights.test.ts` (debe fallar): `TAGLINE_MAX` es 90,
+- [X] T003 [P] Prueba unitaria `tests/unit/highlights.test.ts` (debe fallar): `TAGLINE_MAX` es 90,
   `HIGHLIGHT_MAX` 60 y `HIGHLIGHTS_MAX` 5; `normalizeHighlights(["  Pantalla de 120 Hz ", "", "   ",
   "Carga rápida"])` devuelve `["Pantalla de 120 Hz", "Carga rápida"]` (recorta espacios y descarta vacíos);
   no corta textos largos ni reordena; lista vacía devuelve `[]` (HU-56, HU-57, FR-014, FR-018)
-- [ ] T004 [P] Prueba unitaria `tests/unit/photo-credit.test.ts` (debe fallar): `isAllowedLicense` acepta
+- [X] T004 [P] Prueba unitaria `tests/unit/photo-credit.test.ts` (debe fallar): `isAllowedLicense` acepta
   «CC0 1.0», «CC BY 4.0», «CC BY-SA 3.0», «CC BY-SA 4.0» y «Dominio público» y rechaza «CC BY-NC 4.0»,
   «CC BY-ND 4.0», «CC BY-NC-SA 4.0», «GFDL» y la cadena vacía; `licenseUrl("CC BY-SA 4.0")` devuelve
   `https://creativecommons.org/licenses/by-sa/4.0/`, `licenseUrl("CC0 1.0")` devuelve
   `https://creativecommons.org/publicdomain/zero/1.0/` y `licenseUrl("Dominio público")` devuelve `null`
   (HU-58, FR-021, FR-022)
-- [ ] T005 [P] Prueba de API `tests/api/gallery-schema.test.ts` (debe fallar hasta aplicar la migración):
+- [X] T005 [P] Prueba de API `tests/api/gallery-schema.test.ts` (debe fallar hasta aplicar la migración):
   insertar una `product_image` con `origin = 'externa'` y alguno de `credit_author`, `credit_license` o
   `credit_url` vacío falla por la restricción `CHECK (origin <> 'externa' or (credit_author <> '' and
   credit_license <> '' and credit_url <> ''))`; `origin = 'otra'` falla por `CHECK (origin in
@@ -63,7 +63,7 @@ historias. Nada de la interfaz hasta terminar esta fase.
   con `tagline` de 91 caracteres falla por `CHECK (char_length(tagline) <= 90)`; con 6 `highlights` falla
   por `CHECK (jsonb_typeof(highlights) = 'array' and jsonb_array_length(highlights) <= 5)`; un producto nuevo
   queda con `tagline = ''` y `highlights = '[]'` (FR-014, FR-021)
-- [ ] T006 [P] Ampliar `tests/unit/whatsapp.test.ts` (debe fallar) con las funciones de `src/shared/whatsapp.ts`
+- [X] T006 [P] Ampliar `tests/unit/whatsapp.test.ts` (debe fallar) con las funciones de `src/shared/whatsapp.ts`
   (HU-59, HU-60, FR-037, FR-038, FR-040): `peruvianWhatsappNumber` devuelve `51987654321` para
   `"987654321"`, `"987 654 321"`, `"987-654-321"`, `"+51 987 654 321"`, `"(51) 987654321"` y `"51987654321"`, y
   `null` para `""`, `"98765432"` (8 dígitos), `"187654321"` (no empieza con 9), `"+1 305 555 0100"`,
@@ -76,64 +76,64 @@ historias. Nada de la interfaz hasta terminar esta fase.
   Quispe, te escribimos de R Cube.»; con celular inválido devuelve `null`; un número de tienda con `+`,
   espacios o guiones se reduce a dígitos; sin número de tienda las funciones de la tienda
   devuelven `null`
-- [ ] T007 [P] Prueba unitaria `tests/unit/gallery-data.test.ts` con las reglas de los textos (debe fallar): para
+- [X] T007 [P] Prueba unitaria `tests/unit/gallery-data.test.ts` con las reglas de los textos (debe fallar): para
   cada producto activo de `PRODUCTS` existe su entrada en `GALLERY`; `tagline` no vacía de hasta
   `TAGLINE_MAX` (90) caracteres; de 3 a 5 destacados de hasta `HIGHLIGHT_MAX` (60) caracteres, sin duplicados y
   sin `<` ni `>`; ninguna frase ni destacado usa mayúsculas sostenidas ni signos de exclamación repetidos;
   cada dato numérico de un destacado (por ejemplo «120 Hz», «256 GB») aparece, normalizando la coma decimal
   («6,1» y «6.1» son iguales) y los espacios, en las especificaciones o en la descripción del producto en
   `PRODUCTS` (no afirma nada que no esté respaldado) (HU-56, FR-014, FR-029)
-- [ ] T008 Implementar `src/shared/highlights.ts` (`TAGLINE_MAX = 90`, `HIGHLIGHT_MAX = 60`,
+- [X] T008 Implementar `src/shared/highlights.ts` (`TAGLINE_MAX = 90`, `HIGHLIGHT_MAX = 60`,
   `HIGHLIGHTS_MAX = 5`, `normalizeHighlights(list: string[]): string[]`), `src/shared/photo-credit.ts`
   (`isAllowedLicense(name)` con las licencias admitidas CC0, dominio público, CC BY y CC BY-SA y
   `licenseUrl(name)`) y las funciones nuevas de `src/shared/whatsapp.ts` (`peruvianWhatsappNumber`,
   `productInquiryUrl`, `generalInquiryUrl`, `customerWhatsappUrl`, research R14) sin romper
   `whatsappUrl` del checkout, hasta que pasen T003, T004 y T006 (HU-56 a HU-60, FR-014, FR-021, FR-040)
-- [ ] T009 Agregar a `src/db/schema.ts`, exactamente como en data-model.md: en `product`, `tagline` `text`
+- [X] T009 Agregar a `src/db/schema.ts`, exactamente como en data-model.md: en `product`, `tagline` `text`
   no nulo con `''` por defecto y `CHECK (char_length(tagline) <= 90)`, y `highlights` `jsonb` no nulo con
   `'[]'` por defecto (`$type<string[]>`) y `CHECK (jsonb_typeof(highlights) = 'array' and
   jsonb_array_length(highlights) <= 5)`; en `product_image`, `origin` `text` no nulo con `'subida'` por
   defecto y `CHECK (origin in ('subida','proyecto','externa','tarjeta'))`, `credit_author`,
   `credit_license` y `credit_url` `text` no nulos con `''` por defecto, y `CHECK (origin <> 'externa' or
   (credit_author <> '' and credit_license <> '' and credit_url <> ''))` (HU-56, HU-58, FR-014, FR-021)
-- [ ] T010 Generar la migración con `npm run db:generate`, renombrarla `drizzle/0004_galeria_destacados.sql`
+- [X] T010 Generar la migración con `npm run db:generate`, renombrarla `drizzle/0004_galeria_destacados.sql`
   (y su entrada en `drizzle/meta/_journal.json`), agregar al final `UPDATE product_image SET origin =
   'proyecto' WHERE r2_key IS NULL;` y aplicarla con `npm run db:migrate`; comprobar que T005 pasa y que las
   pruebas de las features 001 a 003 siguen en verde (RNF-10, FR-031, FR-033)
-- [ ] T011 [P] Ampliar `src/shared/types.ts` según contracts/api.md: `ProductDetail.tagline: string` y
-  `highlights: string[]`; tipo `PhotoCredits` con `external: { productName, productSlug, imageUrl, alt,
-  author, license, licenseUrl: string | null, sourceUrl }[]` y `project: { productName, productSlug }[]`; tipo
-  `StoreContact { name: string; whatsappNumber: string }`; y `src/shared/admin-types.ts`:
-  `AdminProduct.tagline` y `highlights` (HU-54 a HU-59)
-- [ ] T012 [P] Ampliar `tests/api/helpers.ts` con `makeImages(productId, defs)` que inserta filas de
+- [X] T011 [P] Ampliar `src/shared/types.ts` según contracts/api.md con el tipo `PhotoCredits` (`external: {
+  productName, productSlug, imageUrl, alt, author, license, licenseUrl: string | null, sourceUrl }[]` y
+  `project: { productName, productSlug }[]`) y el tipo `StoreContact { name: string; whatsappNumber: string }`;
+  los campos `tagline` y `highlights` de `ProductDetail` y de `AdminProduct` se agregan junto con el código que
+  los llena (T037 y T046) para que los tipos compilen en cada commit (HU-58, HU-59)
+- [X] T012 [P] Ampliar `tests/api/helpers.ts` con `makeImages(productId, defs)` que inserta filas de
   `product_image` con `origin`, `credit_*`, `url`, `alt` y `position` (para las pruebas de créditos y de
   fotos); `resetDb` no cambia porque `product_image` ya está en el `TRUNCATE` (HU-58)
-- [ ] T013 Crear `src/db/gallery-data.ts` con los tipos `DemoPhoto` (`url` bajo `/img/`, `alt`, `origin`
+- [X] T013 Crear `src/db/gallery-data.ts` con los tipos `DemoPhoto` (`url` bajo `/img/`, `alt`, `origin`
   `proyecto | externa | tarjeta`, `card?: "caracteristicas" | "destacados" | "compra"`, `source?`,
   `credit?: { author, license, url, title }`), `GalleryEntry` (`tagline`, `highlights`, `photos`) y
   `GALLERY: Record<slug, GalleryEntry>`, con un primer manifiesto que cubre los 38 productos del seed con su
   foto actual como única foto (`origin: "proyecto"`, `url` `/img/productos/<archivo>` o `/img/generico.svg`),
   `tagline: ""` y `highlights: []`; el producto inactivo conserva siempre este contenido (HU-54, FR-031, spec:
   Assumptions)
-- [ ] T014 Exportar `PRODUCTS` en `src/db/seed-data.ts` y reemplazar en `runSeed` la inserción de una foto
+- [X] T014 Exportar `PRODUCTS` en `src/db/seed-data.ts` y reemplazar en `runSeed` la inserción de una foto
   por producto por las filas de `GALLERY` (`id = img-<id del producto>-<n>`, `position = n - 1`, `origin` y
   `credit_*` del manifiesto, `r2_key` nulo); insertar `tagline` y `highlights` en `product`; en
   `seedVariants` quitar la fila especial `img-edge-azul` y dejar que `var-edge-256-azul` apunte a una foto de
   la galería del Edge (por ahora la primera); ajustar lo que use los ids antiguos de fotos (HU-54, HU-56,
   FR-032)
-- [ ] T015 Revisar con `grep` que ninguna prueba existente suponga una sola foto por producto y ajustar
+- [X] T015 Revisar con `grep` que ninguna prueba existente suponga una sola foto por producto y ajustar
   `tests/api/seed.test.ts` (la foto de cada variante pertenece al mismo producto; todo producto tiene al
   menos una foto con posiciones 0 a n-1 y `origin` válido); confirmar con `npm run test` que las pruebas de
   las features 001 a 003 siguen en verde (SC-009)
-- [ ] T016 Escribir en `src/db/gallery-data.ts` la frase y de 3 a 5 destacados de los 37 productos activos,
+- [X] T016 Escribir en `src/db/gallery-data.ts` la frase y de 3 a 5 destacados de los 37 productos activos,
   en español de Perú, tono comercial y breve al estilo de las fichas de AliExpress (frase que llame la
   atención y destacados con beneficios concretos), basados únicamente en sus especificaciones y descripción
   del seed (por ejemplo, del iPhone 13 Pro: «Pantalla ProMotion de 120 Hz», «Triple cámara para foto y
   video»); el producto inactivo queda sin ellos; pasar T007 (HU-56, FR-029)
-- [ ] T017 [P] Prueba de API en `tests/api/admin/images.test.ts` (debe fallar; HU-31, FR-033, R15): se aceptan
+- [X] T017 [P] Prueba de API en `tests/api/admin/images.test.ts` (debe fallar; HU-31, FR-033, R15): se aceptan
   8 fotos por producto y la 9.ª responde 409 `MAX_IMAGES` con «Máximo 8 fotos por producto»; actualizar donde
   hoy se espere «Máximo 6 fotos por producto» (también en `e2e/admin.spec.ts` si aparece)
-- [ ] T018 Cambiar `MAX_IMAGES` de 6 a 8 y su mensaje en `src/worker/services/images.ts`, y el texto de ayuda
+- [X] T018 Cambiar `MAX_IMAGES` de 6 a 8 y su mensaje en `src/worker/services/images.ts`, y el texto de ayuda
   del panel si menciona 6 (`src/web/admin/pages/ProductImages.tsx`); pasar T017 y confirmar que
   `tests/api/admin/images.test.ts` de la feature 002 sigue en verde con el nuevo tope (HU-31, FR-033)
 
@@ -299,8 +299,8 @@ ellos y comprobar que no hay bloque ni hueco.
 
 ### Implementation for User Story 2
 
-- [ ] T037 [US2] En `src/worker/routes/catalog.ts` leer `tagline` y `highlights` del producto en el detalle y
-  devolverlos en `ProductDetail`; sin cambios en las tarjetas del catálogo (HU-56, contracts/api.md)
+- [ ] T037 [US2] Agregar `tagline: string` y `highlights: string[]` a `ProductDetail` en `src/shared/types.ts` y,
+  en `src/worker/routes/catalog.ts`, leerlos del producto en el detalle y devolverlos; sin cambios en las tarjetas del catálogo (HU-56, contracts/api.md)
 - [ ] T038 [US2] Crear `src/web/components/Highlights.tsx` (frase en destacado y lista `<ul>` de viñetas con
   icono, todo como texto) y usarlo en `src/web/pages/Product.tsx` bajo el nombre y antes del precio; sin
   frase ni viñetas no renderiza nada; contraste AA en ambos temas con los tokens del tema; pasar T035 y T036
@@ -374,7 +374,8 @@ cambio en la tienda y en la auditoría; probar los rechazos (91 caracteres, sext
 
 ### Implementation for User Story 4
 
-- [ ] T046 [US4] En `src/worker/routes/admin/products.ts` ampliar `productBody` con `tagline:
+- [ ] T046 [US4] Agregar `tagline` y `highlights` a `AdminProduct` en `src/shared/admin-types.ts` y, en
+  `src/worker/routes/admin/products.ts`, ampliar `productBody` con `tagline:
   z.string().trim().max(90, "La frase no puede pasar de 90 caracteres").optional()` y `highlights:
   z.array(z.string()).transform(normalizeHighlights).pipe(z.array(z.string().max(60, "Cada destacado admite
   hasta 60 caracteres")).max(5, "Máximo 5 destacados")).optional()`; `POST` los guarda (vacíos por defecto),
