@@ -177,7 +177,7 @@ export const catalogRoutes = new Hono<AppEnv>()
   .get("/products/:slug", async (c) => {
     const db = c.get("db");
     const [row] = await db
-      .select({ ...cardColumns, description: product.description, specs: product.specs, categoryName: category.name, categorySlug: category.slug })
+      .select({ ...cardColumns, description: product.description, specs: product.specs, tagline: product.tagline, highlights: product.highlights, categoryName: category.name, categorySlug: category.slug })
       .from(product)
       .innerJoin(brand, eq(brand.id, product.brandId))
       .innerJoin(category, eq(category.id, product.categoryId))
@@ -198,6 +198,8 @@ export const catalogRoutes = new Hono<AppEnv>()
       .orderBy(asc(productVariant.priceCents), asc(productVariant.sku));
     const body: ProductDetail = {
       ...toCard(row),
+      tagline: row.tagline,
+      highlights: row.highlights,
       description: row.description,
       specs: row.specs,
       category: { name: row.categoryName, slug: row.categorySlug },

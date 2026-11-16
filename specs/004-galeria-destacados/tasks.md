@@ -285,13 +285,13 @@ ellos y comprobar que no hay bloque ni hueco.
 
 ### Tests for User Story 2 (escribir primero, deben fallar)
 
-- [ ] T035 [P] [US2] Prueba de API en `tests/api/catalog.test.ts` (HU-56, FR-014 a FR-017):
+- [X] T035 [P] [US2] Prueba de API en `tests/api/catalog.test.ts` (HU-56, FR-014 a FR-017):
   `GET /catalog/products/:slug` devuelve `tagline` y `highlights` de un producto que los tiene (cargarlos por
   SQL en la prueba), `tagline: ""` y `highlights: []` en uno que no, y `images` sigue siendo `{ url, alt }[]`
   sin más campos (compatibilidad con `tests/api/admin/images.test.ts`); una búsqueda
   (`GET /catalog/products?q=`) con una palabra que solo está en la frase o en un destacado no devuelve el
   producto, y lo mismo con `GET /admin/products?q=` (clarificación 5)
-- [ ] T036 [P] [US2] Prueba e2e `e2e/destacados.spec.ts` (HU-56, FR-015, FR-016): en
+- [X] T036 [P] [US2] Prueba e2e `e2e/destacados.spec.ts` (HU-56, FR-015, FR-016): en
   `/producto/iphone-13-pro-128-gb` hay una frase y de 3 a 5 viñetas bajo el título y antes del precio (orden
   del DOM); un producto creado por la API del panel sin frase ni destacados no muestra el bloque ni deja un
   contenedor vacío; una frase con `<b>hola</b>` se ve como texto, sin negrita; la descripción y las
@@ -299,13 +299,13 @@ ellos y comprobar que no hay bloque ni hueco.
 
 ### Implementation for User Story 2
 
-- [ ] T037 [US2] Agregar `tagline: string` y `highlights: string[]` a `ProductDetail` en `src/shared/types.ts` y,
+- [X] T037 [US2] Agregar `tagline: string` y `highlights: string[]` a `ProductDetail` en `src/shared/types.ts` y,
   en `src/worker/routes/catalog.ts`, leerlos del producto en el detalle y devolverlos; sin cambios en las tarjetas del catálogo (HU-56, contracts/api.md)
-- [ ] T038 [US2] Crear `src/web/components/Highlights.tsx` (frase en destacado y lista `<ul>` de viñetas con
+- [X] T038 [US2] Crear `src/web/components/Highlights.tsx` (frase en destacado y lista `<ul>` de viñetas con
   icono, todo como texto) y usarlo en `src/web/pages/Product.tsx` bajo el nombre y antes del precio; sin
   frase ni viñetas no renderiza nada; contraste AA en ambos temas con los tokens del tema; pasar T035 y T036
   (FR-015, FR-016)
-- [ ] T039 [US2] Revisar 6 productos en la tienda (ambos temas y 320 px) y commit de cierre de fase (HU-56,
+- [X] T039 [US2] Revisar 6 productos en la tienda (ambos temas y 320 px) y commit de cierre de fase (HU-56,
   SC-002)
 
 **Checkpoint**: US1 y US2 funcionan juntas; el detalle ya se ve completo.
@@ -355,7 +355,7 @@ cambio en la tienda y en la auditoría; probar los rechazos (91 caracteres, sext
 
 ### Tests for User Story 4 (escribir primero, deben fallar)
 
-- [ ] T044 [P] [US4] Prueba de API `tests/api/admin/product-highlights.test.ts` (HU-57, FR-014, FR-017 a
+- [X] T044 [P] [US4] Prueba de API `tests/api/admin/product-highlights.test.ts` (HU-57, FR-014, FR-017 a
   FR-020): `POST /products` con frase y destacados responde 201 con `tagline` y `highlights`; `PATCH` los
   cambia y escribe en la misma transacción una entrada `producto_editado` con detalle «Frase y destacados de
   <nombre> actualizados» y `before`/`after` con `{ tagline, highlights }`; si cambian también el precio hay
@@ -374,7 +374,7 @@ cambio en la tienda y en la auditoría; probar los rechazos (91 caracteres, sext
 
 ### Implementation for User Story 4
 
-- [ ] T046 [US4] Agregar `tagline` y `highlights` a `AdminProduct` en `src/shared/admin-types.ts` y, en
+- [X] T046 [US4] Agregar `tagline` y `highlights` a `AdminProduct` en `src/shared/admin-types.ts` y, en
   `src/worker/routes/admin/products.ts`, ampliar `productBody` con `tagline:
   z.string().trim().max(90, "La frase no puede pasar de 90 caracteres").optional()` y `highlights:
   z.array(z.string()).transform(normalizeHighlights).pipe(z.array(z.string().max(60, "Cada destacado admite

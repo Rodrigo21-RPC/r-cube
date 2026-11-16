@@ -39,6 +39,10 @@ export interface VariantDto {
 
 export interface ProductDetail extends ProductCard {
   variants: VariantDto[];
+  /** Frase corta y llamativa (HU-56); cadena vacía si no tiene. */
+  tagline: string;
+  /** De 0 a 5 destacados breves en texto plano (HU-56). */
+  highlights: string[];
   description: string;
   category: { name: string; slug: string };
   specs: { label: string; value: string }[];

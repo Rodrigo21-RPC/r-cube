@@ -16,6 +16,7 @@ import { RelatedProducts } from "@web/components/RelatedProducts";
 import { Reviews } from "@web/components/Reviews";
 import { FavoriteButton } from "@web/components/FavoriteButton";
 import { ProductGallery } from "@web/components/ProductGallery";
+import { Highlights } from "@web/components/Highlights";
 
 /** Al cambiar de producto se vuelve a montar la página: la galería y la variante elegida empiezan de cero (FR-007). */
 export default function Product() {
@@ -73,6 +74,7 @@ function ProductPage({ slug }: { slug: string }) {
               <FavoriteButton productId={p.id} name={p.name} className="shrink-0" />
             </div>
           </div>
+          <Highlights tagline={p.tagline} highlights={p.highlights} />
           <div>
             {hasVariants && !selected ? (
               <PriceRange minCents={p.priceCents} maxCents={p.maxPriceCents} size="lg" />

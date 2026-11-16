@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { sql } from "drizzle-orm";
 import type { CatalogPage, Facets, ProductDetail } from "@shared/types";
-import { api, ids, resetDb, withDb } from "./helpers";
+import { api, ids, resetDb, signInAdmin, withDb } from "./helpers";
 import { buildSearchText } from "@shared/search";
 import { schema } from "@db/client";
 
@@ -150,5 +150,44 @@ describe("HU-05: detalle de producto", () => {
   it("HU-05, RN-06: producto inactivo o inexistente responde 404", async () => {
     expect((await api(`/catalog/products/${ids.pOff}`)).status).toBe(404);
     expect((await api("/catalog/products/no-existe")).status).toBe(404);
+  });
+});
+
+describe("HU-56, FR-014 a FR-017: frase y destacados en el detalle", () => {
+  it("HU-56: el detalle devuelve la frase y los destacados del producto", async () => {
+    await withDb((db) =>
+      db.execute(sql`update product set tagline = 'Fulgor cuántico en tu bolsillo', highlights = ${JSON.stringify(["Batería eterna de litio", "Pantalla de 120 Hz"])}::jsonb where id = ${ids.p3}`),
+    );
+    const { body } = await get<ProductDetail>(`/catalog/products/${ids.p3}`);
+    expect(body.tagline).toBe("Fulgor cuántico en tu bolsillo");
+    expect(body.highlights).toEqual(["Batería eterna de litio", "Pantalla de 120 Hz"]);
+  });
+
+  it("HU-56, FR-015: un producto sin frase ni destacados devuelve cadena vacía y lista vacía", async () => {
+    const { body } = await get<ProductDetail>(`/catalog/products/${ids.p10}`);
+    expect(body.tagline).toBe("");
+    expect(body.highlights).toEqual([]);
+  });
+
+  it("HU-54: las fotos del detalle siguen siendo { url, alt } sin más campos", async () => {
+    const { body } = await get<ProductDetail>(`/catalog/products/${ids.p10}`);
+    expect(body.images.length).toBeGreaterThanOrEqual(1);
+    for (const image of body.images) expect(Object.keys(image).sort()).toEqual(["alt", "url"]);
+  });
+
+  it("HU-56, FR-017: la búsqueda del catálogo no encuentra productos por la frase ni por los destacados", async () => {
+    for (const q of ["fulgor", "cuántico", "eterna", "litio"]) {
+      const { body } = await get<CatalogPage>(`/catalog/products?q=${encodeURIComponent(q)}`);
+      expect(body.items.map((i) => i.id), q).not.toContain(ids.p3);
+    }
+  });
+
+  it("HU-56, FR-017: la búsqueda del panel tampoco considera la frase ni los destacados", async () => {
+    const admin = await signInAdmin();
+    for (const q of ["fulgor", "eterna"]) {
+      const res = await api(`/admin/products?q=${encodeURIComponent(q)}`, { cookie: admin.cookie });
+      const body = (await res.json()) as { items: { id: string }[] };
+      expect(body.items.map((i) => i.id), q).not.toContain(ids.p3);
+    }
   });
 });
