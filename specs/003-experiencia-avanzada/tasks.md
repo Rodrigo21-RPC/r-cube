@@ -441,26 +441,26 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 **Independent Test**: pasar el pedido de un cliente a Enviado desde el panel y ver el aviso en la campana.
 
-- [ ] T054 [US11] Escribir `tests/api/notifications.test.ts` (HU-53, FR-029 a FR-031): confirmar el pago, pasar
+- [X] T054 [US11] Escribir `tests/api/notifications.test.ts` (HU-53, FR-029 a FR-031): confirmar el pago, pasar
   a Preparando, Enviado y Entregado desde el panel crea un aviso «Tu pedido RC-… está <Estado>»; cancelar
   por el administrador, rechazar un pago y la cancelación automática a las 24 h (`expirePendingOrders` de `src/worker/cron.ts`) crean «Tu
   pedido RC-… fue cancelado: <motivo>»; cancelar el propio cliente no crea aviso; `GET
   /notifications/summary` devuelve `unread` y los últimos 20; `GET /notifications` pagina de 20 en 20;
   `POST /notifications/:id/read` y `POST /notifications/read-all` marcan leídos; un cliente no ve ni marca
   avisos de otro (404); sin sesión → 401; un cambio de estado fallido (409) no deja aviso; debe fallar
-- [ ] T055 [US11] Crear `src/worker/services/notifications.ts` (`notifyOrderStatus(tx, …)`) y llamarlo dentro de
+- [X] T055 [US11] Crear `src/worker/services/notifications.ts` (`notifyOrderStatus(tx, …)`) y llamarlo dentro de
   las transacciones existentes: `cancelOrder` cuando el actor no es el cliente
   (`src/worker/services/orders.ts`), el cambio de estado de `src/worker/routes/admin/orders.ts` y la
   confirmación de pago de `src/worker/routes/admin/payments.ts`; crear `src/worker/routes/notifications.ts`
   y montarlo en `src/worker/index.ts` bajo `/notifications` con `requireCustomer` hasta pasar T054 (HU-53,
   FR-029, FR-030, FR-031, RN-08)
-- [ ] T056 [US11] Crear `src/web/components/NotificationBell.tsx` (botón con nombre «Avisos, N sin leer»,
+- [X] T056 [US11] Crear `src/web/components/NotificationBell.tsx` (botón con nombre «Avisos, N sin leer»,
   contador de 1 a 99 o «99+», `Popover` de radix-ui con los últimos 20, hora relativa con
   `Intl.RelativeTimeFormat('es-PE')`, «Marcar como leído» y «Marcar todos como leídos», `refetchInterval:
   60_000` y al enfocar la ventana) en `src/web/components/Header.tsx` solo para clientes, y
   `src/web/pages/Notifications.tsx` (lista paginada de 20 en 20, estados de carga, vacío «No tienes avisos»
   y error) con la ruta `/avisos` en `src/web/router.tsx` (HU-53, FR-030, SC-006, RNF-03)
-- [ ] T057 [US11] Ampliar `src/db/seed-data.ts` con un aviso por cada cambio de estado de los pedidos de
+- [X] T057 [US11] Ampliar `src/db/seed-data.ts` con un aviso por cada cambio de estado de los pedidos de
   demostración, algunos sin leer (FR-036, HU-53)
 
 **Checkpoint**: HU-53 completa; las 11 historias implementadas.

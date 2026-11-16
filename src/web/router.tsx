@@ -19,6 +19,7 @@ const OrderDetail = page(() => import("./pages/OrderDetail"));
 const Favorites = page(() => import("./pages/Favorites"));
 const Addresses = page(() => import("./pages/Addresses"));
 const ReceiptPage = page(() => import("./pages/Receipt"));
+const Notifications = page(() => import("./pages/Notifications"));
 const NotFound = page(() => import("./pages/NotFound"));
 
 export const router = createBrowserRouter([
@@ -37,6 +38,7 @@ export const router = createBrowserRouter([
       { path: "/cuenta", element: <Account /> },
       { path: "/cuenta/direcciones", element: <Addresses /> },
       { path: "/favoritos", element: <Favorites /> },
+      { path: "/avisos", element: <Notifications /> },
       { path: "/pedidos", element: <Orders /> },
       { path: "/pedidos/:number", element: <OrderDetail /> },
       { path: "/pedidos/:number/comprobante", element: <ReceiptPage /> },

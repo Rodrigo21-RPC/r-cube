@@ -9,6 +9,7 @@ import { PAYMENT_LABEL } from "@shared/types";
 import type { AdminOrderDetail, AdminOrderRow, Page } from "@shared/admin-types";
 import { AppError, validationHook, type AppEnv } from "../../middleware";
 import { audit } from "../../services/audit";
+import { notifyOrderStatus } from "../../services/notifications";
 import { cancelOrder, loadOrderDetail } from "../../services/orders";
 import type { Tx } from "../../services/stock";
 
@@ -141,11 +142,12 @@ export const adminOrderRoutes = new Hono<AppEnv>()
           .update(orders)
           .set({ status: to })
           .where(and(eq(orders.id, o.id), eq(orders.status, expectedStatus)))
-          .returning({ id: orders.id });
+          .returning({ id: orders.id, userId: orders.userId });
         if (!updated) throw new AppError(409, "STATE_CHANGED", "El pedido cambió de estado mientras lo revisabas. Actualiza la página.");
         await tx.insert(orderEvent).values({
           id: crypto.randomUUID(), orderId: o.id, fromStatus: expectedStatus, toStatus: to, actorType: "administrador", actorUserId: adminId,
         });
+        await notifyOrderStatus(tx, { id: updated.id, userId: updated.userId, number }, to);
         await audit(tx, adminId, auditEntry(expectedStatus));
       });
     }

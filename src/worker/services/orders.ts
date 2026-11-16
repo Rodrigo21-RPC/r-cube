@@ -7,6 +7,7 @@ import type { OrderDetail, PaymentMethodCode } from "@shared/types";
 import { AppError } from "../middleware";
 import { applyStockChange, recordMovement, type Tx } from "./stock";
 import { couponAppError, couponProblem, redeemCoupon, releaseCoupon } from "./coupons";
+import { notifyOrderStatus } from "./notifications";
 import { lockProduct, syncProductFromVariants } from "./variants";
 
 const { orders, orderItem, payment, orderEvent, product, productVariant, cartItem, deliveryZone, storeSettings, coupon } = schema;
@@ -199,6 +200,10 @@ export async function cancelOrder(
       actorUserId: actor.userId,
       reason,
     });
+    if (actor.type !== "cliente") {
+      const [ord] = await tx.select({ id: orders.id, userId: orders.userId, number: orders.number }).from(orders).where(eq(orders.id, orderId));
+      await notifyOrderStatus(tx, ord!, "cancelled", reason);
+    }
     if (alsoInTx) await alsoInTx(tx, current.status);
     return true;
   });

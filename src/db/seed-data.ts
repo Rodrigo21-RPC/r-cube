@@ -4,6 +4,7 @@ import * as s from "./schema";
 import { buildSearchText } from "../shared/search";
 import { couponDiscount, limaToday } from "../shared/coupon";
 import { orderTotals } from "../shared/money";
+import { orderStatusMessage } from "../shared/order-status";
 import { hashPassword } from "../worker/password";
 import { syncProductFromVariants } from "../worker/services/variants";
 
@@ -180,6 +181,7 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
   ];
 
   const now = Date.now();
+  const notifications: (typeof s.notification.$inferInsert)[] = [];
   for (const [i, o] of ORDERS.entries()) {
     const customer = CUSTOMERS[o.user - 1]!;
     const userId = `user-cliente-${o.user}`;
@@ -224,6 +226,15 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
         reason: to === "cancelled" ? (o.reason ?? null) : null,
         createdAt: new Date(created.getTime() + k * 6 * 3_600_000),
       });
+      // Aviso al cliente por cada cambio del administrador o del sistema (HU-53); los de más de 3 días ya están leídos.
+      if (actor !== "cliente") {
+        const at = new Date(created.getTime() + k * 6 * 3_600_000);
+        const number = `RC-${String(i + 1).padStart(6, "0")}`;
+        notifications.push({
+          id: `${id}-notif-${k + 1}`, userId, orderId: id, orderNumber: number, message: orderStatusMessage(number, to, o.reason),
+          readAt: now - at.getTime() > 3 * 86_400_000 ? new Date(at.getTime() + 3_600_000) : null, createdAt: at,
+        });
+      }
       from = to;
     }
   }
@@ -247,6 +258,7 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
     [4, ["Motorola Edge 60 Pro", "Google Pixel 8"]],
   ];
   await db.insert(s.favorite).values(favs.flatMap(([user, names]) => names.map((n) => ({ userId: `user-cliente-${user}`, productId: byName(n).id }))));
+  if (notifications.length) await db.insert(s.notification).values(notifications);
   await db.execute(sql`SELECT setval('order_number_seq', ${ORDERS.length})`);
   await seedStockHistory(db);
 }

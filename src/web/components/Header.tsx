@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { Heart, Search, ShoppingCart, User } from "lucide-react";
 import { useSession } from "@web/auth";
 import { useCartCount } from "@web/cart/useCart";
+import { NotificationBell } from "./NotificationBell";
 
 /** Encabezado con logo, buscador, cuenta, carrito y lugar para el interruptor de tema (RNF-03). */
 export function Header({ themeToggle }: { themeToggle?: React.ReactNode }) {
@@ -41,6 +42,7 @@ export function Header({ themeToggle }: { themeToggle?: React.ReactNode }) {
             <span className="hidden text-sm sm:inline">{me ? me.name.split(" ")[0] : "Ingresar"}</span>
             <span className="sr-only sm:hidden">{me ? "Mi cuenta" : "Ingresar"}</span>
           </Link>
+          <NotificationBell />
           {me?.role === "cliente" && (
             <Link to="/favoritos" className="inline-flex size-11 items-center justify-center rounded-full hover:bg-surface" aria-label="Mis favoritos">
               <Heart aria-hidden className="size-5" />

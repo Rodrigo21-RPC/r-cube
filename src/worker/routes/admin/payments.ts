@@ -7,6 +7,7 @@ import { formatPEN } from "@shared/money";
 import type { PendingPayment } from "@shared/admin-types";
 import { AppError, validationHook, type AppEnv } from "../../middleware";
 import { audit } from "../../services/audit";
+import { notifyOrderStatus } from "../../services/notifications";
 import { cancelOrder } from "../../services/orders";
 import { loadAdminOrder } from "./orders";
 
@@ -41,10 +42,11 @@ export const paymentRoutes = new Hono<AppEnv>()
         .update(orders)
         .set({ status: "paid" })
         .where(and(eq(orders.number, number), eq(orders.status, "pending_payment")))
-        .returning({ id: orders.id, total: orders.totalCents });
+        .returning({ id: orders.id, total: orders.totalCents, userId: orders.userId });
       if (!o) throw STATE_CHANGED();
       await tx.update(payment).set({ status: "confirmed" }).where(eq(payment.orderId, o.id));
       await tx.insert(orderEvent).values({ id: crypto.randomUUID(), orderId: o.id, fromStatus: "pending_payment", toStatus: "paid", actorType: "administrador", actorUserId: adminId });
+      await notifyOrderStatus(tx, { id: o.id, userId: o.userId, number }, "paid");
       await audit(tx, adminId, {
         action: "pago_confirmado", entityType: "pedido", entityId: o.id, entityLabel: number,
         detail: `Pago del pedido ${number} confirmado (${formatPEN(o.total)})`,

@@ -19,6 +19,11 @@ export const STATUS_LABEL: Record<OrderStatus, string> = {
   cancelled: "Cancelado",
 };
 
+/** Texto del aviso al cliente: «Tu pedido RC-000123 está Enviado» o «… fue cancelado: <motivo>» (HU-53). */
+export function orderStatusMessage(number: string, to: OrderStatus, reason?: string | null): string {
+  return to === "cancelled" ? `Tu pedido ${number} fue cancelado${reason ? `: ${reason}` : ""}` : `Tu pedido ${number} está ${STATUS_LABEL[to]}`;
+}
+
 /** Estados desde los que el cliente puede cancelar (HU-24). */
 export const CANCELLABLE_BY_CUSTOMER: ReadonlySet<OrderStatus> = new Set([
   "pending_payment",
