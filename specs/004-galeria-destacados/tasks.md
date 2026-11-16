@@ -403,13 +403,13 @@ autor, licencia y un enlace que abre la página de origen.
 
 ### Tests for User Story 5 (escribir primero, deben fallar)
 
-- [ ] T049 [P] [US5] Prueba de API `tests/api/photo-credits.test.ts` (HU-58, FR-021 a FR-023):
+- [X] T049 [P] [US5] Prueba de API `tests/api/photo-credits.test.ts` (HU-58, FR-021 a FR-023):
   `GET /catalog/photo-credits` sin sesión responde 200; `external` incluye solo fotos `externa` de productos
   activos, con producto, `imageUrl`, `alt`, `author`, `license`, `licenseUrl` (el enlace de la licencia o
   `null` en dominio público) y `sourceUrl`, ordenadas por nombre de producto y posición; `project` lista una
   vez cada producto activo con fotos `proyecto`; las fotos `subida` y `tarjeta` no aparecen; un producto
   inactivo no aparece; sin créditos responde `{ external: [], project: [] }`
-- [ ] T050 [P] [US5] Prueba e2e `e2e/creditos.spec.ts` (HU-58, FR-022 a FR-024): desde el pie de la tienda
+- [X] T050 [P] [US5] Prueba e2e `e2e/creditos.spec.ts` (HU-58, FR-022 a FR-024): desde el pie de la tienda
   «Créditos de las fotos» abre `/creditos-fotos`; la página tiene título, una fila por foto externa con
   producto (enlace al detalle), autor, licencia y enlace de origen con `target="_blank"` y `rel` con
   `noopener`; el grupo «Fotos aportadas por el proyecto»; el aviso de que las tarjetas son de R Cube; en
@@ -417,15 +417,15 @@ autor, licencia y un enlace que abre la página de origen.
 
 ### Implementation for User Story 5
 
-- [ ] T051 [US5] En `src/worker/routes/catalog.ts` agregar `GET /photo-credits` (pública, una consulta sobre
+- [X] T051 [US5] En `src/worker/routes/catalog.ts` agregar `GET /photo-credits` (pública, una consulta sobre
   `product_image` unido a `product` activo) que arma `external` con `licenseUrl` desde `photo-credit.ts` y
   `project` agrupado por producto, según contracts/api.md; pasar T049 (HU-58, FR-022, FR-023)
-- [ ] T052 [US5] Crear `src/web/pages/PhotoCredits.tsx` (estados de carga, vacío y error; lista por producto
+- [X] T052 [US5] Crear `src/web/pages/PhotoCredits.tsx` (estados de carga, vacío y error; lista por producto
   con miniatura, autor, licencia con su enlace y enlace de origen en pestaña nueva con `rel="noopener
   noreferrer"`; grupo del proyecto y aviso de las tarjetas), registrar `/creditos-fotos` en
   `src/web/router.tsx` y agregar el enlace «Créditos de las fotos» al pie de `src/web/components/Layout.tsx`;
   pasar T050 (HU-58, FR-022 a FR-024)
-- [ ] T053 [US5] Commit de cierre de fase (HU-58, SC-004)
+- [X] T053 [US5] Commit de cierre de fase (HU-58, SC-004)
 
 **Checkpoint**: HU-54 a HU-58 completas.
 

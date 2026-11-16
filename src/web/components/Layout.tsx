@@ -28,6 +28,10 @@ export function Layout() {
             <Link to="/catalogo" className="text-accent underline underline-offset-2">
               Ver catálogo
             </Link>
+            {" · "}
+            <Link to="/creditos-fotos" className="text-accent underline underline-offset-2">
+              Créditos de las fotos
+            </Link>
           </p>
         </div>
       </footer>

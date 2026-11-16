@@ -4,9 +4,10 @@ import { z } from "zod";
 import { and, asc, count, desc, eq, gte, ilike, inArray, lte, max, min, gt, ne, sql, type SQL } from "drizzle-orm";
 import { schema } from "@db/client";
 import type { Db } from "@db/client";
+import { licenseUrl } from "@shared/photo-credit";
 import { normalizeSearch } from "@shared/search";
 import { variantLabel } from "@shared/variant";
-import type { Availability, CatalogPage, Facets, HomeData, ProductCard, ProductDetail } from "@shared/types";
+import type { Availability, CatalogPage, Facets, HomeData, PhotoCredits, ProductCard, ProductDetail } from "@shared/types";
 import { AppError, validationHook, type AppEnv } from "../middleware";
 
 const { product, brand, category, productImage, productVariant } = schema;
@@ -95,6 +96,38 @@ const soldUnits = sql<number>`coalesce((select sum(oi.quantity) from order_item 
 
 export const catalogRoutes = new Hono<AppEnv>()
   /** Portada: categorías, ofertas, más vendidos y novedades (HU-06). */
+  /** Créditos de las fotos: las externas con autor, licencia y origen, y los productos con fotos del proyecto (HU-58). */
+  .get("/photo-credits", async (c) => {
+    const rows = await c
+      .get("db")
+      .select({
+        productName: product.name,
+        productSlug: product.slug,
+        imageUrl: productImage.url,
+        alt: productImage.alt,
+        origin: productImage.origin,
+        author: productImage.creditAuthor,
+        license: productImage.creditLicense,
+        sourceUrl: productImage.creditUrl,
+      })
+      .from(productImage)
+      .innerJoin(product, eq(product.id, productImage.productId))
+      .where(and(eq(product.active, true), inArray(productImage.origin, ["externa", "proyecto"])))
+      .orderBy(sql`lower(${product.name})`, asc(product.id), asc(productImage.position));
+    const seen = new Set<string>();
+    const body: PhotoCredits = {
+      external: rows
+        .filter((r) => r.origin === "externa")
+        .map((r) => ({
+          productName: r.productName, productSlug: r.productSlug, imageUrl: r.imageUrl, alt: r.alt,
+          author: r.author, license: r.license, licenseUrl: licenseUrl(r.license), sourceUrl: r.sourceUrl,
+        })),
+      project: rows
+        .filter((r) => r.origin === "proyecto" && !seen.has(r.productSlug) && seen.add(r.productSlug))
+        .map((r) => ({ productName: r.productName, productSlug: r.productSlug })),
+    };
+    return c.json(body);
+  })
   .get("/home", async (c) => {
     const db = c.get("db");
     const active = and(eq(product.active, true), eq(brand.active, true), eq(category.active, true));
