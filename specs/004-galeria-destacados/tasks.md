@@ -34,7 +34,7 @@ demostración los referencian, FR-031, RN-07); las fotos nuevas van a `public/im
   `git check-ignore` que `public/img/productos/galeria/*.webp` NO está ignorada (FR-030)
 - [ ] T002 [P] Agregar a `package.json` los scripts `fotos:buscar`, `fotos:preparar` y `fotos:tarjetas`
   (`tsx scripts/fotos/buscar.ts`, `preparar.ts` y `tarjetas.ts`), sin dependencias nuevas (plan: Primary
-  Dependencies; los archivos de los scripts se crean en la fase de US1)
+  Dependencies; los archivos de los scripts se crean en la fase de US1) (FR-026, FR-030)
 
 ---
 
@@ -121,9 +121,12 @@ flecha, con una miniatura, con el teclado y deslizando, y comprobar contador y m
   `credit.license` (aceptada por `isAllowedLicense`) y `credit.url`; cada `url` empieza con `/img/` y el
   archivo existe en `public/`; cada archivo `.webp` pesa como máximo 204 800 bytes y mide como máximo 1 200 px
   de lado mayor (leer ancho y alto de la cabecera WebP en el propio test)
-- [ ] T015 [P] [US1] Prueba de API en `tests/api/seed.test.ts` (HU-54, FR-025, FR-032): los 37 productos
-  activos tienen de 3 a 5 filas de `product_image`, posiciones 0 a n-1 sin huecos, y la foto de cada
-  variante (`product_variant.image_id`) es de su mismo producto
+- [ ] T015 [P] [US1] Pruebas de API en `tests/api/seed.test.ts` y `tests/api/catalog.test.ts` (HU-54,
+  FR-025, FR-032, FR-034): los 37 productos activos tienen de 3 a 5 filas de `product_image`, posiciones 0 a
+  n-1 sin huecos, y la foto de cada variante (`product_variant.image_id`) es de su mismo producto; con un
+  producto de 3 fotos (`makeImages`) la tarjeta del catálogo, la línea del carrito y los favoritos usan la
+  foto de posición 0, y al marcar otra como principal (`POST /admin/products/:id/images/:imageId/main`) pasan
+  a usar esa; la línea de carrito de una variante con foto propia usa la de la variante (HU-44)
 - [ ] T016 [P] [US1] Prueba e2e `e2e/galeria.spec.ts` (HU-54, FR-001 a FR-009): en
   `/producto/samsung-galaxy-s23-256-gb` el contador dice «1 de N» con N entre 3 y 5 y hay N miniaturas;
   «Foto siguiente» da «2 de N» y marca la miniatura con `aria-current`; con el foco en la galería la flecha
@@ -134,7 +137,10 @@ flecha, con una miniatura, con el teclado y deslizando, y comprobar contador y m
   ninguna flecha, contador ni miniatura; en `/producto/motorola-edge-60-pro` elegir «256 GB» y «Azul» lleva
   a la foto de esa variante y una elección manual posterior se respeta; una foto que falla (interceptar la
   petición) se sustituye por la imagen genérica sin romper la navegación; el contenedor de la foto grande
-  conserva su alto al cargar (sin saltos)
+  conserva su alto al cargar (sin saltos); «Foto anterior», «Foto siguiente» y las miniaturas miden al menos
+  44 × 44 px (`boundingBox`, FR-009); desde la última foto se llega a cualquier otra con una sola
+  pulsación de miniatura (SC-001); al abrir otro producto desde «Productos relacionados» la galería empieza en
+  «1 de N» (FR-007)
 
 ### Implementation for User Story 1
 
@@ -230,10 +236,12 @@ ellos y comprobar que no hay bloque ni hueco.
 
 ### Tests for User Story 2 (escribir primero, deben fallar)
 
-- [ ] T030 [P] [US2] Prueba de API en `tests/api/catalog.test.ts` (HU-56, FR-014 a FR-016):
+- [ ] T030 [P] [US2] Prueba de API en `tests/api/catalog.test.ts` (HU-56, FR-014 a FR-017):
   `GET /catalog/products/:slug` devuelve `tagline` y `highlights` de un producto que los tiene (cargarlos por
   SQL en la prueba), `tagline: ""` y `highlights: []` en uno que no, y `images` sigue siendo `{ url, alt }[]`
-  sin más campos (compatibilidad con `tests/api/admin/images.test.ts`)
+  sin más campos (compatibilidad con `tests/api/admin/images.test.ts`); una búsqueda
+  (`GET /catalog/products?q=`) con una palabra que solo está en la frase o en un destacado no devuelve el
+  producto, y lo mismo con `GET /admin/products?q=` (clarificación 5)
 - [ ] T031 [P] [US2] Prueba e2e `e2e/destacados.spec.ts` (HU-56, FR-015, FR-016): en
   `/producto/iphone-13-pro-128-gb` hay una frase y de 3 a 5 viñetas bajo el título y antes del precio (orden
   del DOM); un producto creado por la API del panel sin frase ni destacados no muestra el bloque ni deja un
@@ -242,8 +250,9 @@ ellos y comprobar que no hay bloque ni hueco.
 - [ ] T032 [P] [US2] Ampliar `tests/unit/gallery-data.test.ts` (HU-56, FR-029): para cada producto activo
   `tagline` no vacía de hasta `TAGLINE_MAX` (90) caracteres; de 3 a 5 destacados de hasta `HIGHLIGHT_MAX` (60)
   caracteres, sin duplicados y sin `<` ni `>`; ninguna frase ni destacado usa mayúsculas sostenidas ni signos
-  de exclamación repetidos; cada dato numérico de un destacado (por ejemplo «120 Hz», «256 GB») aparece en
-  las especificaciones o en la descripción del producto en `PRODUCTS` (no afirma nada que no esté respaldado)
+  de exclamación repetidos; cada dato numérico de un destacado (por ejemplo «120 Hz», «256 GB») aparece, normalizando la coma
+  decimal («6,1» y «6.1» son iguales) y los espacios, en las especificaciones o en la descripción del
+  producto en `PRODUCTS` (no afirma nada que no esté respaldado)
 
 ### Implementation for User Story 2
 
@@ -315,8 +324,9 @@ cambio en la tienda y en la auditoría; probar los rechazos (91 caracteres, sext
   vacío se aceptan); una frase de 91 caracteres responde 400 con `fields.tagline` «La frase no puede pasar de
   90 caracteres»; 6 destacados reales responden 400 con `fields.highlights` «Máximo 5 destacados»; un
   destacado de 61 caracteres responde 400 con `fields["highlights.N"]` «Cada destacado admite hasta 60
-  caracteres»; con cualquier error no cambia nada; un texto con `<b>` se guarda tal cual; 401 sin sesión y
-  403 con cliente sin cambiar datos
+  caracteres»; con cualquier error no cambia nada; un texto con `<b>` se guarda tal cual; la columna
+  `search_text` del producto no cambia al editar la frase o los destacados (FR-017); 401 sin sesión y 403 con
+  cliente sin cambiar datos
 - [ ] T042 [P] [US4] Prueba e2e `e2e/admin-destacados.spec.ts` (HU-57, SC-005): en el panel abrir un producto,
   escribir una frase y 3 destacados, guardar y ver el cambio en la tienda al recargar; ver la entrada en
   Auditoría; una frase de 91 caracteres muestra «La frase no puede pasar de 90 caracteres» junto al campo; un
@@ -406,14 +416,16 @@ autor, licencia y un enlace que abre la página de origen.
   (RNF-05)
 - [ ] T056 Ejecutar el recorrido completo de `quickstart.md` en tema claro y oscuro y a 320 px, y la revisión
   guiada de las 37 fotos principales (SC-003): anotar los productos con problemas, corregirlos en
-  `src/db/gallery-data.ts` y repetir hasta que los 37 cumplan (SC-001 a SC-008)
+  `src/db/gallery-data.ts` y repetir hasta que los 37 cumplan; confirmar también que todo texto nuevo de la
+  interfaz está en español de Perú (FR-036, SC-001 a SC-008)
 - [ ] T057 Correr `npm run check`, `npm run db:seed` y `npm run test:e2e` completos: tipos, lint, contraste,
   unitarias, API y e2e de las features 001 a 004 en verde, con cada historia HU-54 a HU-58 nombrada en al
-  menos una prueba (SC-009, RNF-08, RNF-09)
+  menos una prueba, y comprobar con `git diff --stat main -- public/img/productos docs/fotos
+  ':!public/img/productos/galeria'` que los archivos actuales no cambiaron (SC-009, RNF-08, RNF-09, FR-031)
 - [ ] T058 Marcar las tareas, cerrar la feature con la convención de `CLAUDE.md` (commit de lo pendiente,
   pruebas, `merge --no-ff` a `main` con el mensaje «Merge feature 004: Galería y destacados del producto»,
   borrar la rama local y la remota, subir `main` y mostrar `git log --oneline --graph -10`) y comprobar que
-  el CI de `main` queda en verde
+  el CI de `main` queda en verde (RNF-08, SC-009)
 
 ---
 

@@ -87,7 +87,7 @@ la tabla.
 specs/004-galeria-destacados/
 ├── spec.md
 ├── plan.md              # este archivo
-├── research.md          # decisiones R1 a R13
+├── research.md          # decisiones R1 a R13 (R14, revisión de seguridad, se agrega al cerrar la feature)
 ├── data-model.md        # columnas, reglas e invariantes
 ├── quickstart.md        # recorrido de validación con los datos de demostración
 ├── contracts/
@@ -133,7 +133,7 @@ drizzle/
 
 tests/
 ├── unit/                            # highlights, photo-credit, gallery-data
-└── api/                             # product-highlights (admin), photo-credits, catalog (detalle), seed
+└── api/                             # gallery-schema, product-highlights (admin), photo-credits, catalog (detalle y búsqueda), seed
 
 e2e/                                 # galeria, admin-destacados, creditos; accesibilidad ampliada
 ```

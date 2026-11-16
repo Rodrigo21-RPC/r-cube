@@ -340,7 +340,7 @@ la página de origen.
   002 (hasta 6, JPG, PNG o WebP de hasta 2 MB, foto principal, orden y borrado) y aparecer en la galería;
   el mínimo de 3 fotos MUST NOT exigirse a los productos que crea el administrador.
 - **FR-034**: El carrito, el checkout, los pedidos y los favoritos MUST seguir usando la foto principal del
-  producto sin cambios de comportamiento.
+  producto (o la foto propia de la variante elegida, como en la feature 003) sin cambios de comportamiento.
 - **FR-035**: La galería, la vista ampliada, el bloque de destacados, el formulario de destacados y la
   página de créditos MUST cumplir WCAG 2.2 AA en tema claro y oscuro, con foco visible y uso completo con
   teclado (RNF-03).
@@ -385,6 +385,8 @@ la página de origen.
 
 - El tope de 6 fotos por producto, los formatos (JPG, PNG o WebP), el peso máximo de 2 MB al subir y la
   foto principal con orden son los de la feature 002 y no cambian.
+- Los datos de demostración usan de 3 a 5 fotos por producto (dentro del rango de 3 a 6 de FR-025 y SC-002)
+  para dejar al menos un lugar libre del tope de 6 a las fotos que suba el administrador.
 - La frase y los destacados son texto plano en un solo idioma (español de Perú); no admiten formato, enlaces
   ni emojis obligatorios. No se reordenan: el orden es el que escribe el administrador.
 - La navegación de la galería es circular (FR-003); es una decisión de diseño por defecto, no una
