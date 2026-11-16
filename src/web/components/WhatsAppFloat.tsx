@@ -21,10 +21,10 @@ export function WhatsAppFloat() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Escríbenos por WhatsApp"
-      className="fixed bottom-4 right-4 z-40 inline-flex h-14 items-center gap-2 rounded-full bg-whatsapp px-4 font-medium text-on-whatsapp shadow-lg transition hover:brightness-110 print:hidden md:px-5"
+      title="Escríbenos por WhatsApp"
+      className="fixed bottom-4 right-4 z-40 grid size-14 place-items-center rounded-full bg-whatsapp text-on-whatsapp shadow-lg transition hover:brightness-110 print:hidden"
     >
-      <MessageCircle aria-hidden className="size-6 shrink-0" />
-      <span className="hidden md:inline">Escríbenos por WhatsApp</span>
+      <MessageCircle aria-hidden className="size-7" />
     </a>
   );
 }

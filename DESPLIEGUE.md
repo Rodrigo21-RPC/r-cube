@@ -53,7 +53,22 @@ pedidos impagos con más de 24 horas (RN-12).
    borra y vuelve a crear todos los datos. Solo debe correrse en una base nueva o de
    demostración. También crea el historial de stock: el saldo de cada producto coincide con la suma
    de sus movimientos (inicial, ventas y cancelaciones).
-6. **Publicar:**
+
+   La migración `0004_galeria_destacados` agrega la frase y los destacados del producto y el origen y el
+   crédito de cada foto. Las fotos que ya tenía la tienda quedan como «proyecto» y los productos sin frase ni
+   destacados siguen funcionando. Hay que aplicarla antes de publicar la versión nueva del Worker, porque el
+   detalle del producto consulta esas columnas. El seed vuelve a crear las fotos de la galería (de 4 a 6 por
+   producto activo) con su crédito.
+6. **Fotos de la galería.** Las fotos de demostración están en `public/img/productos/galeria/` (formato WebP,
+   unos 10 MB en total) y viajan con el build como archivos estáticos del Worker: no hace falta subirlas a
+   R2. R2 sigue guardando solo las fotos que sube el administrador. Mantener visible el enlace «Créditos de
+   las fotos» del pie de página (`/creditos-fotos`): ahí se atribuyen las fotos de Wikimedia Commons según su
+   licencia (CC0, dominio público, CC BY o CC BY-SA).
+7. **WhatsApp.** El botón «Consultar por WhatsApp», el botón flotante y el enlace del pie toman el número de
+   Panel → Configuración (campo «WhatsApp», con el formato `51` más los 9 dígitos del celular). Si la tienda
+   no tuviera número, no se muestra ninguno de los tres. Es un enlace a `wa.me`: no usa la API de WhatsApp
+   Business ni guarda conversaciones.
+8. **Publicar:**
    ```
    npm run deploy
    ```
@@ -74,6 +89,11 @@ pedidos impagos con más de 24 horas (RN-12).
 | Panel → Pedidos → pasar un pedido de un cliente a Enviado; como ese cliente, mirar la campana | El contador sube en un minuto como máximo y el aviso lleva al pedido |
 | Mis pedidos → un pedido → «Ver comprobante» → Imprimir | Vista previa de una hoja A4 sin encabezado ni botones |
 | Cabeceras de `<URL>/` | `Content-Security-Policy` y `X-Frame-Options: DENY` presentes |
+| Abrir un producto de la tienda | Galería con 4 a 6 fotos, frase y destacados bajo el nombre, y «Consultar por WhatsApp» |
+| Pulsar la foto grande del detalle | Vista ampliada con flechas; Escape la cierra y el foco vuelve al botón |
+| Pie de página → «Créditos de las fotos» | Lista con autor, licencia y enlace de origen de cada foto externa |
+| Panel → Pedidos → un pedido → «Escribir por WhatsApp» | Abre `wa.me/51<celular>` con el saludo y el número de pedido |
+| `GET <URL>/api/catalog/contact` | `{"name":"R Cube","whatsappNumber":"…"}` con el número de la configuración |
 
 Cuentas de demostración: `admin@rcube.pe` (administrador) y `mateo@demo.pe`, `lucia@demo.pe`,
 `diego@demo.pe`, `valeria@demo.pe`, `andres@demo.pe` (clientes), con las contraseñas de `.env`.

@@ -510,52 +510,52 @@ tienda, con el número de la configuración (HU-59).
 
 ## Phase 10: Polish & Cross-Cutting Concerns
 
-- [ ] T063 [P] Ampliar `e2e/accesibilidad.spec.ts` (RNF-03, FR-035, SC-006, SC-007): agregar a `PAGES` el
+- [X] T063 [P] Ampliar `e2e/accesibilidad.spec.ts` (RNF-03, FR-035, SC-006, SC-007): agregar a `PAGES` el
   detalle con galería (`/producto/samsung-galaxy-s23-256-gb`) y `/creditos-fotos` (la tienda ya trae el botón
   flotante de WhatsApp en todas); una prueba en ambos temas que abre la vista ampliada y pasa axe AA con el
   diálogo abierto; una prueba de teclado que recorre la galería, el botón de WhatsApp y la vista ampliada sin
   ratón; y la comprobación de no desborde horizontal a 320 px en el detalle, la vista ampliada, los créditos y
   la portada con el botón flotante (ampliando la que ya existe para las páginas del cliente)
-- [ ] T064 [P] Actualizar `DESPLIEGUE.md`: aplicar la migración `0004` antes de publicar, que las fotos de
+- [X] T064 [P] Actualizar `DESPLIEGUE.md`: aplicar la migración `0004` antes de publicar, que las fotos de
   `public/img/productos/galeria/` viajan con el build, cargar los datos de demostración con el seed (que
   reemplaza las fotos), que el número de WhatsApp se configura en el panel (Configuración) y que el botón de
   la tienda lo toma de ahí, y la nota de que las fotos de Commons exigen mantener visible la página de créditos
   (FR-021, FR-039, RNF-10)
-- [ ] T065 [P] Actualizar `README.md` y `specs/README.md`: la fila de la 003 pasa a «Cerrada: fusionada en
+- [X] T065 [P] Actualizar `README.md` y `specs/README.md`: la fila de la 003 pasa a «Cerrada: fusionada en
   `main`» (hoy dice «En implementación»), nueva fila y sección de la 004 con sus artefactos, historias HU-54
   a HU-60, los scripts `fotos:*`, el contacto por WhatsApp y el riesgo declarado de las fotos originales de
   `docs/fotos` sin autor registrado (FR-023, spec: Assumptions)
-- [ ] T066 [P] Verificar la migración `0004` sobre una base temporal que ya tenga datos de la 003: aplicar
+- [X] T066 [P] Verificar la migración `0004` sobre una base temporal que ya tenga datos de la 003: aplicar
   `0000` a `0003`, insertar productos y fotos estáticas y una foto con `r2_key`, aplicar `0004` y comprobar
   que las estáticas quedan en `origin = 'proyecto'`, la de R2 en `'subida'` y los productos con `tagline = ''`
   y `highlights = '[]'` (RNF-10, FR-031)
-- [ ] T067 Auditoría de completitud de la tienda y del panel (todas las features): crear
+- [X] T067 Auditoría de completitud de la tienda y del panel (todas las features): crear
   `tests/unit/traceability.test.ts` que lee las historias de `docs/requisitos/HISTORIAS-DE-USUARIO.md` (menos
   las marcadas como retiradas) y exige que cada `HU-NN` aparezca en el título de al menos una prueba de
   `tests/` o `e2e/`; para cada HU que falte, escribir la prueba que la cubre (o, si la historia no está
   implementada, implementarla con su prueba primero y avisar) hasta que el test pase (RNF-08, RNF-09, SC-009)
-- [ ] T068 Revisión visual de la experiencia de usuario de la tienda y del panel: con Playwright tomar
+- [X] T068 Revisión visual de la experiencia de usuario de la tienda y del panel: con Playwright tomar
   capturas (en la carpeta temporal de la sesión, sin versionarlas) de portada, catálogo, detalle con
   galería y destacados, carrito, checkout, mi cuenta, mis pedidos, favoritos y créditos; y del panel: resumen,
   productos, formulario de producto, pedidos, detalle de pedido, clientes y configuración, en tema claro y
   oscuro, móvil (Pixel 7) y escritorio; mirarlas con la herramienta de lectura de imágenes, listar
   problemas de alineación, contraste, textos cortados, estados vacíos, y corregir los pequeños (los que
   exijan una feature nueva se anotan en `specs/README.md` como pendientes) (RNF-02, RNF-03, principio IX)
-- [ ] T069 Verificar la base de datos desde cero: crear una base vacía temporal, aplicar las migraciones
+- [X] T069 Verificar la base de datos desde cero: crear una base vacía temporal, aplicar las migraciones
   `0000` a `0004` con `npm run db:migrate`, cargar `npm run db:seed` y pasar `tests/api/seed.test.ts`;
   comprobar con `npm run db:generate` que no propone ningún cambio pendiente (esquema y migraciones
   alineados) y que `.env.example` lista todas las variables necesarias sin valores (RNF-10, principio V y VII)
-- [ ] T070 Revisión de seguridad en `research.md` (R16): texto de la frase y los destacados siempre como
+- [X] T070 Revisión de seguridad en `research.md` (R16): texto de la frase y los destacados siempre como
   texto (sin HTML), validación y normalización en el servidor, `rel="noopener noreferrer"` en todos los enlaces
   externos (créditos y WhatsApp), `GET /catalog/photo-credits` y `GET /catalog/contact` sin datos personales ni
   de productos inactivos, mensajes de WhatsApp codificados (sin inyección en la URL), la ruta de contacto
   solo expone el número que el administrador ya publica, los scripts no guardan credenciales y usan un
   `User-Agent` genérico, y las licencias admitidas; corregir lo que aparezca (RNF-05)
-- [ ] T071 Ejecutar el recorrido completo de `quickstart.md` en tema claro y oscuro y a 320 px, y la revisión
+- [X] T071 Ejecutar el recorrido completo de `quickstart.md` en tema claro y oscuro y a 320 px, y la revisión
   guiada de las 37 fotos principales (SC-003): anotar los productos con problemas, corregirlos en
   `src/db/gallery-data.ts` y repetir hasta que los 37 cumplan; confirmar también que todo texto nuevo de la
   interfaz está en español de Perú (FR-036, SC-001 a SC-011)
-- [ ] T072 Correr `npm run check`, `npm run db:seed` y `npm run test:e2e` completos: tipos, lint, contraste,
+- [X] T072 Correr `npm run check`, `npm run db:seed` y `npm run test:e2e` completos: tipos, lint, contraste,
   unitarias, API y e2e de las features 001 a 004 en verde, con cada historia HU-54 a HU-60 nombrada en al
   menos una prueba, y comprobar con `git diff --stat main -- public/img/productos docs/fotos
   ':!public/img/productos/galeria'` que los archivos actuales no cambiaron (SC-009, RNF-08, RNF-09, FR-031)

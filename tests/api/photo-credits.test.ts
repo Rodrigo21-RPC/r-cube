@@ -1,6 +1,7 @@
+import { sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { PhotoCredits } from "@shared/types";
-import { api, ids, makeImages, resetDb } from "./helpers";
+import { api, ids, makeImages, resetDb, withDb } from "./helpers";
 
 const SOURCE = (name: string) => `https://commons.wikimedia.org/wiki/File:${name}`;
 const get = async () => (await (await api("/catalog/photo-credits")).json()) as PhotoCredits;
@@ -60,6 +61,14 @@ describe("HU-58, FR-021 a FR-023: créditos de las fotos", () => {
     const body = await get();
     expect(body.external.map((e) => e.productSlug)).not.toContain(ids.pOff);
     expect(body.project.map((p) => p.productSlug)).not.toContain(ids.pOff);
+  });
+
+  it("HU-58, RNF-05: un producto que la tienda no muestra (su marca o su categoría está inactiva) tampoco aparece en los créditos", async () => {
+    await withDb((db) => db.execute(sql`update brand set active = false where id = ${ids.brandA}`)); // marca del iPhone 15 Pro
+    await withDb((db) => db.execute(sql`update category set active = false where id = (select category_id from product where id = ${ids.p0})`));
+    const body = await get();
+    expect(body.external.map((e) => e.productSlug)).toEqual([ids.p3, ids.p3]);
+    expect(body.project.map((p) => p.productSlug)).toEqual([]);
   });
 });
 

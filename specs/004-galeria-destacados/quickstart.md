@@ -35,7 +35,7 @@ Cuentas (contraseñas en `.env`): administrador `admin@rcube.pe`; clientes `mate
 
 Abrir el catálogo (12 productos por página) y, en cada tarjeta, comprobar que la foto muestra **un solo
 equipo, completo y reconocible**: sin varios equipos en la misma foto, sin vista de la parte inferior o de
-un componente interno y sin ser de otro modelo. Marcar cualquier producto que no cumpla para corregirlo en
+un componente interno y sin ser de un modelo de otra familia (si no hay foto libre del modelo exacto, vale otro de la misma familia con el texto alternativo aclarándolo). Marcar cualquier producto que no cumpla para corregirlo en
 `src/db/gallery-data.ts`. Después abrir cada producto y comprobar que tiene de 4 a 6 fotos, que la última
 — las 3 últimas son las tarjetas de características, destacados y compra segura — y que ninguna se ve cortada, borrosa o con otro idioma. Las tarjetas deben leerse como una ficha profesional: jerarquía clara, texto legible a tamaño móvil y sin datos inventados.
 
@@ -46,7 +46,7 @@ un componente interno y sin ser de otro modelo. Marcar cualquier producto que no
 - **Lector de pantalla**: la galería se anuncia como carrusel; al cambiar se oye «Foto 2 de 5»; las
   miniaturas dicen «Ver foto 2 de 5»; cada foto tiene un texto alternativo propio.
 - **Móvil**: a 320 px no hay desplazamiento horizontal de la página en el detalle, la vista ampliada ni los
-  créditos, y el botón flotante de WhatsApp no tapa «Agregar al carrito», los totales ni el botón de pago; los botones miden al menos 44 px (SC-007).
+  créditos, y el botón flotante de WhatsApp no impide pulsar «Agregar al carrito», los totales ni el botón de pago; los botones miden al menos 44 px (SC-007).
 - **Reducir movimiento**: con la preferencia del sistema activada, la galería cambia de foto sin animación.
 - **Peso**: en la pestaña de red del navegador, abrir un producto con 6 fotos descarga como máximo 1.2 MB de
   fotos y la primera foto aparece sin que el diseño se mueva (SC-008).

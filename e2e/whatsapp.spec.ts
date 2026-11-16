@@ -106,6 +106,15 @@ test.describe("HU-59: contactar a la tienda por WhatsApp", () => {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 
+  test("HU-59, FR-038: el botón flotante no cubre ninguna parte visible de «Consultar por WhatsApp» con la página arriba", async ({ page }) => {
+    await page.goto(S23);
+    await expect(float(page)).toBeVisible();
+    await page.evaluate(() => window.scrollTo(0, 0));
+    const [f, c] = [(await float(page).boundingBox())!, (await consult(page).boundingBox())!];
+    const overlaps = f.x < c.x + c.width && c.x < f.x + f.width && f.y < c.y + c.height && c.y < f.y + f.height;
+    expect(overlaps, `flotante ${JSON.stringify(f)} sobre «Consultar» ${JSON.stringify(c)}`).toBe(false);
+  });
+
   test("HU-59, FR-038: la vista ampliada de fotos queda por encima del botón flotante", async ({ page }) => {
     await page.goto(S23);
     await expect(float(page)).toBeVisible();

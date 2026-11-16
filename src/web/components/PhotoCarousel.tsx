@@ -95,8 +95,10 @@ export function PhotoCarousel({ photos, index, onIndexChange, label = "Galería 
         <div
           ref={track}
           data-testid="carousel-track"
+          // Región desplazable que se enfoca con el teclado (WCAG 2.1.1): las flechas del teclado cambian de foto.
+          tabIndex={0}
           onScroll={onScroll}
-          className="flex h-full w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex h-full w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] focus-visible:outline-offset-[-3px] [&::-webkit-scrollbar]:hidden"
         >
           {photos.map((p, i) => (
             <div

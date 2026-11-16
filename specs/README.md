@@ -4,7 +4,8 @@
 |---|---|---|
 | 001 Tienda y compra | HU-01 a HU-25 (HU-19 retirada) | Cerrada: fusionada en `main` |
 | 002 Administración | HU-26 a HU-42 | Cerrada: fusionada en `main` |
-| 003 Experiencia avanzada | HU-43 a HU-53 | En implementación (rama `003-experiencia-avanzada`) |
+| 003 Experiencia avanzada | HU-43 a HU-53 | Cerrada: fusionada en `main` |
+| 004 Galería y destacados | HU-54 a HU-60 | En implementación (rama `004-galeria-destacados`) |
 
 ## Feature 001
 
@@ -36,3 +37,26 @@
   transacción del pedido.
 - Los datos de demostración incluyen 2 reseñas (una oculta): los 8 pedidos de la 001 son fijos y solo hay 3
   productos entregados.
+
+## Feature 004
+
+- Artefactos: `specs/004-galeria-destacados/` (spec con clarificaciones, plan, research, data-model,
+  contrato de la API, quickstart y tasks de 73 tareas).
+- Galería de hasta 8 fotos por producto con carrusel, miniaturas y vista ampliada (HU-54, HU-55), frase y
+  destacados bajo el nombre (HU-56) editables desde el panel con auditoría (HU-57), créditos públicos de las
+  fotos externas (HU-58), contacto por WhatsApp desde la tienda (HU-59) y desde el panel hacia el cliente
+  (HU-60).
+- Decisiones de diseño: las fotos de demostración son de Wikimedia Commons (CC0, dominio público, CC BY o
+  CC BY-SA) más 3 tarjetas gráficas de R Cube por producto; cuando no hay foto libre del modelo exacto se usa
+  una de la misma familia y el texto alternativo lo aclara. WhatsApp se resuelve solo con enlaces `wa.me`.
+- Scripts de desarrollo para las fotos: `npm run fotos:buscar`, `fotos:agregar`, `fotos:preparar` y
+  `fotos:tarjetas` (`scripts/fotos/`).
+- Riesgo declarado: las fotos originales del proyecto (`docs/fotos`) no tienen autor registrado y se agrupan
+  en «Fotos aportadas por el proyecto».
+- Revisión visual y de las fotos principales (T068, T071): se corrigieron la tira de miniaturas que ensanchaba
+  la página a 320 px, el botón flotante de WhatsApp que tapaba parte de «Consultar por WhatsApp» en
+  escritorio (ahora es un círculo con el icono), la pista del carrusel que no se podía enfocar con el teclado
+  y las fotos principales del kit de herramientas y del Surface Laptop 5. Pendiente, sin cambio de
+  alcance: las fotos principales de Dell Inspiron 15 (solo el teclado), Xiaomi 13T Pro (recortada) y Sony
+  Xperia Z5 (dos unidades) son las mejores con licencia libre que se encontraron; conviene reemplazarlas si el
+  administrador sube fotos propias.

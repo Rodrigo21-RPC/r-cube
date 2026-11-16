@@ -10,6 +10,8 @@ const PAGES = [
   ["ingresar", "/ingresar"],
   ["registro", "/registro"],
   ["detalle con variantes, reseñas y relacionados", "/producto/motorola-edge-60-pro"],
+  ["detalle con galería, destacados y botón de WhatsApp", "/producto/samsung-galaxy-s23-256-gb"],
+  ["créditos de las fotos", "/creditos-fotos"],
 ] as const;
 
 test.describe("RNF-03, SC-006: accesibilidad WCAG 2.2 AA en ambos temas", () => {
@@ -54,6 +56,7 @@ const ADMIN_PAGES = [
   ["cupones", "/admin/cupones", null],
   ["reseñas", "/admin/resenas", null],
   ["producto con variantes", "/admin/productos/prod-motorola-edge-60-pro", null],
+  ["producto con frase y destacados", "/admin/productos/prod-iphone-13-pro-128-gb", null],
 ] as const;
 
 test.describe("RNF-03, SC-007: accesibilidad AA del panel en ambos temas", () => {
@@ -145,4 +148,59 @@ test.describe("RNF-03, SC-008: accesibilidad AA con una variante elegida y con r
       expect(result.violations.map((v) => `${v.id}: ${v.nodes.length} nodo(s) — ${v.nodes[0]?.target.join(" ")}`)).toEqual([]);
     });
   }
+});
+
+const S23 = "/producto/samsung-galaxy-s23-256-gb";
+
+test.describe("RNF-03, FR-035, SC-006, SC-007: galería, vista ampliada y WhatsApp (feature 004)", () => {
+  for (const tema of ["claro", "oscuro"] as const) {
+    test(`FR-035: la vista ampliada abierta en tema ${tema} no tiene violaciones AA`, async ({ page }) => {
+      await page.addInitScript((t) => localStorage.setItem("tema", t), tema);
+      await page.goto(S23);
+      await page.getByRole("button", { name: "Ampliar foto" }).click();
+      await expect(page.getByRole("dialog")).toBeVisible();
+      const result = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+      expect(result.violations.map((v) => `${v.id}: ${v.nodes.length} nodo(s) — ${v.nodes[0]?.target.join(" ")}`)).toEqual([]);
+    });
+  }
+
+  test("SC-006: la galería, la vista ampliada y el botón de WhatsApp se recorren solo con el teclado", async ({ page }) => {
+    await page.goto(S23);
+    const gallery = page.getByRole("region", { name: "Galería de fotos" });
+    await gallery.getByRole("button", { name: "Foto siguiente" }).focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(gallery.getByText(/^2 de \d+$/)).toBeVisible();
+
+    const open = gallery.getByRole("button", { name: "Ampliar foto" });
+    await open.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(open).toBeFocused();
+
+    // Desde «Agregar al carrito» se llega al enlace de WhatsApp con el tabulador, sin trampas de foco.
+    await page.getByRole("button", { name: "Agregar al carrito" }).focus();
+    let reached = false;
+    for (let i = 0; i < 6 && !reached; i++) {
+      await page.keyboard.press("Tab");
+      reached = await page.getByRole("link", { name: "Consultar por WhatsApp" }).evaluate((el) => el === document.activeElement);
+    }
+    expect(reached).toBe(true);
+  });
+
+  test("SC-007: a 320 px no hay desplazamiento horizontal en el detalle, la vista ampliada, los créditos ni la portada con el botón flotante", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    for (const path of [S23, "/creditos-fotos", "/"]) {
+      await page.goto(path);
+      await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
+      await page.waitForLoadState("networkidle");
+      expect(await overflow(), path).toBeLessThanOrEqual(0);
+    }
+    await page.goto(S23);
+    await page.getByRole("button", { name: "Ampliar foto" }).click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+    expect(await overflow(), "vista ampliada").toBeLessThanOrEqual(0);
+  });
 });

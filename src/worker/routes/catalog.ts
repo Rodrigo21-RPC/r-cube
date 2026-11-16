@@ -95,7 +95,6 @@ const soldUnits = sql<number>`coalesce((select sum(oi.quantity) from order_item 
   join orders o on o.id = oi.order_id where oi.product_id = ${product.id} and o.status <> 'cancelled'), 0)`;
 
 export const catalogRoutes = new Hono<AppEnv>()
-  /** Portada: categorías, ofertas, más vendidos y novedades (HU-06). */
   /** Contacto público de la tienda para los botones de WhatsApp: solo el nombre y el número, con dígitos (HU-59). */
   .get("/contact", async (c) => {
     const [s] = await c.get("db").select({ number: storeSettings.whatsappNumber }).from(storeSettings).where(eq(storeSettings.id, 1));
@@ -118,7 +117,10 @@ export const catalogRoutes = new Hono<AppEnv>()
       })
       .from(productImage)
       .innerJoin(product, eq(product.id, productImage.productId))
-      .where(and(eq(product.active, true), inArray(productImage.origin, ["externa", "proyecto"])))
+      .innerJoin(brand, eq(brand.id, product.brandId))
+      .innerJoin(category, eq(category.id, product.categoryId))
+      // Solo productos que la tienda muestra (activos, con marca y categoría activas): no se filtran nombres ocultos.
+      .where(and(eq(product.active, true), eq(brand.active, true), eq(category.active, true), inArray(productImage.origin, ["externa", "proyecto"])))
       .orderBy(sql`lower(${product.name})`, asc(product.id), asc(productImage.position));
     const seen = new Set<string>();
     const body: PhotoCredits = {
@@ -134,6 +136,7 @@ export const catalogRoutes = new Hono<AppEnv>()
     };
     return c.json(body);
   })
+  /** Portada: categorías, ofertas, más vendidos y novedades (HU-06). */
   .get("/home", async (c) => {
     const db = c.get("db");
     const active = and(eq(product.active, true), eq(brand.active, true), eq(category.active, true));

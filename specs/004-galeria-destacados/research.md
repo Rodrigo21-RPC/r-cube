@@ -226,3 +226,35 @@ punto por aclarar. Formato: decisión, razón, alternativas descartadas.
   un valor habitual en las fichas de este tipo de tiendas.
 - **Alternativas**: mantener 6 (descartada: una demostración con 6 deja al administrador sin espacio);
   sin tope (descartada: sin límite de almacenamiento en R2 ni de carga de la galería).
+
+## R16. Revisión de seguridad
+
+- **Decisión**: se revisó cada punto de entrada y de salida de la feature (RNF-05) y se dejó una prueba o una
+  comprobación para cada uno.
+  - *Frase y destacados*: se muestran siempre como texto de React (el código no usa `dangerouslySetInnerHTML` ni
+    `innerHTML`); el servidor recorta, descarta los vacíos y valida los límites (90 y 60 caracteres, 5
+    destacados) y la base los refuerza con `CHECK`. Cubierto por `tests/api/admin/product-highlights.test.ts`
+    y `e2e/destacados.spec.ts`.
+  - *Enlaces externos*: todos los que abren fuera de la tienda (créditos, WhatsApp de la tienda, del pie y del
+    panel) llevan `target="_blank"` y `rel="noopener noreferrer"`; el checkout usa `window.open(..., "noopener")`.
+  - *WhatsApp*: el mensaje se codifica con `encodeURIComponent` y el número se reduce a dígitos antes de armar el
+    enlace `https://wa.me/…`; un celular que no es peruano válido no genera enlace (FR-040).
+  - *`GET /catalog/contact`*: devuelve solo el nombre de la tienda y el número que el administrador ya publica en
+    el pie y en el checkout; sin datos de clientes ni de pago.
+  - *`GET /catalog/photo-credits`*: solo trae fotos `externa` y `proyecto` de productos que la tienda muestra.
+    La revisión encontró que filtraba por producto activo pero no por marca o categoría activa, de modo que
+    podía listar el nombre de un producto oculto; se corrigió con las mismas condiciones del catálogo y una
+    prueba en `tests/api/photo-credits.test.ts`.
+  - *Origen y crédito de las fotos*: ningún endpoint permite escribir el crédito; las fotos que sube el
+    administrador entran como `subida` y las externas solo llegan por el seed desde el manifiesto, con las
+    licencias admitidas (`isAllowedLicense`, comprobado en `tests/unit/gallery-data.test.ts`); un `CHECK` de la base
+    exige autor, licencia y enlace en toda foto externa.
+  - *Scripts de fotos*: son de desarrollo, no se despliegan, no leen ni guardan credenciales y llaman a la API
+    pública de Wikimedia Commons con un `User-Agent` genérico, sin correo ni datos del equipo.
+  - *Carrusel y vista ampliada*: sin `iframe`, sin carga de código externo; las fotos se sirven desde el mismo
+    origen, de modo que la política de contenido (`Content-Security-Policy`) no cambia.
+- **Razón**: la feature agrega texto que escribe el administrador, enlaces a terceros y dos rutas públicas;
+  son los tres lugares donde pueden aparecer inyección, fuga de datos y reverse tabnabbing.
+- **Riesgo residual**: el enlace de origen de una foto externa no se valida como `https` en la base (solo llega
+  del manifiesto del repositorio). Si algún día se permitiera cargar créditos desde el panel, habría que
+  validarlo en el esquema de entrada.

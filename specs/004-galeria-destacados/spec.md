@@ -304,9 +304,10 @@ aparece deshabilitado con el aviso «Sin celular válido».
   (limitación declarada en Assumptions).
 - **WhatsApp sin número configurado o con un número vacío**: la tienda no muestra botones ni enlaces de
   WhatsApp y no falla; el panel no se ve afectado.
-- **El botón flotante de WhatsApp en pantallas pequeñas**: no tapa «Agregar al carrito», los totales ni los
-  botones de pago; deja margen a los bordes, no aparece al imprimir y la vista ampliada de fotos queda por
-  encima de él.
+- **El botón flotante de WhatsApp en pantallas pequeñas**: no impide pulsar «Agregar al carrito», los totales
+  ni los botones de pago (el centro de cada control sigue siendo pulsable; la página deja espacio al pie para
+  poder desplazarla más allá del botón); deja margen a los bordes, no aparece al imprimir y la vista ampliada
+  de fotos queda por encima de él.
 - **Celular del cliente con otro formato** (fijo, con menos de 9 dígitos, o de otro país): el botón del
   panel aparece deshabilitado; nunca se abre WhatsApp con un número inventado.
 
@@ -390,8 +391,11 @@ aparece deshabilitado con el aviso «Sin celular válido».
 **Datos de demostración**
 
 - **FR-025**: Cada uno de los 37 productos activos de demostración MUST tener entre 4 y 6 fotos. La primera
-  MUST mostrar un único equipo, completo y reconocible; MUST NOT ser una foto con varios equipos, de la
-  parte inferior del equipo, de un componente interno ni de otro modelo.
+  MUST mostrar un único equipo, completo y reconocible (un mismo equipo visto por delante y por detrás cuenta
+  como uno); MUST NOT ser una foto con varios equipos, de la
+  parte inferior del equipo, de un componente interno ni de un modelo de otra familia. Cuando no existe una
+  buena foto libre del modelo exacto, puede ser la de otro modelo de la misma familia (por ejemplo, otra
+  generación de la misma línea) y su texto alternativo MUST decirlo.
 - **FR-026**: Cada producto activo de demostración MUST tener de 1 a 3 fotos reales o del proyecto (la
   primera es la principal) y MUST completarse con exactamente 3 tarjetas gráficas al final. Las fotos reales
   adicionales MUST ser, siempre que exista una buena foto con licencia libre, fotos del mismo modelo o del
@@ -425,9 +429,10 @@ aparece deshabilitado con el aviso «Sin celular válido».
   nombra el producto, la variante elegida si la hay y el enlace al producto, correctamente codificado.
 - **FR-038**: Todas las pantallas de la tienda, salvo el checkout, el comprobante y el panel, MUST mostrar un
   botón flotante «Escríbenos por WhatsApp» con el mensaje «Hola R Cube, tengo una consulta.»; el pie de
-  página MUST incluir el enlace «WhatsApp». El botón flotante MUST NOT aparecer al imprimir, MUST NOT tapar
-  los controles principales de las pantallas de la tienda y MUST quedar por debajo de la vista ampliada de
-  fotos.
+  página MUST incluir el enlace «WhatsApp». El botón flotante MUST NOT aparecer al imprimir, MUST NOT impedir
+  que se pulsen los controles principales de la tienda (el centro de «Agregar al carrito», «Pagar» y
+  «Consultar por WhatsApp» MUST seguir siendo pulsable, también a 320 px) y MUST quedar por debajo de la vista
+  ampliada de fotos.
 - **FR-039**: El número MUST salir de la configuración de la tienda (HU-41) mediante una consulta pública que
   devuelve solo el nombre y el número de WhatsApp de la tienda; si no hay número configurado, la tienda MUST
   NOT mostrar ningún botón ni enlace de WhatsApp. Un cambio del número MUST reflejarse sin publicar de nuevo.

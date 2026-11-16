@@ -46,6 +46,8 @@ export function ProductGallery({ name, photos, index, onIndexChange }: Props) {
         photos={photos}
         index={index}
         onIndexChange={onIndexChange}
+        // min-w-0: sin él, la tira de miniaturas ensancha la columna de la cuadrícula y la página se desplaza de lado en móvil.
+        className="min-w-0"
         stageClassName={STAGE}
         photoClassName="p-4"
         onActivate={() => setViewing(true)}
