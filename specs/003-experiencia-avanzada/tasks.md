@@ -477,21 +477,21 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
   oculta), favoritos, direcciones, los 3 cupones en sus estados y avisos; invariantes 1, 5 y 8: `product.stock`
   = suma de variantes activas, `used_count` = pedidos no cancelados con cupón y la suma de movimientos de
   cada producto y variante = su stock actual
-- [ ] T060 [P] Escribir `e2e/variantes-compra.spec.ts` (HU-44, HU-49, SC-001): elegir una variante, ver cambiar
+- [X] T060 [P] Escribir `e2e/variantes-compra.spec.ts` (HU-44, HU-49, SC-001): elegir una variante, ver cambiar
   precio y disponibilidad, probar «Elige color, almacenamiento o RAM», agregar, aplicar `BIENVENIDO10`, ver
   el descuento, probar `VERANO5` («El cupón venció») y `NOEXISTE`, pagar con `4111 1111 1111 1111` y ver
   variante y descuento en el pedido; como visitante, escribir un cupón muestra «Inicia sesión para aplicar tu
   cupón» y el código se conserva al ingresar (US8, escenario 9)
-- [ ] T061 [P] Escribir `e2e/extras-cliente.spec.ts` (HU-45, HU-46, HU-48, HU-51, HU-52, HU-53): favorito con
+- [X] T061 [P] Escribir `e2e/extras-cliente.spec.ts` (HU-45, HU-46, HU-48, HU-51, HU-52, HU-53): favorito con
   recarga y paso al carrito (y, como visitante, el corazón lleva a ingresar y el favorito queda guardado al
   volver); reseña de un producto Entregado (y sin formulario si no lo recibió); dos
   direcciones con predeterminada y elección en el checkout; relacionados en el detalle; comprobante con
   `page.emulateMedia({ media: 'print' })` (sin encabezado ni botones) y PDF de una página A4 con
   `page.pdf()`; aviso en la campana tras un cambio de estado hecho con la cookie de `adminCookies`
-- [ ] T062 [P] Escribir `e2e/admin-extras.spec.ts` (HU-43, HU-47, HU-50, SC-005): el administrador crea 3
+- [X] T062 [P] Escribir `e2e/admin-extras.spec.ts` (HU-43, HU-47, HU-50, SC-005): el administrador crea 3
   variantes y ve el rango en la lista, oculta y muestra una reseña, crea y desactiva un cupón y los ve en la
   auditoría (reutiliza `adminCookies`)
-- [ ] T063 Ampliar `e2e/accesibilidad.spec.ts` con axe AA en tema claro y oscuro para las pantallas nuevas:
+- [X] T063 Ampliar `e2e/accesibilidad.spec.ts` con axe AA en tema claro y oscuro para las pantallas nuevas:
   detalle con variantes, reseñas y relacionados, Mis favoritos, Mis direcciones, Avisos, comprobante,
   checkout con cupón, y en el panel Cupones, Reseñas y el formulario de producto con variantes (RNF-03,
   FR-035, SC-008)

@@ -50,7 +50,7 @@ export function ProductImages({ product }: { product: AdminProduct }) {
     <Card className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-[17px] font-semibold">Fotos ({images.length} de {MAX})</h2>
-        <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" id="subir-foto" onChange={onFile} />
+        <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" id="subir-foto" aria-label="Elegir una foto para subir" tabIndex={-1} onChange={onFile} />
         <Button type="button" variant="secondary" disabled={busy || images.length >= MAX} onClick={() => input.current?.click()}>
           <Upload aria-hidden className="size-4" /> Subir foto
         </Button>

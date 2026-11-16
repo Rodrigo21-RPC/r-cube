@@ -83,10 +83,10 @@ function ProductEditor({ product, categories, brands }: { product: AdminProduct 
           {(p) => <Select {...p} {...form.register("categoryId")}>{categories.map((c) => <option key={c.id} value={c.id}>{c.name}{c.active ? "" : " (inactiva)"}</option>)}</Select>}
         </Field>
         <Field label="Precio (S/, con IGV)" hint={product?.hasVariants ? "Con variantes, se calcula con el precio «desde» de las activas" : undefined} error={errors.price?.message}>
-          {(p) => <Input {...p} inputMode="decimal" readOnly={product?.hasVariants} className={product?.hasVariants ? "opacity-60" : undefined} {...form.register("price", { required: "Escribe el precio." })} />}
+          {(p) => <Input {...p} inputMode="decimal" readOnly={product?.hasVariants} aria-readonly={product?.hasVariants} className={product?.hasVariants ? "cursor-not-allowed border-dashed" : undefined} {...form.register("price", { required: "Escribe el precio." })} />}
         </Field>
         <Field label="Precio anterior (opcional)" hint={product?.hasVariants ? "No aplica a productos con variantes" : "Si es mayor que el precio, el producto sale en Ofertas"} error={errors.compareAt?.message}>
-          {(p) => <Input {...p} inputMode="decimal" readOnly={product?.hasVariants} className={product?.hasVariants ? "opacity-60" : undefined} {...form.register("compareAt")} />}
+          {(p) => <Input {...p} inputMode="decimal" readOnly={product?.hasVariants} aria-readonly={product?.hasVariants} className={product?.hasVariants ? "cursor-not-allowed border-dashed" : undefined} {...form.register("compareAt")} />}
         </Field>
         {!product && (
           <Field label="Stock inicial" error={errors.stock?.message}>{(p) => <Input {...p} inputMode="numeric" {...form.register("stock")} />}</Field>

@@ -258,7 +258,7 @@ function CheckoutForm({
               <legend className="mb-3 flex items-center gap-2 text-[17px] font-semibold">
                 <ShieldCheck aria-hidden className="size-5 text-accent" /> Método de pago
               </legend>
-              <p className="rounded-2xl bg-accent/10 p-3 text-sm font-medium text-accent">Pago simulado, no se cobra dinero real.</p>
+              <p className="rounded-2xl border border-accent/40 bg-canvas p-3 text-sm font-medium text-accent">Pago simulado, no se cobra dinero real.</p>
               <div className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Método de pago">
                 {o.methods.map((m) => {
                   const Icon = ICON[m];

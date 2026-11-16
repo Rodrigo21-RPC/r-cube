@@ -67,7 +67,7 @@ export function VariantPicker({
                       className={cn(
                         "inline-flex min-h-11 cursor-pointer items-center gap-1 rounded-full border-2 px-4 text-[15px] font-medium transition-colors",
                         "border-border bg-surface hover:border-accent peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--focus)]",
-                        "peer-checked:border-accent peer-checked:bg-accent/10 peer-checked:text-accent",
+                        "peer-checked:border-accent peer-checked:bg-canvas peer-checked:font-semibold peer-checked:text-accent",
                         "peer-disabled:cursor-not-allowed peer-disabled:text-muted peer-disabled:line-through",
                         invalid && !choice[key] && "border-danger",
                       )}

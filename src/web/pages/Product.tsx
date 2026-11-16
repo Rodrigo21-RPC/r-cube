@@ -61,9 +61,9 @@ export default function Product() {
             <img src={image.url} alt={image.alt} width={600} height={600} className="h-full w-full object-contain" onError={(e) => { e.currentTarget.src = "/img/generico.svg"; }} />
           </div>
           {p.images.length > 1 && (
-            <div className="flex gap-2" role="list">
+            <div className="flex gap-2">
               {p.images.map((img, i) => (
-                <button key={img.url} type="button" role="listitem" onClick={() => setActive(i)} aria-label={`Ver foto ${i + 1} de ${p.images.length}`} aria-pressed={i === active} className={`size-16 overflow-hidden rounded-xl border-2 bg-surface ${i === active ? "border-accent" : "border-transparent"}`}>
+                <button key={img.url} type="button" onClick={() => setActive(i)} aria-label={`Ver foto ${i + 1} de ${p.images.length}`} aria-pressed={i === active} className={`size-16 overflow-hidden rounded-xl border-2 bg-surface ${i === active ? "border-accent" : "border-transparent"}`}>
                   <img src={img.url} alt="" width={64} height={64} loading="lazy" className="h-full w-full object-contain" />
                 </button>
               ))}
