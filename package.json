@@ -22,6 +22,9 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx --env-file-if-exists=.env src/db/seed.ts",
+    "fotos:buscar": "tsx scripts/fotos/buscar.ts",
+    "fotos:preparar": "tsx scripts/fotos/preparar.ts",
+    "fotos:tarjetas": "tsx scripts/fotos/tarjetas.ts",
     "deploy": "npm run build && wrangler deploy",
     "cf-typegen": "wrangler types"
   },

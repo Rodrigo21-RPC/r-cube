@@ -30,9 +30,9 @@ demostración los referencian, FR-031, RN-07); las fotos nuevas van a `public/im
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 [P] Agregar a `.gitignore` la caché de descargas `scripts/fotos/.cache/` y comprobar con
+- [X] T001 [P] Agregar a `.gitignore` la caché de descargas `scripts/fotos/.cache/` y comprobar con
   `git check-ignore` que `public/img/productos/galeria/*.webp` NO está ignorada (FR-030)
-- [ ] T002 [P] Agregar a `package.json` los scripts `fotos:buscar`, `fotos:preparar` y `fotos:tarjetas`
+- [X] T002 [P] Agregar a `package.json` los scripts `fotos:buscar`, `fotos:preparar` y `fotos:tarjetas`
   (`tsx scripts/fotos/buscar.ts`, `preparar.ts` y `tarjetas.ts`), sin dependencias nuevas (plan: Primary
   Dependencies; los archivos de los scripts se crean en la fase de US1) (FR-026, FR-030)
 
