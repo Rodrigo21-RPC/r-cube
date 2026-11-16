@@ -2,7 +2,7 @@
 
 ## 1. Alcance
 
-Tienda en línea de dispositivos electrónicos con un solo vendedor (R Cube), con módulo de tienda para el cliente y módulo de administración. Los requisitos funcionales son las historias de `HISTORIAS-DE-USUARIO.md` (HU-01 a HU-53).
+Tienda en línea de dispositivos electrónicos con un solo vendedor (R Cube), con módulo de tienda para el cliente y módulo de administración. Los requisitos funcionales son las historias de `HISTORIAS-DE-USUARIO.md` (HU-01 a HU-60).
 
 **Fuera de alcance:** varios vendedores (marketplace), pago contra entrega, pagos reales y cualquier pasarela real, correos electrónicos, recuperación de contraseña por correo, facturación electrónica, aplicación móvil nativa, múltiples idiomas y múltiples monedas.
 
@@ -71,3 +71,5 @@ Los pedidos de recojo en tienda pasan de Preparando a Entregado sin Enviado. Cad
 ## 6. Datos de demostración
 
 Mínimo: 24 productos con las fotos de `fotos\` (las tablets y los productos sin foto usan imagen genérica), 6 marcas, 4 categorías (Celulares, Laptops, Tablets, y Accesorios y repuestos, donde van baterías, memorias RAM, SSD, pasta térmica, cooler y kit de herramientas), 1 administrador, 5 clientes y 8 pedidos en distintos estados, 3 zonas de delivery y la configuración de la tienda. Las categorías se pueden ampliar después desde el panel (HU-32).
+
+Desde la feature 004, cada producto activo de demostración tiene de 4 a 6 fotos (la primera es la más llamativa: de 1 a 3 fotos reales o del proyecto y 3 tarjetas gráficas de R Cube), una frase corta y de 3 a 5 destacados; el tope por producto es de 8 fotos. Las fotos reales adicionales provienen de fuentes libres (Wikimedia Commons) con su autor y su licencia registrados y visibles en la tienda; las tarjetas (características, destacados y compra segura) las genera R Cube a partir de los datos del propio producto y de la tienda. La tienda ofrece contacto por WhatsApp con el número de la configuración (HU-59 y HU-60).

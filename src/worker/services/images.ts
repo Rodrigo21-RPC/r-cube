@@ -7,7 +7,7 @@ import { audit } from "./audit";
 import type { Tx } from "./stock";
 
 const { productImage, product } = schema;
-export const MAX_IMAGES = 6;
+export const MAX_IMAGES = 8;
 export const MAX_BYTES = 2 * 1024 * 1024;
 
 const toDto = (i: typeof productImage.$inferSelect): AdminImage => ({
@@ -29,7 +29,7 @@ async function renumber(tx: Tx, ids: string[]) {
   for (const [i, id] of ids.entries()) await tx.update(productImage).set({ position: i }).where(eq(productImage.id, id));
 }
 
-/** Sube una foto a R2 tras validar tamaño y tipo real; máximo 6 por producto (HU-31, FR-009). */
+/** Sube una foto a R2 tras validar tamaño y tipo real; máximo 8 por producto (HU-31, FR-009). */
 export async function uploadImage(db: Db, bucket: R2Bucket, productId: string, file: File, adminId: string): Promise<AdminImage> {
   if (file.size > MAX_BYTES) throw new AppError(400, "INVALID_IMAGE", "La foto pesa más de 2 MB.");
   const bytes = new Uint8Array(await file.arrayBuffer());
@@ -37,7 +37,7 @@ export async function uploadImage(db: Db, bucket: R2Bucket, productId: string, f
   if (!type) throw new AppError(400, "INVALID_IMAGE", "Solo se aceptan fotos JPG, PNG o WebP.");
   const name = await productName(db, productId);
   const current = await ordered(db, productId);
-  if (current.length >= MAX_IMAGES) throw new AppError(409, "MAX_IMAGES", "Máximo 6 fotos por producto");
+  if (current.length >= MAX_IMAGES) throw new AppError(409, "MAX_IMAGES", "Máximo 8 fotos por producto");
 
   const id = crypto.randomUUID();
   const key = `productos/${productId}/${id}.${type.ext}`;

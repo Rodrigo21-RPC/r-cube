@@ -7,6 +7,7 @@ import { orderTotals } from "../shared/money";
 import { orderStatusMessage } from "../shared/order-status";
 import { hashPassword } from "../worker/password";
 import { syncProductFromVariants } from "../worker/services/variants";
+import { GALLERY } from "./gallery-data";
 
 /** Datos de demostración de REQUISITOS §6 (FR-035, FR-036). Repetible: borra y vuelve a crear. */
 
@@ -24,13 +25,13 @@ const BRANDS = [
 const slugify = (t: string) =>
   t.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-type P = {
+export type P = {
   name: string; brand: string; cat: "celulares" | "laptops" | "tablets" | "accesorios";
   price: number; before?: number; stock: number; img?: string; active?: boolean;
   desc: string; specs: [string, string][];
 };
 
-const PRODUCTS: P[] = [
+export const PRODUCTS: P[] = [
   { name: "iPhone 15 Pro 256 GB", brand: "Apple", cat: "celulares", price: 4899, before: 5299, stock: 12, img: "celular-iphone-15-pro.jpg", desc: "Diseño en titanio, chip A17 Pro y cámara principal de 48 MP con zoom óptico de 3x.", specs: [["Pantalla", "6,1 pulgadas"], ["Almacenamiento", "256 GB"], ["Cámara", "48 MP"], ["Batería", "Hasta 23 h de video"]] },
   { name: "iPhone 13 Pro 128 GB", brand: "Apple", cat: "celulares", price: 2999, stock: 4, img: "iphone-13-pro.jpg", desc: "Pantalla ProMotion de 120 Hz y triple cámara para foto y video profesional.", specs: [["Pantalla", "6,1 pulgadas"], ["Almacenamiento", "128 GB"], ["Cámara", "12 MP triple"]] },
   { name: "iPhone SE 64 GB", brand: "Apple", cat: "celulares", price: 1699, stock: 9, img: "celular-iphone-se.jpg", desc: "Compacto, con Touch ID y el rendimiento del chip A15 Bionic.", specs: [["Pantalla", "4,7 pulgadas"], ["Almacenamiento", "64 GB"], ["Cámara", "12 MP"]] },
@@ -85,6 +86,13 @@ const ZONES = [
   { id: "zona-callao", name: "Callao", costCents: 1500, sortOrder: 3 },
 ];
 
+/** Entrada del manifiesto de fotos y textos de un producto; el seed falla si falta (feature 004). */
+function galleryOf(name: string) {
+  const entry = GALLERY[slugify(name)];
+  if (!entry) throw new Error(`Falta la entrada de «${name}» en src/db/gallery-data.ts`);
+  return entry;
+}
+
 export async function runSeed(db: Db, passwords: { admin: string; customer: string }) {
   await db.execute(sql`TRUNCATE TABLE audit_log, stock_movement, order_event, payment, order_item, orders, cart_item, product_image,
     notification, review, favorite, address, coupon, product_variant,
@@ -108,17 +116,26 @@ export async function runSeed(db: Db, passwords: { admin: string; customer: stri
     stock: p.stock,
     active: p.active ?? true,
     searchText: buildSearchText(p.name, p.brand, p.desc),
+    tagline: galleryOf(p.name).tagline,
+    highlights: galleryOf(p.name).highlights,
     createdAt: new Date(base + i * 86_400_000),
   }));
   await db.insert(s.product).values(products);
+  // Fotos de la galería desde el manifiesto (feature 004): id `img-<id del producto>-<n>`, posición n - 1.
   await db.insert(s.productImage).values(
-    products.map((p, i) => ({
-      id: `img-${p.id}`,
-      productId: p.id,
-      url: PRODUCTS[i]!.img ? `/img/productos/${PRODUCTS[i]!.img}` : "/img/generico.svg",
-      alt: p.name,
-      position: 0,
-    })),
+    products.flatMap((p, i) =>
+      galleryOf(PRODUCTS[i]!.name).photos.map((ph, n) => ({
+        id: `img-${p.id}-${n + 1}`,
+        productId: p.id,
+        url: ph.url,
+        alt: ph.alt,
+        position: n,
+        origin: ph.origin,
+        creditAuthor: ph.credit?.author ?? "",
+        creditLicense: ph.credit?.license ?? "",
+        creditUrl: ph.credit?.url ?? "",
+      })),
+    ),
   );
 
   await seedVariants(db);
@@ -315,15 +332,12 @@ async function seedVariants(db: Db) {
   const edge = idOf("Motorola Edge 60 Pro");
   const xps = idOf("Dell XPS 13");
   const tab = idOf("Lenovo Tab M10");
-  await db.insert(s.productImage).values({
-    id: "img-edge-azul", productId: edge, url: "/img/productos/celular-motorola-edge-60-pro.jpg", alt: "Motorola Edge 60 Pro en azul", position: 1,
-  });
   const v = (id: string, productId: string, sku: string, attrs: { storage?: string; color?: string; ram?: string }, price: number, stock: number, imageId?: string) => ({
     id, productId, sku, storage: attrs.storage ?? "", color: attrs.color ?? "", ram: attrs.ram ?? "", priceCents: price * 100, stock, imageId: imageId ?? null,
   });
   await db.insert(s.productVariant).values([
     v("var-edge-256-negro", edge, "MOTO-EDGE-256-NG", { storage: "256 GB", color: "Negro" }, 2199, 5),
-    v("var-edge-256-azul", edge, "MOTO-EDGE-256-AZ", { storage: "256 GB", color: "Azul" }, 2199, 3, "img-edge-azul"),
+    v("var-edge-256-azul", edge, "MOTO-EDGE-256-AZ", { storage: "256 GB", color: "Azul" }, 2199, 3, `img-${edge}-1`),
     v("var-edge-512-negro", edge, "MOTO-EDGE-512-NG", { storage: "512 GB", color: "Negro" }, 2499, 4),
     v("var-xps-16-512", xps, "XPS13-16-512", { ram: "16 GB", storage: "512 GB" }, 5799, 3),
     v("var-xps-16-1t", xps, "XPS13-16-1T", { ram: "16 GB", storage: "1 TB" }, 6299, 1),

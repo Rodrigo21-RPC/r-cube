@@ -25,7 +25,7 @@ const pairs: [string, string, number][] = [
   ["text-muted", "canvas", 4.5], ["text-muted", "surface", 4.5],
   ["accent", "canvas", 4.5], ["accent", "surface", 4.5], ["on-accent", "accent", 4.5],
   ["danger", "canvas", 4.5], ["danger", "surface", 4.5], ["warning", "canvas", 4.5], ["warning", "surface", 4.5],
-  ["success", "canvas", 4.5], ["success", "surface", 4.5],
+  ["success", "canvas", 4.5], ["success", "surface", 4.5], ["on-whatsapp", "whatsapp", 4.5],
   ["input-border", "canvas", 3], ["input-border", "surface", 3], ["focus", "canvas", 3], ["focus", "surface", 3],
 ];
 

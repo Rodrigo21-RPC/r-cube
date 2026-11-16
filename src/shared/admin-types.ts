@@ -84,6 +84,10 @@ export interface AdminProduct {
   maxPriceCents: number | null;
   hasVariants: boolean;
   variants: AdminVariant[];
+  /** Frase corta y llamativa del producto (HU-57); cadena vacía si no tiene. */
+  tagline: string;
+  /** De 0 a 5 destacados breves en texto plano (HU-57). */
+  highlights: string[];
   active: boolean;
   images: AdminImage[];
 }

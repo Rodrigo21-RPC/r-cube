@@ -4,12 +4,13 @@ import { z } from "zod";
 import { and, asc, count, desc, eq, gte, ilike, inArray, lte, max, min, gt, ne, sql, type SQL } from "drizzle-orm";
 import { schema } from "@db/client";
 import type { Db } from "@db/client";
+import { licenseUrl } from "@shared/photo-credit";
 import { normalizeSearch } from "@shared/search";
 import { variantLabel } from "@shared/variant";
-import type { Availability, CatalogPage, Facets, HomeData, ProductCard, ProductDetail } from "@shared/types";
+import type { Availability, CatalogPage, Facets, HomeData, PhotoCredits, ProductCard, ProductDetail, StoreContact } from "@shared/types";
 import { AppError, validationHook, type AppEnv } from "../middleware";
 
-const { product, brand, category, productImage, productVariant } = schema;
+const { product, brand, category, productImage, productVariant, storeSettings } = schema;
 export const PAGE_SIZE = 12;
 export const GENERIC_IMAGE = "/img/generico.svg";
 
@@ -94,6 +95,47 @@ const soldUnits = sql<number>`coalesce((select sum(oi.quantity) from order_item 
   join orders o on o.id = oi.order_id where oi.product_id = ${product.id} and o.status <> 'cancelled'), 0)`;
 
 export const catalogRoutes = new Hono<AppEnv>()
+  /** Contacto público de la tienda para los botones de WhatsApp: solo el nombre y el número, con dígitos (HU-59). */
+  .get("/contact", async (c) => {
+    const [s] = await c.get("db").select({ number: storeSettings.whatsappNumber }).from(storeSettings).where(eq(storeSettings.id, 1));
+    const body: StoreContact = { name: "R Cube", whatsappNumber: (s?.number ?? "").replace(/\D/g, "") };
+    return c.json(body);
+  })
+  /** Créditos de las fotos: las externas con autor, licencia y origen, y los productos con fotos del proyecto (HU-58). */
+  .get("/photo-credits", async (c) => {
+    const rows = await c
+      .get("db")
+      .select({
+        productName: product.name,
+        productSlug: product.slug,
+        imageUrl: productImage.url,
+        alt: productImage.alt,
+        origin: productImage.origin,
+        author: productImage.creditAuthor,
+        license: productImage.creditLicense,
+        sourceUrl: productImage.creditUrl,
+      })
+      .from(productImage)
+      .innerJoin(product, eq(product.id, productImage.productId))
+      .innerJoin(brand, eq(brand.id, product.brandId))
+      .innerJoin(category, eq(category.id, product.categoryId))
+      // Solo productos que la tienda muestra (activos, con marca y categoría activas): no se filtran nombres ocultos.
+      .where(and(eq(product.active, true), eq(brand.active, true), eq(category.active, true), inArray(productImage.origin, ["externa", "proyecto"])))
+      .orderBy(sql`lower(${product.name})`, asc(product.id), asc(productImage.position));
+    const seen = new Set<string>();
+    const body: PhotoCredits = {
+      external: rows
+        .filter((r) => r.origin === "externa")
+        .map((r) => ({
+          productName: r.productName, productSlug: r.productSlug, imageUrl: r.imageUrl, alt: r.alt,
+          author: r.author, license: r.license, licenseUrl: licenseUrl(r.license), sourceUrl: r.sourceUrl,
+        })),
+      project: rows
+        .filter((r) => r.origin === "proyecto" && !seen.has(r.productSlug) && seen.add(r.productSlug))
+        .map((r) => ({ productName: r.productName, productSlug: r.productSlug })),
+    };
+    return c.json(body);
+  })
   /** Portada: categorías, ofertas, más vendidos y novedades (HU-06). */
   .get("/home", async (c) => {
     const db = c.get("db");
@@ -177,7 +219,7 @@ export const catalogRoutes = new Hono<AppEnv>()
   .get("/products/:slug", async (c) => {
     const db = c.get("db");
     const [row] = await db
-      .select({ ...cardColumns, description: product.description, specs: product.specs, categoryName: category.name, categorySlug: category.slug })
+      .select({ ...cardColumns, description: product.description, specs: product.specs, tagline: product.tagline, highlights: product.highlights, categoryName: category.name, categorySlug: category.slug })
       .from(product)
       .innerJoin(brand, eq(brand.id, product.brandId))
       .innerJoin(category, eq(category.id, product.categoryId))
@@ -198,6 +240,8 @@ export const catalogRoutes = new Hono<AppEnv>()
       .orderBy(asc(productVariant.priceCents), asc(productVariant.sku));
     const body: ProductDetail = {
       ...toCard(row),
+      tagline: row.tagline,
+      highlights: row.highlights,
       description: row.description,
       specs: row.specs,
       category: { name: row.categoryName, slug: row.categorySlug },

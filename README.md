@@ -13,6 +13,12 @@ Software, desarrollado con Spec-Driven Development y GitHub Spec Kit.
   favoritos; reseñas de productos entregados con promedio y moderación en el panel; varias direcciones con
   una predeterminada; cupones de descuento y su administración; productos relacionados; comprobante
   imprimible con desglose de IGV; avisos dentro de la app con campana.
+- **Galería y destacados:** hasta 8 fotos por producto con carrusel, miniaturas y vista ampliada; una frase
+  y hasta 5 destacados bajo el nombre (editables desde el panel); créditos públicos de las fotos externas
+  en `/creditos-fotos`.
+- **Contacto por WhatsApp:** botón «Consultar por WhatsApp» en el producto, botón flotante y enlace en el
+  pie con el número de la configuración; el administrador puede escribir al cliente desde el pedido y su
+  ficha. Son enlaces `wa.me`, sin chat propio.
 - **Tema claro y oscuro** en toda la app.
 - Precios en soles con IGV incluido. Pagos simulados: no se cobra dinero real.
 
@@ -39,6 +45,22 @@ npm run check                 # tipos, lint, contraste AA, pruebas unitarias y d
 npm run test:e2e              # compra, panel de administración, accesibilidad y tema en el navegador
                               # (tras test:api hay que volver a sembrar con npm run db:seed: las pruebas de API vacían la base)
 ```
+
+## Fotos de demostración
+
+Las fotos de la galería están en `public/img/productos/galeria/` y se regeneran con scripts de desarrollo
+(no forman parte del Worker):
+
+```
+npm run fotos:buscar          # candidatas libres de Wikimedia Commons y hojas de contacto
+npm run fotos:agregar         # agrega la foto elegida al manifiesto con su autor y licencia
+npm run fotos:preparar        # descarga y convierte a WebP (hasta 200 KB y 1 200 px)
+npm run fotos:tarjetas        # genera las 3 tarjetas gráficas de cada producto
+```
+
+Solo se admiten licencias CC0, dominio público, CC BY y CC BY-SA, y cada foto externa queda acreditada.
+Las fotos originales del proyecto no tienen autor registrado; es un riesgo declarado en
+`specs/004-galeria-destacados/spec.md` (sección de supuestos).
 
 ## Documentación
 

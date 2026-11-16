@@ -12,6 +12,7 @@ import { Button } from "@web/components/ui/button";
 import { Badge, Card } from "@web/components/ui/misc";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { DataTable } from "../components/DataTable";
+import { WhatsAppLink } from "../components/WhatsAppLink";
 
 /** Detalle del cliente con sus pedidos, bloqueo y reactivación (HU-39, HU-40). */
 export default function CustomerDetail() {
@@ -44,6 +45,8 @@ export default function CustomerDetail() {
           <h1 className="text-[28px] font-semibold tracking-tight">{c.name}</h1>
           <Badge tone={c.blocked ? "danger" : "success"}>{c.blocked ? "Bloqueado" : "Activo"}</Badge>
         </div>
+        <div className="flex flex-wrap items-center gap-2">
+        <WhatsAppLink phone={c.phone} name={c.name} />
         {c.blocked ? (
           <Button variant="secondary" onClick={() => setBlocked(false).catch((x: Error) => toast.error(x.message))}>Reactivar cliente</Button>
         ) : (
@@ -56,6 +59,7 @@ export default function CustomerDetail() {
             trigger={(open) => <Button variant="secondary" onClick={open}>Bloquear cliente</Button>}
           />
         )}
+        </div>
       </div>
       <Card className="grid gap-4 md:grid-cols-4">
         <div><p className="text-xs uppercase tracking-wide text-muted">Correo</p><p className="break-all">{c.email}</p></div>

@@ -39,6 +39,10 @@ export interface VariantDto {
 
 export interface ProductDetail extends ProductCard {
   variants: VariantDto[];
+  /** Frase corta y llamativa (HU-56); cadena vacía si no tiene. */
+  tagline: string;
+  /** De 0 a 5 destacados breves en texto plano (HU-56). */
+  highlights: string[];
   description: string;
   category: { name: string; slug: string };
   specs: { label: string; value: string }[];
@@ -241,3 +245,15 @@ export const PAYMENT_LABEL: Record<PaymentMethodCode, string> = {
   transfer: "Transferencia bancaria",
   whatsapp: "Coordinación por WhatsApp",
 };
+
+/** Créditos de las fotos de la tienda (HU-58, feature 004). */
+export interface PhotoCredits {
+  external: { productName: string; productSlug: string; imageUrl: string; alt: string; author: string; license: string; licenseUrl: string | null; sourceUrl: string }[];
+  project: { productName: string; productSlug: string }[];
+}
+
+/** Contacto público de la tienda para los botones de WhatsApp (HU-59, feature 004). */
+export interface StoreContact {
+  name: string;
+  whatsappNumber: string;
+}

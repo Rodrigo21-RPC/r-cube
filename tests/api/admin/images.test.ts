@@ -47,11 +47,13 @@ describe("HU-31: fotos de productos en R2", () => {
     expect((await env.FOTOS.list()).objects).toHaveLength(0);
   });
 
-  it("HU-31: máximo 6 fotos por producto", async () => {
-    for (let i = 0; i < 5; i++) expect((await upload(ids.p10, JPG, "f.jpg", "image/jpeg")).status).toBe(201); // ya tenía 1
+  it("HU-31, FR-033: máximo 8 fotos por producto (antes 6, ampliado en la feature 004)", async () => {
+    for (let i = 0; i < 7; i++) expect((await upload(ids.p10, JPG, "f.jpg", "image/jpeg")).status, `foto ${i + 2}`).toBe(201); // ya tenía 1
     const res = await upload(ids.p10, JPG, "f.jpg", "image/jpeg");
     expect(res.status).toBe(409);
-    expect(((await res.json()) as { error: { message: string } }).error.message).toBe("Máximo 6 fotos por producto");
+    const error = ((await res.json()) as { error: { code: string; message: string } }).error;
+    expect(error).toMatchObject({ code: "MAX_IMAGES", message: "Máximo 8 fotos por producto" });
+    expect((await product(ids.p10)).images).toHaveLength(8);
   });
 
   it("HU-31: principal, orden y texto alternativo se reflejan en la tienda", async () => {

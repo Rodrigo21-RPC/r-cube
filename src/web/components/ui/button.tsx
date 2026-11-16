@@ -12,6 +12,7 @@ export const buttonVariants = cva(
         secondary: "bg-surface text-text hover:bg-surface-2 border border-border",
         ghost: "text-text hover:bg-surface",
         danger: "bg-danger text-white hover:opacity-90",
+        whatsapp: "bg-whatsapp text-on-whatsapp hover:brightness-110",
         link: "text-accent underline-offset-4 hover:underline rounded-none",
       },
       size: {

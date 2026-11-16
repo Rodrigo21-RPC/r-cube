@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import { Link } from "react-router";
 import type { AdminProduct, TaxonomyItem } from "@shared/admin-types";
+import { HIGHLIGHT_MAX, HIGHLIGHTS_MAX, TAGLINE_MAX } from "@shared/highlights";
 import { apiFetch, queryClient } from "@web/api";
 import { useServerErrors } from "@web/hooks/useServerErrors";
 import { useTitle } from "@web/hooks/useTitle";
@@ -23,6 +24,8 @@ interface FormValues {
   categoryId: string;
   description: string;
   specs: { label: string; value: string }[];
+  tagline: string;
+  highlights: { text: string }[];
   price: string;
   compareAt: string;
   stock: string;
@@ -37,10 +40,15 @@ function ProductEditor({ product, categories, brands }: { product: AdminProduct 
   const form = useForm<FormValues>({
     defaultValues: product
       ? { name: product.name, brandId: product.brandId, categoryId: product.categoryId, description: product.description, specs: product.specs,
+          tagline: product.tagline, highlights: product.highlights.map((text) => ({ text })),
           price: fromCents(product.priceCents), compareAt: fromCents(product.compareAtCents), stock: String(product.stock), active: product.active }
-      : { name: "", brandId: brands[0]?.id ?? "", categoryId: categories[0]?.id ?? "", description: "", specs: [], price: "", compareAt: "", stock: "0", active: true },
+      : { name: "", brandId: brands[0]?.id ?? "", categoryId: categories[0]?.id ?? "", description: "", specs: [], tagline: "", highlights: [], price: "", compareAt: "", stock: "0", active: true },
   });
   const specs = useFieldArray({ control: form.control, name: "specs" });
+  const highlights = useFieldArray({ control: form.control, name: "highlights" });
+  const [limitMessage, setLimitMessage] = useState<string | null>(null);
+  const taglineLength = useWatch({ control: form.control, name: "tagline" })?.length ?? 0;
+  const highlightValues = useWatch({ control: form.control, name: "highlights" });
   const server = useServerErrors(form.setError);
   const { errors, isSubmitting } = form.formState;
 
@@ -51,6 +59,8 @@ function ProductEditor({ product, categories, brands }: { product: AdminProduct 
       specs: v.specs.filter((s) => s.label.trim() && s.value.trim()),
       priceCents: toCents(v.price), compareAtCents: v.compareAt.trim() ? toCents(v.compareAt) : null,
       stock: Number(v.stock || 0), active: v.active,
+      // La frase y los destacados se envían siempre: quitarlos desde aquí los vacía (HU-57).
+      tagline: v.tagline, highlights: v.highlights.map((h) => h.text),
     };
     try {
       const saved = await apiFetch<AdminProduct>(product ? `/admin/products/${product.id}` : "/admin/products", {
@@ -99,6 +109,68 @@ function ProductEditor({ product, categories, brands }: { product: AdminProduct 
         <label className="flex items-center gap-2 text-[15px]">
           <input type="checkbox" className="size-4 accent-[var(--accent)]" {...form.register("active")} /> Producto activo (visible en la tienda)
         </label>
+      </Card>
+      <Card className="flex flex-col gap-3">
+        <div>
+          <h2 className="text-[17px] font-semibold">Frase y destacados</h2>
+          <p className="text-sm text-muted">Se muestran bajo el nombre del producto en la tienda. Texto breve y sin formato.</p>
+        </div>
+        <Field label="Frase destacada" hint={`${taglineLength} de ${TAGLINE_MAX} caracteres`} error={errors.tagline?.message}>
+          {(p) => (
+            <Input
+              {...p}
+              {...form.register("tagline", { maxLength: { value: TAGLINE_MAX, message: `La frase no puede pasar de ${TAGLINE_MAX} caracteres` } })}
+            />
+          )}
+        </Field>
+        {highlights.fields.map((f, i) => (
+          <div key={f.id} className="flex items-end gap-2">
+            <div className="min-w-0 flex-1">
+              <Field
+                label={`Destacado ${i + 1}`}
+                hint={`${highlightValues?.[i]?.text?.length ?? 0} de ${HIGHLIGHT_MAX} caracteres`}
+                error={errors.highlights?.[i]?.text?.message ?? errors.highlights?.[i]?.message}
+              >
+                {(p) => (
+                  <Input
+                    {...p}
+                    {...form.register(`highlights.${i}.text`, { maxLength: { value: HIGHLIGHT_MAX, message: `Cada destacado admite hasta ${HIGHLIGHT_MAX} caracteres` } })}
+                  />
+                )}
+              </Field>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={`Quitar destacado ${i + 1}`}
+              onClick={() => {
+                highlights.remove(i);
+                setLimitMessage(null);
+              }}
+            >
+              <Trash2 aria-hidden className="size-5" />
+            </Button>
+          </div>
+        ))}
+        {(limitMessage || errors.highlights?.message) && (
+          <p role="alert" className="text-sm text-danger">
+            {limitMessage ?? errors.highlights?.message}
+          </p>
+        )}
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          className="w-fit"
+          onClick={() => {
+            if (highlights.fields.length >= HIGHLIGHTS_MAX) return setLimitMessage(`Máximo ${HIGHLIGHTS_MAX} destacados`);
+            setLimitMessage(null);
+            highlights.append({ text: "" });
+          }}
+        >
+          <Plus aria-hidden className="size-4" /> Agregar destacado
+        </Button>
       </Card>
       <Card className="flex flex-col gap-3">
         <h2 className="text-[17px] font-semibold">Especificaciones</h2>

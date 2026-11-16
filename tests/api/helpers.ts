@@ -265,3 +265,33 @@ export async function placeOrder(
 export async function deliverOrder(number: string) {
   await withDb((db) => db.execute(sql`UPDATE orders SET status = 'delivered' WHERE number = ${number}`));
 }
+
+export interface ImageDef {
+  id: string;
+  url?: string;
+  alt?: string;
+  position: number;
+  origin?: "subida" | "proyecto" | "externa" | "tarjeta";
+  author?: string;
+  license?: string;
+  creditUrl?: string;
+}
+
+/** Inserta fotos de un producto con su origen y su crédito (feature 004, HU-58). */
+export async function makeImages(productId: string, defs: ImageDef[]) {
+  await withDb((db) =>
+    db.insert(schema.productImage).values(
+      defs.map((d) => ({
+        id: d.id,
+        productId,
+        url: d.url ?? `/img/productos/galeria/${d.id}.webp`,
+        alt: d.alt ?? `Foto ${d.id}`,
+        position: d.position,
+        origin: d.origin ?? "proyecto",
+        creditAuthor: d.author ?? "",
+        creditLicense: d.license ?? "",
+        creditUrl: d.creditUrl ?? "",
+      })),
+    ),
+  );
+}

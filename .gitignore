@@ -13,3 +13,6 @@ test-results/
 
 # Configuración personal de Claude Code
 .claude/settings.local.json
+
+# Caché de descargas de fotos de Commons (feature 004, solo desarrollo)
+scripts/fotos/.cache/

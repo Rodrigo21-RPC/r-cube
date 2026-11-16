@@ -6,6 +6,7 @@ import { schema, type Db } from "@db/client";
 import { formatPEN } from "@shared/money";
 import { buildSearchText, normalizeSearch } from "@shared/search";
 import { slugify } from "@shared/slug";
+import { HIGHLIGHT_MAX, HIGHLIGHTS_MAX, TAGLINE_MAX, normalizeHighlights } from "@shared/highlights";
 import type { AdminProduct, AdminProductRow, Page } from "@shared/admin-types";
 import { variantLabel } from "@shared/variant";
 import { AppError, validationHook, type AppEnv } from "../../middleware";
@@ -32,6 +33,17 @@ const productBody = z
     compareAtCents: z.number().int().positive().nullable().default(null),
     stock: z.number().int().min(0, "El stock no puede ser negativo.").max(100_000).default(0),
     active: z.boolean().default(true),
+    // Frase y destacados (HU-57): opcionales; si se omiten, el alta los deja vacíos y la edición conserva los actuales.
+    tagline: z.string().trim().max(TAGLINE_MAX, `La frase no puede pasar de ${TAGLINE_MAX} caracteres`).optional(),
+    highlights: z
+      .array(z.string())
+      .transform(normalizeHighlights)
+      .pipe(
+        z
+          .array(z.string().max(HIGHLIGHT_MAX, `Cada destacado admite hasta ${HIGHLIGHT_MAX} caracteres`))
+          .max(HIGHLIGHTS_MAX, `Máximo ${HIGHLIGHTS_MAX} destacados`),
+      )
+      .optional(),
   })
   .refine((b) => b.compareAtCents === null || b.compareAtCents > b.priceCents, {
     path: ["compareAtCents"],
@@ -78,6 +90,8 @@ export async function loadAdminProduct(db: Db | Tx, id: string): Promise<AdminPr
     maxPriceCents: p.maxPriceCents,
     hasVariants: p.hasVariants,
     variants: await loadVariants(db, id),
+    tagline: p.tagline,
+    highlights: p.highlights,
     active: p.active,
     images: images.map((i) => ({ id: i.id, url: i.url, alt: i.alt, position: i.position, uploaded: i.r2Key !== null })),
   };
@@ -162,6 +176,8 @@ export const productRoutes = new Hono<AppEnv>()
         priceCents: body.priceCents,
         compareAtCents: body.compareAtCents,
         stock: body.stock,
+        tagline: body.tagline ?? "",
+        highlights: body.highlights ?? [],
         active: body.active,
         searchText: buildSearchText(body.name, brandName, body.description),
       });
@@ -186,6 +202,10 @@ export const productRoutes = new Hono<AppEnv>()
       const [current] = await tx.select().from(product).where(eq(product.id, id));
       if (!current) throw new AppError(404, "NOT_FOUND", "El producto no existe.");
       const brandName = await checkRefs(tx, body.brandId, body.categoryId);
+      // Frase y destacados (HU-57): si el cuerpo no los trae se conservan los actuales.
+      const tagline = body.tagline ?? current.tagline;
+      const highlights = body.highlights ?? current.highlights;
+      const highlightsChanged = tagline !== current.tagline || JSON.stringify(highlights) !== JSON.stringify(current.highlights);
       // El stock no se edita aquí (FR-006): solo por ajustes, ventas y cancelaciones.
       await tx
         .update(product)
@@ -196,18 +216,29 @@ export const productRoutes = new Hono<AppEnv>()
           categoryId: body.categoryId,
           description: body.description,
           specs: body.specs,
+          tagline,
+          highlights,
           // Con variantes, el precio sale de ellas (research R1).
           ...(current.hasVariants ? {} : { priceCents: body.priceCents, compareAtCents: body.compareAtCents }),
           searchText: buildSearchText(body.name, brandName, body.description),
         })
         .where(eq(product.id, id));
-      if (!current.hasVariants && current.priceCents !== body.priceCents) {
+      const priceChanged = !current.hasVariants && current.priceCents !== body.priceCents;
+      if (priceChanged) {
         await audit(tx, adminId, {
           action: "precio_cambiado", entityType: "producto", entityId: id, entityLabel: body.name,
           detail: `Precio de ${body.name}: ${formatPEN(current.priceCents)} → ${formatPEN(body.priceCents)}`,
           before: { priceCents: current.priceCents }, after: { priceCents: body.priceCents },
         });
-      } else {
+      }
+      // Una entrada por cambio relevante (research R5): la de frase y destacados reemplaza a la genérica.
+      if (highlightsChanged) {
+        await audit(tx, adminId, {
+          action: "producto_editado", entityType: "producto", entityId: id, entityLabel: body.name,
+          detail: `Frase y destacados de ${body.name} actualizados`,
+          before: { tagline: current.tagline, highlights: current.highlights }, after: { tagline, highlights },
+        });
+      } else if (!priceChanged) {
         await audit(tx, adminId, {
           action: "producto_editado", entityType: "producto", entityId: id, entityLabel: body.name,
           detail: `Datos de ${body.name} actualizados`,
