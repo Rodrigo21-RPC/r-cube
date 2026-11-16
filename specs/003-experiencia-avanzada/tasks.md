@@ -238,14 +238,14 @@ Mismo paquete que las features 001 y 002: `src/shared`, `src/db`, `src/worker`, 
 
 **Independent Test**: ocultar una reseña, ver que sale del detalle y del promedio, mostrarla y ver la auditoría.
 
-- [ ] T028 [US4] Escribir `tests/api/admin/reviews.test.ts` (HU-47, FR-015): `GET /reviews` con filtro por
+- [X] T028 [US4] Escribir `tests/api/admin/reviews.test.ts` (HU-47, FR-015): `GET /reviews` con filtro por
   estado (`visible|hidden`), búsqueda por producto y páginas de 20; `POST /reviews/:id/hide` y `/show`
   cambian el estado, escriben auditoría `resena_oculta` y `resena_visible`, son idempotentes (sin segunda
   entrada si no cambia); una reseña oculta sale de la lista pública y del promedio y de la cantidad;
   su autor sigue viendo `mine` y no puede reseñar de nuevo (409); un cliente recibe 403; debe fallar
-- [ ] T029 [US4] Crear `src/worker/routes/admin/reviews.ts` y montarlo en `src/worker/routes/admin/index.ts`
+- [X] T029 [US4] Crear `src/worker/routes/admin/reviews.ts` y montarlo en `src/worker/routes/admin/index.ts`
   hasta pasar T028 (HU-47, FR-015, FR-034)
-- [ ] T030 [US4] Crear `src/web/admin/pages/Reviews.tsx` (tabla con producto, cliente, estrellas, comentario,
+- [X] T030 [US4] Crear `src/web/admin/pages/Reviews.tsx` (tabla con producto, cliente, estrellas, comentario,
   fecha y estado, filtro, búsqueda, paginación, botón Ocultar/Mostrar con confirmación), agregar la ruta en
   `src/web/admin/routes.tsx` y «Reseñas» al menú de `src/web/admin/AdminLayout.tsx` (HU-47, FR-035)
 

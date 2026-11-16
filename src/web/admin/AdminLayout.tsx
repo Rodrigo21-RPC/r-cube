@@ -2,7 +2,7 @@ import { Suspense, useState, type FormEvent } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router";
 import { Toaster } from "sonner";
 import {
-  BarChart3, ClipboardList, CreditCard, FolderTree, History, LogOut, Menu, Package, Settings, ShieldAlert, Users, X,
+  BarChart3, ClipboardList, CreditCard, FolderTree, History, LogOut, Menu, MessageSquare, Package, Settings, ShieldAlert, Users, X,
 } from "lucide-react";
 import { ApiError } from "@web/api";
 import { signIn, signOut, useSession } from "@web/auth";
@@ -19,6 +19,7 @@ const NAV = [
   { to: "/admin/pedidos", label: "Pedidos", icon: ClipboardList },
   { to: "/admin/pagos", label: "Pagos por confirmar", icon: CreditCard },
   { to: "/admin/clientes", label: "Clientes", icon: Users },
+  { to: "/admin/resenas", label: "Reseñas", icon: MessageSquare },
   { to: "/admin/configuracion", label: "Configuración", icon: Settings },
   { to: "/admin/auditoria", label: "Auditoría", icon: History },
 ];
