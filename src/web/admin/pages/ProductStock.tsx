@@ -78,7 +78,7 @@ export function ProductStock({ product, variantId, onVariantChange }: { product:
             rows={h.data.items}
             rowKey={(m) => m.id}
             columns={[
-              { header: "Fecha", cell: (m) => formatDate(m.createdAt) },
+              { header: "Fecha", cell: (m) => formatDate(m.createdAt), className: "whitespace-nowrap" },
               { header: "Origen", cell: (m) => `${SOURCE[m.source]}${m.orderNumber ? ` ${m.orderNumber}` : ""}` },
               { header: "Variante", cell: (m) => m.variantLabel ?? "" },
               { header: "Cantidad", cell: (m) => <span className={m.delta > 0 ? "text-success" : "text-danger"}>{m.delta > 0 ? `+${m.delta}` : m.delta}</span>, align: "right" },

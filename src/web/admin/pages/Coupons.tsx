@@ -134,7 +134,7 @@ export default function Coupons() {
             columns={[
               { header: "Código", cell: (c) => <span className="tabular font-semibold">{c.code}</span> },
               { header: "Descuento", cell: (c) => valueText(c), align: "right" },
-              { header: "Vigencia", cell: (c) => `${c.startsOn} al ${c.endsOn}` },
+              { header: "Vigencia", cell: (c) => `${c.startsOn} al ${c.endsOn}`, className: "whitespace-nowrap" },
               { header: "Usos", cell: (c) => `${c.usedCount} de ${c.maxUses}`, align: "right" },
               { header: "Estado", cell: (c) => <Badge tone={TONE[c.status]}>{COUPON_STATUS_LABEL[c.status]}</Badge> },
               {

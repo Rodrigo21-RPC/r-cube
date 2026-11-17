@@ -79,8 +79,8 @@ export default function Payments() {
             { header: "Método", cell: (p) => PAYMENT_LABEL[p.method] },
             { header: "Código", cell: (p) => <span className="tabular">{p.operationCode ?? "Sin código"}</span> },
             { header: "Monto", cell: (p) => formatPEN(p.totalCents), align: "right" },
-            { header: "Creado", cell: (p) => formatDate(p.createdAt) },
-            { header: "Vence en", cell: (p) => remaining(p.expiresAt) },
+            { header: "Creado", cell: (p) => formatDate(p.createdAt), className: "whitespace-nowrap" },
+            { header: "Vence en", cell: (p) => remaining(p.expiresAt), className: "whitespace-nowrap" },
             { header: "Acciones", cell: (p) => <PaymentActions number={p.number} onDone={refresh} /> },
           ]}
         />

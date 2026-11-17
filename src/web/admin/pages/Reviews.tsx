@@ -78,7 +78,7 @@ export default function Reviews() {
               { header: "Cliente", cell: (r) => <span className="flex flex-col"><span>{r.authorName}</span><span className="text-sm text-muted">{r.authorEmail}</span></span> },
               { header: "Estrellas", cell: (r) => <StarRating value={r.rating} /> },
               { header: "Comentario", cell: (r) => <span className="text-sm">{r.comment ?? "Sin comentario"}</span>, className: "max-w-xs" },
-              { header: "Fecha", cell: (r) => formatDate(r.createdAt) },
+              { header: "Fecha", cell: (r) => formatDate(r.createdAt), className: "whitespace-nowrap" },
               { header: "Estado", cell: (r) => <Badge tone={r.hidden ? "warning" : "success"}>{r.hidden ? "Oculta" : "Visible"}</Badge> },
               {
                 header: "Acción",

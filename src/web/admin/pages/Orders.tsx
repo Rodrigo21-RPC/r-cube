@@ -61,7 +61,7 @@ export default function Orders() {
         <h1 className="text-[28px] font-semibold tracking-tight">Pedidos</h1>
         <Button variant="secondary" onClick={() => downloadCsv(filterQs())}><Download aria-hidden className="size-4" /> Exportar CSV</Button>
       </div>
-      <div className="grid gap-3 md:grid-cols-5">
+      <div className="grid gap-3 md:grid-cols-4">
         <div className="md:col-span-2">
           <label htmlFor="q-ped" className="sr-only">Buscar por N.º, nombre o correo</label>
           <Input id="q-ped" type="search" placeholder="N.º, nombre o correo del cliente…" defaultValue={params.get("q") ?? ""} onChange={(e) => set("q", e.target.value)} />
@@ -80,12 +80,13 @@ export default function Orders() {
             {(Object.keys(PAYMENT_LABEL) as PaymentMethodCode[]).map((m) => <option key={m} value={m}>{PAYMENT_LABEL[m]}</option>)}
           </Select>
         </div>
-        <div className="flex gap-2">
-          <div className="flex-1">
+        {/* Las fechas van en su propia fila y bajan una debajo de la otra si no caben (sin desplazamiento lateral). */}
+        <div className="flex flex-wrap gap-2 md:col-span-2">
+          <div className="min-w-36 flex-1">
             <label htmlFor="f-desde" className="text-xs text-muted">Desde</label>
             <Input id="f-desde" type="date" className="h-10" value={params.get("from") ?? ""} onChange={(e) => set("from", e.target.value)} />
           </div>
-          <div className="flex-1">
+          <div className="min-w-36 flex-1">
             <label htmlFor="f-hasta" className="text-xs text-muted">Hasta</label>
             <Input id="f-hasta" type="date" className="h-10" value={params.get("to") ?? ""} onChange={(e) => set("to", e.target.value)} />
           </div>
@@ -101,7 +102,7 @@ export default function Orders() {
             rowKey={(o) => o.number}
             columns={[
               { header: "N.º", cell: (o) => <Link to={`/admin/pedidos/${o.number}`} className="tabular font-medium text-accent underline underline-offset-2">{o.number}</Link> },
-              { header: "Fecha", cell: (o) => formatDate(o.createdAt) },
+              { header: "Fecha", cell: (o) => formatDate(o.createdAt), className: "whitespace-nowrap" },
               { header: "Cliente", cell: (o) => <span className="flex flex-col"><span>{o.customerName}</span><span className="text-sm text-muted">{o.customerEmail}</span></span> },
               { header: "Método", cell: (o) => PAYMENT_LABEL[o.method] },
               { header: "Total", cell: (o) => formatPEN(o.totalCents), align: "right" },

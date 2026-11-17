@@ -26,7 +26,7 @@ export function ProductCard({ product, priority = false }: { product: Card; prio
       </div>
       <div className="flex flex-1 flex-col gap-1">
         <p className="text-xs font-medium uppercase tracking-wide text-muted">{product.brand}</p>
-        <h3 className="text-[15px] font-semibold leading-snug">
+        <h3 className="text-[15px] font-semibold leading-snug [overflow-wrap:anywhere]">
           <Link to={`/producto/${product.slug}`} className="after:absolute after:inset-0 after:rounded-[18px]">
             {product.name}
           </Link>

@@ -85,14 +85,14 @@ export default function Catalog() {
             {data ? (q ? `${data.total} resultados para «${q}»` : `${data.total} productos`) : " "}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="secondary" size="sm" className="lg:hidden" aria-expanded={showFilters} aria-controls="filtros" onClick={() => setShowFilters((v) => !v)}>
+        <div className="flex max-w-full items-center gap-2">
+          <Button variant="secondary" size="sm" className="shrink-0 lg:hidden" aria-expanded={showFilters} aria-controls="filtros" onClick={() => setShowFilters((v) => !v)}>
             <SlidersHorizontal aria-hidden className="size-4" /> Filtros
           </Button>
           <label htmlFor="orden" className="sr-only">
             Ordenar por
           </label>
-          <Select id="orden" className="h-9 w-auto rounded-full text-sm" value={sort} onChange={(e) => update({ sort: e.target.value })}>
+          <Select id="orden" className="h-9 w-auto min-w-0 rounded-full text-sm" value={sort} onChange={(e) => update({ sort: e.target.value })}>
             {SORTS.map((s) => (
               <option key={s.value} value={s.value}>
                 {s.label}

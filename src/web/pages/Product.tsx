@@ -71,7 +71,7 @@ function ProductPage({ slug }: { slug: string }) {
               <Link to={`/catalogo?category=${p.category.slug}`} className="underline underline-offset-2">{p.category.name}</Link> · {p.brand}
             </p>
             <div className="mt-1 flex items-start justify-between gap-2">
-              <h1 className="text-[28px] font-semibold leading-tight tracking-tight">{p.name}</h1>
+              <h1 className="text-[28px] font-semibold leading-tight tracking-tight [overflow-wrap:anywhere]">{p.name}</h1>
               <FavoriteButton productId={p.id} name={p.name} className="shrink-0" />
             </div>
           </div>

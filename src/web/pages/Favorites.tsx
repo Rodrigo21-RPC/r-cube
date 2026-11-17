@@ -37,7 +37,7 @@ function FavoriteCard({ item }: { item: FavoriteItem }) {
     <Card className="flex gap-4">
       <img src={p.imageUrl} alt="" width={96} height={96} loading="lazy" className="size-24 shrink-0 rounded-xl bg-canvas object-contain" onError={(e) => { e.currentTarget.src = "/img/generico.svg"; }} />
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <Link to={`/producto/${p.slug}`} className="font-semibold hover:underline">{p.name}</Link>
+        <Link to={`/producto/${p.slug}`} className="font-semibold [overflow-wrap:anywhere] hover:underline">{p.name}</Link>
         {p.hasVariants && p.maxPriceCents ? <PriceRange minCents={p.priceCents} maxCents={p.maxPriceCents} /> : <Price cents={p.priceCents} compareAtCents={p.hasVariants ? null : p.compareAtCents} />}
         {item.available ? <Availability availability={p.availability} stock={p.stock} /> : <Badge tone="danger" className="w-fit">{p.availability === "out" ? "Agotado" : "No disponible"}</Badge>}
         <div className="mt-auto flex flex-wrap gap-2">

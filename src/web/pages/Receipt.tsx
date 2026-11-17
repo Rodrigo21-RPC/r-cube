@@ -73,14 +73,16 @@ export default function ReceiptPage() {
           </div>
         </section>
 
+        {/* En pantallas muy angostas la tabla se desplaza dentro de su caja; al imprimir se ve completa. */}
+        <div role="region" aria-label="Productos del pedido" tabIndex={0} className="overflow-x-auto print:overflow-visible">
         <table className="w-full text-left">
           <caption className="sr-only">Productos del pedido</caption>
           <thead className="border-b border-border text-sm text-muted">
             <tr>
               <th scope="col" className="py-2 pr-2 font-medium">Producto</th>
-              <th scope="col" className="px-2 py-2 text-right font-medium">Cant.</th>
-              <th scope="col" className="px-2 py-2 text-right font-medium">Precio</th>
-              <th scope="col" className="py-2 pl-2 text-right font-medium">Subtotal</th>
+              <th scope="col" className="whitespace-nowrap px-2 py-2 text-right font-medium">Cant.</th>
+              <th scope="col" className="whitespace-nowrap px-2 py-2 text-right font-medium">Precio</th>
+              <th scope="col" className="whitespace-nowrap py-2 pl-2 text-right font-medium">Subtotal</th>
             </tr>
           </thead>
           <tbody>
@@ -91,12 +93,13 @@ export default function ReceiptPage() {
                   {i.variantLabel && <span className="block text-sm text-muted">{i.variantLabel}{i.sku ? ` · SKU ${i.sku}` : ""}</span>}
                 </td>
                 <td className="tabular px-2 py-2 text-right">{i.quantity}</td>
-                <td className="tabular px-2 py-2 text-right">{formatPEN(i.unitPriceCents)}</td>
-                <td className="tabular py-2 pl-2 text-right">{formatPEN(i.lineTotalCents)}</td>
+                <td className="tabular whitespace-nowrap px-2 py-2 text-right">{formatPEN(i.unitPriceCents)}</td>
+                <td className="tabular whitespace-nowrap py-2 pl-2 text-right">{formatPEN(i.lineTotalCents)}</td>
               </tr>
             ))}
           </tbody>
         </table>
+        </div>
 
         <div className="ml-auto w-full max-w-xs break-inside-avoid">
           <TotalsBox totals={r.totals} showShipping couponCode={r.couponCode} />

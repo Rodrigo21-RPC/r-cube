@@ -47,7 +47,7 @@ export default function Customers() {
             rowKey={(c) => c.id}
             columns={[
               { header: "Cliente", cell: (c) => <span className="flex flex-col"><Link to={`/admin/clientes/${c.id}`} className="font-medium text-accent underline underline-offset-2">{c.name}</Link><span className="text-sm text-muted">{c.email}</span></span> },
-              { header: "Registro", cell: (c) => formatDate(c.createdAt) },
+              { header: "Registro", cell: (c) => formatDate(c.createdAt), className: "whitespace-nowrap" },
               { header: "Pedidos", cell: (c) => c.orders, align: "right" },
               { header: "Total gastado", cell: (c) => formatPEN(c.spentCents), align: "right" },
               { header: "Estado", cell: (c) => <Badge tone={c.blocked ? "danger" : "success"}>{c.blocked ? "Bloqueado" : "Activo"}</Badge> },

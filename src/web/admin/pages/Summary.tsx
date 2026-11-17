@@ -46,8 +46,8 @@ export default function Summary() {
           <CategoryBars data={s.salesByCategory} />
         </Card>
       </div>
-      <div className="grid gap-5 xl:grid-cols-[1fr_2fr]">
-        <Card>
+      <div className="grid gap-5 2xl:grid-cols-[1fr_2fr]">
+        <Card className="min-w-0">
           <h2 className="mb-3 text-[17px] font-semibold">Más vendidos (30 días)</h2>
           {s.topProducts.length ? (
             <ol className="flex flex-col gap-2">
@@ -62,7 +62,7 @@ export default function Summary() {
             <p className="text-muted">Aún no hay ventas.</p>
           )}
         </Card>
-        <section aria-labelledby="ultimos" className="flex flex-col gap-3">
+        <section aria-labelledby="ultimos" className="flex min-w-0 flex-col gap-3">
           <h2 id="ultimos" className="text-[17px] font-semibold">Últimos pedidos</h2>
           <DataTable
             caption="Últimos pedidos"
@@ -71,7 +71,7 @@ export default function Summary() {
             columns={[
               { header: "N.º", cell: (o) => <Link to={`/admin/pedidos/${o.number}`} className="tabular font-medium text-accent underline underline-offset-2">{o.number}</Link> },
               { header: "Cliente", cell: (o) => o.customerName },
-              { header: "Fecha", cell: (o) => formatDate(o.createdAt) },
+              { header: "Fecha", cell: (o) => formatDate(o.createdAt), className: "whitespace-nowrap" },
               { header: "Pago", cell: (o) => PAYMENT_LABEL[o.method] },
               { header: "Total", cell: (o) => formatPEN(o.totalCents), align: "right" },
               { header: "Estado", cell: (o) => <StatusBadge status={o.status} /> },

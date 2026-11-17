@@ -178,7 +178,7 @@ function ProductEditor({ product, categories, brands }: { product: AdminProduct 
           <div key={f.id} className="flex items-end gap-2">
             <Field label={`Nombre ${i + 1}`}>{(p) => <Input {...p} {...form.register(`specs.${i}.label`)} />}</Field>
             <Field label={`Valor ${i + 1}`}>{(p) => <Input {...p} {...form.register(`specs.${i}.value`)} />}</Field>
-            <Button type="button" variant="ghost" size="icon" aria-label={`Quitar especificación ${i + 1}`} onClick={() => specs.remove(i)}><Trash2 aria-hidden className="size-5" /></Button>
+            <Button type="button" variant="ghost" size="icon" className="shrink-0" aria-label={`Quitar especificación ${i + 1}`} onClick={() => specs.remove(i)}><Trash2 aria-hidden className="size-5" /></Button>
           </div>
         ))}
         <Button type="button" variant="secondary" size="sm" className="w-fit" onClick={() => specs.append({ label: "", value: "" })}>

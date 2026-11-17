@@ -60,3 +60,9 @@
   alcance: las fotos principales de Dell Inspiron 15 (solo el teclado), Xiaomi 13T Pro (recortada) y Sony
   Xperia Z5 (dos unidades) son las mejores con licencia libre que se encontraron; conviene reemplazarlas si el
   administrador sube fotos propias.
+- Revisión visual completa posterior al cierre (36 pantallas de la tienda y del panel, en tema claro y oscuro,
+  móvil y escritorio, y a 320 px con fuente ancha): se corrigieron el desborde del resumen del panel en
+  teléfonos, los filtros de pedidos del panel que se salían en escritorio, montos y fechas partidos en dos
+  líneas, el encabezado de la tienda a 320 px, la barra de orden del catálogo, las tablas del comprobante y
+  del pedido del panel, y los nombres con palabras muy largas. `e2e/responsivo.spec.ts` comprueba que ninguna
+  pantalla se desplace de lado.

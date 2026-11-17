@@ -93,11 +93,12 @@ export default function OrderDetail() {
         </div>
       </Card>
       <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
-        <Card>
+        <Card className="min-w-0">
           <h2 className="mb-3 text-[17px] font-semibold">Productos</h2>
+          <div role="region" aria-label="Productos del pedido" tabIndex={0} className="overflow-x-auto">
           <table className="w-full text-[15px]">
             <caption className="sr-only">Productos del pedido</caption>
-            <thead className="text-left text-xs uppercase tracking-wide text-muted"><tr><th scope="col" className="pb-2">Producto</th><th scope="col" className="pb-2 text-right">Cant.</th><th scope="col" className="pb-2 text-right">Precio</th><th scope="col" className="pb-2 text-right">Subtotal</th></tr></thead>
+            <thead className="text-left text-xs uppercase tracking-wide text-muted"><tr><th scope="col" className="pb-2">Producto</th><th scope="col" className="whitespace-nowrap pb-2 pl-3 text-right">Cant.</th><th scope="col" className="whitespace-nowrap pb-2 pl-3 text-right">Precio</th><th scope="col" className="whitespace-nowrap pb-2 pl-3 text-right">Subtotal</th></tr></thead>
             <tbody>
               {o.items.map((i) => (
                 <tr key={`${i.productId}-${i.sku ?? ""}`} className="border-t border-border">
@@ -105,13 +106,14 @@ export default function OrderDetail() {
                     {i.name}
                     {i.variantLabel && <span className="block text-sm text-muted">{i.variantLabel}{i.sku ? ` · SKU ${i.sku}` : ""}</span>}
                   </td>
-                  <td className="tabular py-2 text-right">{i.quantity}</td>
-                  <td className="tabular py-2 text-right">{formatPEN(i.unitPriceCents)}</td>
-                  <td className="tabular py-2 text-right">{formatPEN(i.lineTotalCents)}</td>
+                  <td className="tabular whitespace-nowrap py-2 pl-3 text-right">{i.quantity}</td>
+                  <td className="tabular whitespace-nowrap py-2 pl-3 text-right">{formatPEN(i.unitPriceCents)}</td>
+                  <td className="tabular whitespace-nowrap py-2 pl-3 text-right">{formatPEN(i.lineTotalCents)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </div>
         </Card>
         <div className="flex flex-col gap-5">
           <Card><TotalsBox totals={o.totals} showShipping couponCode={o.couponCode} /></Card>

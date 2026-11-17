@@ -24,7 +24,7 @@ export function Header({ themeToggle }: { themeToggle?: React.ReactNode }) {
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-3 md:flex-nowrap md:px-6">
         <Link to="/" className="flex items-center gap-2 rounded-xl" aria-label="R Cube, ir al inicio">
           <img src="/img/logo.png" alt="" width={36} height={36} className="size-9 rounded-lg bg-black" />
-          <span className="text-lg font-semibold tracking-tight">R Cube</span>
+          <span className="hidden text-lg font-semibold tracking-tight min-[380px]:inline">R Cube</span>
         </Link>
 
         <div className="ml-auto flex items-center gap-1 md:order-3">

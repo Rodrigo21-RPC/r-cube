@@ -88,7 +88,7 @@ export default function CustomerDetail() {
             rowKey={(o) => o.number}
             columns={[
               { header: "N.º", cell: (o) => <Link to={`/admin/pedidos/${o.number}`} className="tabular font-medium text-accent underline underline-offset-2">{o.number}</Link> },
-              { header: "Fecha", cell: (o) => formatDate(o.createdAt) },
+              { header: "Fecha", cell: (o) => formatDate(o.createdAt), className: "whitespace-nowrap" },
               { header: "Total", cell: (o) => formatPEN(o.totalCents), align: "right" },
               { header: "Estado", cell: (o) => <StatusBadge status={o.status} /> },
             ]}

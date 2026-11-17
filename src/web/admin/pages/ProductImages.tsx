@@ -64,7 +64,7 @@ export function ProductImages({ product }: { product: AdminProduct }) {
             <li key={img.id} className="flex flex-wrap items-center gap-3 rounded-2xl bg-canvas p-3">
               <img src={img.url} alt="" width={72} height={72} className="size-18 rounded-xl bg-surface object-contain" />
               <div className="flex min-w-48 flex-1 flex-col gap-1">
-                <span className="flex items-center gap-2 text-sm">
+                <span className="flex flex-wrap items-center gap-2 text-sm">
                   Foto {i + 1} {i === 0 && <Badge tone="accent">Principal</Badge>} {!img.uploaded && <Badge>Demostración</Badge>}
                 </span>
                 <form

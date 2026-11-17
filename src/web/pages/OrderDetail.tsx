@@ -122,13 +122,13 @@ export default function OrderDetail() {
             <ul className="flex flex-col gap-3">
               {o.items.map((i) => (
                 <li key={`${i.productId}-${i.sku ?? ""}`} className="flex items-center gap-3">
-                  <img src={i.imageUrl || "/img/generico.svg"} alt="" width={56} height={56} loading="lazy" className="size-14 rounded-xl bg-canvas object-contain" />
-                  <div className="flex-1">
+                  <img src={i.imageUrl || "/img/generico.svg"} alt="" width={56} height={56} loading="lazy" className="size-14 shrink-0 rounded-xl bg-canvas object-contain" />
+                  <div className="min-w-0 flex-1">
                     <p className="font-medium">{i.name}</p>
                     {i.variantLabel && <p className="text-sm text-muted">{i.variantLabel}{i.sku ? ` · SKU ${i.sku}` : ""}</p>}
                     <p className="tabular text-sm text-muted">{i.quantity} × {formatPEN(i.unitPriceCents)}</p>
                   </div>
-                  <span className="tabular font-medium">{formatPEN(i.lineTotalCents)}</span>
+                  <span className="tabular whitespace-nowrap font-medium">{formatPEN(i.lineTotalCents)}</span>
                 </li>
               ))}
             </ul>

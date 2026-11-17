@@ -11,13 +11,13 @@ export interface Column<T> {
 /** Tabla accesible con encabezados y desplazamiento horizontal en pantallas chicas (RNF-03). */
 export function DataTable<T>({ caption, columns, rows, rowKey }: { caption: string; columns: Column<T>[]; rows: T[]; rowKey: (row: T) => string }) {
   return (
-    <div role="region" aria-label={caption} tabIndex={0} className="overflow-x-auto rounded-[18px] border border-border">
+    <div role="region" aria-label={caption} tabIndex={0} className="relative overflow-x-auto rounded-[18px] border border-border">
       <table className="w-full min-w-[640px] text-[15px]">
         <caption className="sr-only">{caption}</caption>
         <thead className="bg-surface text-left text-xs uppercase tracking-wide text-muted">
           <tr>
             {columns.map((c) => (
-              <th key={c.header} scope="col" className={cn("px-4 py-3 font-medium", c.align === "right" && "text-right", c.className)}>
+              <th key={c.header} scope="col" className={cn("whitespace-nowrap px-4 py-3 font-medium", c.align === "right" && "text-right", c.className)}>
                 {c.header}
               </th>
             ))}
@@ -27,7 +27,7 @@ export function DataTable<T>({ caption, columns, rows, rowKey }: { caption: stri
           {rows.map((r) => (
             <tr key={rowKey(r)} className="border-t border-border">
               {columns.map((c) => (
-                <td key={c.header} className={cn("px-4 py-3 align-middle", c.align === "right" && "tabular text-right", c.className)}>
+                <td key={c.header} className={cn("px-4 py-3 align-middle", c.align === "right" && "tabular whitespace-nowrap text-right", c.className)}>
                   {c.cell(r)}
                 </td>
               ))}
